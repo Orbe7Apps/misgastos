@@ -1958,6 +1958,9 @@ html, body, button, a, input, select, textarea, label, [role="button"] { touch-a
 .hd-btns button[hidden] { display: none; }
 .hd-btns .hd-del { color: var(--out); }
 .hd-btns .hd-del.sure { background: var(--out) !important; color: #fff; flex: 2; }
+.sgd-del.sure { background: var(--out) !important; color: #fff !important; }
+.sgd-more .set-row[hidden] { display: none !important; }
+.error:empty + .sgd-more { margin-top: 4px; }
 
 /* Correcciones de desborde */
 .sav-hero { grid-template-columns: minmax(0, 1fr); }
@@ -2996,7 +2999,7 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .ge-look .acc-pick { width: 100%; }
 .ge-cust { border: 0; background: var(--fill); color: var(--ink); font: inherit; font-weight: 600; font-size: 0.86rem; padding: 8px 16px; border-radius: 99px; cursor: pointer; }
 .ge-cust[hidden] { display: none !important; }
-#ge-pick[hidden], #sgn-pick[hidden] { display: none !important; }
+#ge-pick[hidden], #sgn-pick[hidden], #acc-lpick[hidden], .sgd-del[hidden], .sgd-more[hidden] { display: none !important; }
 #sgn-split { display: flex; width: fit-content; max-width: 100%; margin-inline: auto; }
 .tr-fee-w { text-align: center; }
 [data-for="tr-rate"].rate-chips { justify-content: center; }
@@ -3572,6 +3575,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     <section class="panel sheet" role="dialog" aria-modal="true" aria-labelledby="h-gd">
       <div class="sheet-head"><h2 id="h-gd"></h2><button type="button" class="del" id="gd-close" aria-label="Cerrar">✕</button></div>
       <div class="gd-body" id="gd-body"></div>
+      <div class="sheet-foot" id="gd-foot"></div>
     </section>
   </div>
   <div class="sheet-backdrop" id="lg-sheet" hidden>
@@ -3757,7 +3761,8 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         </div>
       </div>
       <p class="error" id="pg-err" role="alert"></p>
-      <div class="pg-more" id="pg-more" hidden><button type="button" id="pg-stop">Dejar de repetir</button><button type="button" class="danger" id="pg-delx">Eliminar</button></div>
+      <div class="sgd-more" id="pg-more" hidden><button type="button" class="set-row" id="pg-stop"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 9M20 4v5h-5"></path><path d="M5 5l14 14"></path></svg></span><span class="tx"><b>Dejar de repetir</b><small>Los próximos meses ya no se programan</small></span></button></div>
+      <button type="button" class="ad-del sgd-del" id="pg-delx" hidden>Eliminar pago</button>
       <div class="sheet-foot"><button type="button" class="primary" id="pg-save">Programar pago</button></div>
     </section>
   </div>
@@ -3765,7 +3770,8 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     <section class="panel sheet" role="dialog" aria-modal="true" aria-label="Detalle del movimiento">
       <div class="sheet-head"><h2>Detalle</h2><button type="button" class="del" id="hd-close" aria-label="Cerrar">✕</button></div>
       <div id="hd-body"></div>
-      <div class="hd-btns"><button type="button" class="secondary" id="hd-edit">Editar</button><button type="button" class="secondary" id="hd-dup">Duplicar</button><button type="button" class="secondary hd-del" id="hd-del">Eliminar</button></div>
+      <div class="sgd-more" id="hd-more"><button type="button" class="set-row" id="hd-edit"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M13.5 6.5l4 4"></path></svg></span><span class="tx"><b>Editar</b><small>Monto, fecha, categoría y cuenta</small></span></button><button type="button" class="set-row" id="hd-dup"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg></span><span class="tx"><b>Duplicar</b><small>Crea uno igual con la fecha de hoy</small></span></button></div>
+      <button type="button" class="ad-del sgd-del" id="hd-del">Eliminar movimiento</button>
     </section>
   </div>
   <div class="sheet-backdrop" id="cloud-sheet" hidden>
@@ -4424,9 +4430,10 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           <select id="acc-moneda"><option value="VES">Bolívares (Bs)</option><option value="USD">Dólares ($)</option><option value="USDT">USDT (Tether)</option><option value="EUR">Euros (€)</option></select>
         </div>
         <div class="wide">
-          <div class="acc-look">
+          <div class="acc-look ge-look">
             <span class="acc-prev" id="acc-prev"></span>
-            <div class="acc-pick">
+            <button type="button" class="ge-cust" id="acc-cust" aria-expanded="false">Personalizar</button>
+            <div class="acc-pick" id="acc-lpick" hidden>
               <div class="acc-pl">Símbolo</div>
               <div class="acc-icons" id="acc-icons" role="radiogroup" aria-label="Símbolo"></div>
               <div class="acc-pl">Color</div>
@@ -4444,7 +4451,8 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         <button type="button" class="switch" id="acc-sav" role="switch" aria-checked="false" aria-label="Cuenta de ahorro"><span></span></button>
       </div>
       <p class="error" id="acc-err" role="alert"></p>
-      <div class="pg-more" id="acc-more" hidden><button type="button" id="acc-fix">Cuadrar con el banco</button><button type="button" class="danger" id="acc-delx">Eliminar cuenta</button></div>
+      <div class="sgd-more" id="acc-more" hidden><button type="button" class="set-row" id="acc-fix"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"></path><path d="M16 15l2 2 4-4"></path></svg></span><span class="tx"><b>Cuadrar con el banco</b><small>Ajusta el saldo al que te muestra tu banco</small></span></button></div>
+      <button type="button" class="ad-del sgd-del" id="acc-delx" hidden>Eliminar cuenta</button>
       <div class="sheet-foot"><button type="button" class="primary" id="acc-save">Guardar cuenta</button></div>
     </section>
   </div>
@@ -7377,9 +7385,11 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       renderFormSav();
     }
     var editAccId = null;
+    $("acc-cust").addEventListener("click", function () { $("acc-lpick").hidden = false; $("acc-cust").hidden = true; $("acc-cust").setAttribute("aria-expanded", "true"); });
     function openAccSheet(a, sav) {
       editAccId = a ? a.id : null;
-      if ($("acc-more")) $("acc-more").hidden = !a || !!sav;
+      if ($("acc-more")) { $("acc-more").hidden = !a || !!sav; $("acc-delx").hidden = !a || !!sav; }
+      $("acc-lpick").hidden = true; $("acc-cust").hidden = false; $("acc-cust").setAttribute("aria-expanded", "false");
       $("acc-sav").setAttribute("aria-checked", (a ? !!a.ahorro : !!sav) ? "true" : "false");
       $("h-acc-new").textContent = a ? "Editar cuenta" : "Nueva cuenta";
       $("acc-save").textContent = a ? "Guardar cambios" : "Guardar cuenta";
@@ -9403,7 +9413,14 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       var head = li.querySelector(".goal-head").cloneNode(true);
       var body = '<div class="gd-top" style="' + li.getAttribute("style") + '">' + head.querySelector(".ring").outerHTML + head.querySelector(".goal-main").outerHTML + "</div>" +
         li.querySelector(".gbar").outerHTML + li.querySelector(".goal-eta").outerHTML +
-        '<div class="gd-more">' + li.querySelector(".goal-detail").innerHTML + "</div>" + li.querySelector(".goal-act").outerHTML;
+        '<div class="gd-more">' + li.querySelector(".goal-detail").innerHTML + "</div>";
+      // Igual que en metas compartidas: acciones en filas, «Eliminar» abajo y la principal en el pie
+      var funds = (goalMap()[g.id] || 0) > 0.004, rows = [];
+      if (funds) rows.push('<button type="button" class="set-row" data-goal-ret="' + g.id + '"><span class="ic">' + sgSvg("out") + '</span><span class="tx"><b>Retirar fondos</b><small>Pasa el dinero de la meta a una cuenta</small></span></button>');
+      rows.push('<button type="button" class="set-row" data-goal-edit="' + g.id + '"><span class="ic">' + sgSvg("edit") + '</span><span class="tx"><b>Editar meta</b><small>Nombre, monto, símbolo y color</small></span></button>');
+      body += '<div class="sgd-more">' + rows.join("") + '</div><button type="button" class="ad-del sgd-del" data-goal-del="' + g.id + '">Eliminar meta</button>';
+      var foot = '<button type="button" class="primary" data-goal-dep="' + g.id + '">Depositar</button>';
+      if ($("gd-foot")._h !== foot) { $("gd-foot").innerHTML = foot; $("gd-foot")._h = foot; }
       var w = $("gd-body");
       w.setAttribute("style", li.getAttribute("style"));
       w.className = "gd-body" + (li.classList.contains("done") ? " done" : "");
@@ -9638,7 +9655,8 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       pgRep = p && p.serie && seriesById(p.serie) ? "m" : "once";
       setPagoFecha(p ? p.fecha : (pay.sel || (vm === t.slice(0, 7) ? t : vm + "-01")));
       $("pg-err").textContent = "";
-      $("pg-more").hidden = !p; $("pg-stop").hidden = !(p && p.serie && seriesById(p.serie));
+      var pgSer = !!(p && p.serie && seriesById(p.serie));
+      $("pg-more").hidden = !pgSer; $("pg-delx").hidden = !p; $("pg-delx").textContent = pgSer ? "Eliminar solo este mes" : "Eliminar pago";
       pgCurDraw();
       $("pg-sheet").hidden = false;
 
@@ -9968,8 +9986,8 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       $("hd-body").innerHTML = '<div class="hd-top" style="--c:' + col + '"><span class="hd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ic + "</svg></span>" +
         '<div class="hd-t">' + esc(histTitle(it)) + '</div><div class="hd-v ' + (k === "sv" ? "sv" : plus ? "in" : it.tipo === "gasto" ? "out" : "") + '">' + big + "</div>" + (hide || !eq ? "" : '<div class="hd-eq">' + eq + "</div>") + "</div>" +
         ctx + '<div class="hd-rows">' + rows + "</div>";
-      $("hd-edit").hidden = !canEdit; $("hd-dup").hidden = !canEdit; $("hd-del").hidden = !!it.auto;
-      $("hd-del").textContent = "Eliminar"; $("hd-del").classList.remove("sure");
+      $("hd-edit").hidden = !canEdit; $("hd-dup").hidden = !canEdit; $("hd-more").hidden = !canEdit; $("hd-del").hidden = !!it.auto;
+      $("hd-del").textContent = "Eliminar movimiento"; $("hd-del").classList.remove("sure");
       $("hd-sheet").hidden = false;
     }
     function closeHd() { $("hd-sheet").hidden = true; hdId = null; }
@@ -10753,6 +10771,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       check: '<path d="M5 12.5l4.5 4.5L19 7"></path>',
       bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path>',
       out: '<path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"></path>',
+      edit: '<path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M13.5 6.5l4 4"></path>',
       trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path>',
       flag: '<path d="M6.5 21V4M6.5 4h11l-2 4 2 4H6.5"></path>',
       cloud: '<path d="M7 18a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5z"></path>'
