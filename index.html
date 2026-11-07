@@ -2996,7 +2996,7 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .ge-look .acc-pick { width: 100%; }
 .ge-cust { border: 0; background: var(--fill); color: var(--ink); font: inherit; font-weight: 600; font-size: 0.86rem; padding: 8px 16px; border-radius: 99px; cursor: pointer; }
 .ge-cust[hidden] { display: none !important; }
-#ge-pick[hidden] { display: none !important; }
+#ge-pick[hidden], #sgn-pick[hidden] { display: none !important; }
 .tr-fee-w { text-align: center; }
 [data-for="tr-rate"].rate-chips { justify-content: center; }
 #ai-groups:not(.ai-all) .ai-x { display: none !important; }
@@ -4038,9 +4038,10 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           <input type="text" id="sgn-nombre" maxlength="40" placeholder="Ej: Regalo de Ana, viaje a la playa">
         </div>
         <div class="wide">
-          <div class="acc-look">
+          <div class="acc-look ge-look">
             <span class="acc-prev" id="sgn-prev"></span>
-            <div class="acc-pick">
+            <button type="button" class="ge-cust" id="sgn-cust" aria-expanded="false">Personalizar</button>
+            <div class="acc-pick" id="sgn-pick" hidden>
               <div class="acc-pl">Símbolo</div>
               <div class="acc-icons" id="sgn-icons" role="radiogroup" aria-label="Símbolo de la meta"></div>
               <div class="acc-pl">Color</div>
@@ -11121,8 +11122,10 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       $("sgn-moneda").innerHTML = sgCurOpts(); $("sgn-moneda").value = state.disp === "VES" && !LOC.none ? LOC.code : "USD";
       $("sgn-me-w").hidden = !!sgMeName(); $("sgn-me").value = "";
       setPressed("[data-sgs]", "data-sgs", "equal");
+      $("sgn-pick").hidden = true; $("sgn-cust").hidden = false; $("sgn-cust").setAttribute("aria-expanded", "false");
       sgNewLook(); $("sgn-sheet").hidden = false;
     }
+    $("sgn-cust").addEventListener("click", function () { $("sgn-pick").hidden = false; $("sgn-cust").hidden = true; $("sgn-cust").setAttribute("aria-expanded", "true"); });
     function sgFecha(v) {
       if (v && v < today()) v = today();
       $("sgn-fecha").value = v || "";
