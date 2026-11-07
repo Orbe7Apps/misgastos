@@ -3032,17 +3032,21 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .cvf .bub .pc { font-family: var(--display); font-size: 0.95rem; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .cvf .bub.top .pc { font-size: 1.08rem; }
 .cvf .bub.small .nm, .cvf .bub.noname .nm { display: none; } .cvf .bub.small .pc { font-size: 0.76rem; } .cvf .bub.small .ic { width: 17px; height: 17px; }
-.cvf.has-sel .bub:not(.sel) { opacity: .5; }
 .cvf .bub.sel { z-index: 3; }
+/* Seleccionado: un aro fino de su color que aparece suave; los demás no cambian */
+.cvf .bub::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid var(--c); opacity: 0; transform: scale(.96); transition: opacity .4s ease, transform .5s cubic-bezier(.32,.72,0,1); pointer-events: none; }
+.cvf .bub.sel::after { opacity: .55; transform: none; }
 .cvf svg.cvr .core { transition: fill .45s ease; }
 .cvf .bub.in { animation: cvBubIn .75s cubic-bezier(.34,1.5,.5,1) backwards; }
 @keyframes cvBubIn { from { transform: translate(-50%, -50%) scale(0); opacity: 0; } }
 .cvf .bub.out { transform: translate(-50%, -50%) scale(.2); opacity: 0; transition-duration: .26s; }
 .cvcard { margin-top: 6px; background: var(--surface); border-radius: 24px; padding: 15px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; overflow: hidden; }
 .cvcard > * { min-width: 0; }
-.cvcard.cc-in { animation: ccIn .4s cubic-bezier(.32,.72,0,1); }
-@keyframes ccIn { from { opacity: 0; transform: translateY(8px); } }
-@media (prefers-reduced-motion: reduce) { .cvcard.cc-in, .cvf .bub.in { animation: none; } }
+.cvcard { transition: height .5s cubic-bezier(.32,.72,0,1); }
+.cvcard.cc-in > * { animation: ccIn .55s cubic-bezier(.32,.72,0,1) backwards; }
+.cvcard.cc-in > *:nth-child(2) { animation-delay: .04s; } .cvcard.cc-in > *:nth-child(3) { animation-delay: .08s; } .cvcard.cc-in > *:nth-child(n+4) { animation-delay: .12s; }
+@keyframes ccIn { from { opacity: 0; transform: translateY(5px); } }
+@media (prefers-reduced-motion: reduce) { .cvcard.cc-in > *, .cvf .bub.in { animation: none; } .cvcard, .cvf .bub::after { transition: none; } }
 .cc-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .cc-h b { font-size: 0.95rem; }
 .cc-link { border: 0; background: none; color: var(--accent); font: inherit; font-weight: 700; font-size: 0.84rem; cursor: pointer; padding: 4px 0; }
@@ -6196,6 +6200,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         '<span class="flo"><span class="ic">' + catSvg(c) + '</span><span class="nm">' + esc(c) + '</span><span class="pc">' + cvPctS(v, T) + "</span></span></span></button>";
     }).join("");
     f.classList.toggle("has-sel", !!state.cvSel && list.indexOf(state.cvSel) >= 0);
+    Array.prototype.forEach.call(f.querySelectorAll(".bub.in"), function (b) { b.addEventListener("animationend", function () { b.classList.remove("in"); }, { once: true }); });
     if (play) { CVF.pend = false; requestAnimationFrame(function () { requestAnimationFrame(function () {
       Array.prototype.forEach.call(f.querySelectorAll(".bub"), function (b, i) { setTimeout(function () { Array.prototype.forEach.call(b.querySelectorAll("circle[data-len]"), function (c) { c.setAttribute("stroke-dasharray", c.getAttribute("data-len")); }); }, 240 + i * 70); });
     }); }); }
@@ -6248,7 +6253,15 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       var top2 = K.cats.slice(0, 2);
       h = '<div class="cc-h"><b>Lo más alto del mes</b>' + (K.all.length > 1 ? '<button type="button" class="cc-link" data-cv-all>Ver todas</button>' : "") + '</div><div class="cd-mini' + (top2.length === 1 ? " one" : "") + '">' + top2.map(function (c) { return '<div style="--c:' + col(c) + '"><span>' + esc(c) + '<i></i></span><b>' + money(K.cur.by[c], D) + "</b></div>"; }).join("") + "</div>";
     }
-    el.innerHTML = h; el.classList.remove("cc-in"); void el.offsetWidth; el.classList.add("cc-in");
+    var h0 = el.offsetHeight;
+    el.innerHTML = h;
+    if (!REDUCED && h0) {
+      el.style.height = "auto"; var h1 = el.offsetHeight;
+      el.style.height = h0 + "px"; void el.offsetWidth;
+      el.style.height = h1 + "px";
+      clearTimeout(el._ht); el._ht = setTimeout(function () { el.style.height = ""; }, 520);
+    }
+    el.classList.remove("cc-in"); void el.offsetWidth; el.classList.add("cc-in");
     var bi = el.querySelector(".cd-bar i[data-w]"); if (bi) setTimeout(function () { bi.style.width = bi.getAttribute("data-w") + "%"; }, 60);
     scheduleFit();
   }
