@@ -6200,6 +6200,24 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     return P;
   }
   function cvPctS(v, T) { var q = T > 0 ? v / T * 100 : 0; return (q < 1 && q > 0 ? "<1" : q.toFixed(1).replace(".", ",").replace(",0", "")) + " %"; }
+  /* Al cambiar Gastos/Ingresos la sección puede quedar más corta: se mantiene su alto y se suelta
+     solo a medida que la persona sube, para que la pantalla nunca se mueva sola */
+  var cvHoldH = 0;
+  function cvHold() {
+    var el = document.getElementById("cv"); if (!el) return;
+    cvHoldH = Math.max(cvHoldH, el.offsetHeight); el.style.minHeight = cvHoldH + "px";
+  }
+  function cvRelease() {
+    if (!cvHoldH) return;
+    var el = document.getElementById("cv"); if (!el || !el.offsetParent) { cvHoldH = 0; if (el) el.style.minHeight = ""; return; }
+    var below = el.getBoundingClientRect().bottom - window.innerHeight;
+    if (below <= 1) return;
+    el.style.minHeight = "";
+    var nat = el.offsetHeight, want = Math.max(nat, cvHoldH - below);
+    if (want <= nat + 1) { cvHoldH = 0; return; }
+    cvHoldH = want; el.style.minHeight = want + "px";
+  }
+  window.addEventListener("scroll", function () { if (cvHoldH) cvRelease(); }, { passive: true });
   function cvDraw(anim) {
     var f = $("cvf"); if (!f) return;
     var W = f.clientWidth; if (!W) { CVF.pend = true; return; }
@@ -8790,7 +8808,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       var dl = e.target.closest("[data-cvd-lim]"); if (dl) { cvdCat = dl.getAttribute("data-cvd-lim"); openCvl(cvdCat); return; }
       var dm = e.target.closest("[data-cvd-mov]"); if (dm) { cvMovs(dm.getAttribute("data-cvd-mov")); return; }
       var tb = e.target.closest("[data-cv-tab]");
-      if (tb) { if (state.cvTab !== tb.getAttribute("data-cv-tab")) { state.cvTab = tb.getAttribute("data-cv-tab"); state.cvSel = null; state.cvAll = false; var ff = $("cvf"); if (ff) Array.prototype.forEach.call(ff.querySelectorAll(".bub"), function (b) { b.classList.add("out"); }); setTimeout(renderCv, REDUCED ? 0 : 260); } return; }
+      if (tb) { if (state.cvTab !== tb.getAttribute("data-cv-tab")) { cvHold(); state.cvTab = tb.getAttribute("data-cv-tab"); state.cvSel = null; state.cvAll = false; var ff = $("cvf"); if (ff) Array.prototype.forEach.call(ff.querySelectorAll(".bub"), function (b) { b.classList.add("out"); }); setTimeout(renderCv, REDUCED ? 0 : 260); } return; }
       var b = e.target.closest("[data-cv-cat]"); if (!b) return;
       if (state.cvTab === "ingreso") { cvMovs(b.getAttribute("data-cv-cat")); return; }
       openCvd(b.getAttribute("data-cv-cat"));
