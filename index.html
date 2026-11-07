@@ -568,7 +568,8 @@ body.view-pay .pay-view { display: block; animation: viewIn 0.54s cubic-bezier(0
 body.view-hist .hist-view { display: block; animation: viewIn 0.54s cubic-bezier(0.32, 0.72, 0, 1); }
 .hist-month { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .hist-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-.hist-search input { width: 100%; margin-bottom: 10px; -webkit-appearance: none; appearance: none; }
+.hist-search { margin-bottom: 10px; }
+.hist-search input { width: 100%; margin-bottom: 0 !important; -webkit-appearance: none; appearance: none; }
 .hist-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .hist-chips::-webkit-scrollbar { display: none; }
 .hist-cats[hidden], .hist-cat-sum[hidden] { display: none; }
