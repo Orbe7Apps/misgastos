@@ -1948,7 +1948,16 @@ html, body, button, a, input, select, textarea, label, [role="button"] { touch-a
 .hd-ctx div { display: grid; gap: 1px; min-width: 0; }
 .hd-ctx b { font-size: 0.92rem; }
 .hd-ctx span { font-size: 0.8rem; color: var(--muted); }
-.hd-rows { display: grid; margin-bottom: 14px; }
+.hd-rows { display: grid; margin: 8px 0 0; }
+.hd-ring { position: relative; width: 88px; height: 88px; flex: none; display: grid; place-items: center; }
+.hd-ring > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hd-hero .hd-ic { margin: 0; width: 48px; height: 48px; }
+.hd-hero .hd-ic svg { width: 23px; height: 23px; }
+.hd-hero .hd-v { font-size: 1.6rem; letter-spacing: -0.02em; line-height: 1.1; }
+.hd-hero .sgd-hv small + small { font-size: 0.8rem; }
+.sgd-tags .hd-acc { display: inline-flex; align-items: center; gap: 6px; }
+.sgd-tags .hd-acc .acc-av { width: 18px; height: 18px; font-size: 0.5rem; }
+.hd-nota { margin: 0; font-size: 0.92rem; line-height: 1.45; overflow-wrap: anywhere; }
 .hd-r { display: flex; justify-content: space-between; gap: 16px; padding: 11px 0; border-top: 1px solid var(--line); font-size: 0.92rem; }
 .hd-r:first-child { border-top: 0; }
 .hd-r span { color: var(--muted); flex: none; }
@@ -3713,7 +3722,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
   <nav class="tabbar" id="tabbar" aria-label="Navegación" style="--i:0">
     <span class="tab-lens" aria-hidden="true"></span>
     <button type="button" class="tab" data-tab="0" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v8a2 2 0 0 1-2 2h-3.5v-6h-5v6H6a2 2 0 0 1-2-2z"></path></svg><span>Inicio</span></button>
-    <button type="button" class="tab" data-tab="1" aria-current="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g transform="translate(0 -1.2)"><path d="M4.5 11.5a6.5 5.5 0 0 1 11.6-3.4H19l-.6 2.6 2.1 1.1v3.4l-2.2.5-1.6 2.8h-2.2l-.5-1.7H9.8l-.5 1.7H7.1l-1.4-2.6c-.8-1.1-1.2-2.6-1.2-4.4z"></path><path d="M15 11.5h.01M10 7.5h3"></path></g></svg><span>Ahorro</span></button>
+    <button type="button" class="tab" data-tab="1" aria-current="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g transform="translate(12 12) scale(1.16) translate(-12.5 -12.25)" stroke-width="1.72"><path d="M4.5 11.5a6.5 5.5 0 0 1 11.6-3.4H19l-.6 2.6 2.1 1.1v3.4l-2.2.5-1.6 2.8h-2.2l-.5-1.7H9.8l-.5 1.7H7.1l-1.4-2.6c-.8-1.1-1.2-2.6-1.2-4.4z"></path><path d="M15 11.5h.01M10 7.5h3"></path></g></svg><span>Ahorro</span></button>
     <button type="button" class="tab" data-tab="2" aria-current="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M8 3v4M16 3v4M3 10h18M9 15.5l2 2 4-4"></path></svg><span>Pagos</span></button>
     <button type="button" class="tab" data-tab="3" aria-current="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"></path></svg><span>Historial</span></button>
   </nav>
@@ -3768,7 +3777,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
   </div>
   <div class="sheet-backdrop" id="hd-sheet" hidden>
     <section class="panel sheet" role="dialog" aria-modal="true" aria-label="Detalle del movimiento">
-      <div class="sheet-head"><h2>Detalle</h2><button type="button" class="del" id="hd-close" aria-label="Cerrar">✕</button></div>
+      <div class="sheet-head"><h2 id="h-hd">Detalle</h2><button type="button" class="del" id="hd-close" aria-label="Cerrar">✕</button></div>
       <div id="hd-body"></div>
       <div class="sgd-more" id="hd-more"><button type="button" class="set-row" id="hd-edit"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M13.5 6.5l4 4"></path></svg></span><span class="tx"><b>Editar</b><small>Monto, fecha, categoría y cuenta</small></span></button><button type="button" class="set-row" id="hd-dup"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg></span><span class="tx"><b>Duplicar</b><small>Crea uno igual con la fecha de hoy</small></span></button></div>
       <button type="button" class="ad-del sgd-del" id="hd-del">Eliminar movimiento</button>
@@ -9948,28 +9957,30 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       var big = hide ? "••••" : sign + money(val, cur);
       var eq = ["USD", "VES", "EUR"].filter(function (c) { return c !== cur; }).map(function (c) { var x = conv(val, cur, c); return x === null ? "" : "≈ " + money(x, c); }).filter(Boolean).join(" · ");
       var tipoTxt = { gasto: "Gasto", ingreso: "Ingreso", ahorro: "Ahorro", retiro: "Retiro de ahorro", traspaso: hg ? (hg.dep ? "Depósito a meta" : "Retiro de meta") : k === "sv" ? "Movimiento de ahorro" : "Transferencia" }[it.tipo];
-      var d = new Date(it.fecha + "T12:00:00"), fecha = d.toLocaleDateString("es-VE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-      var rows = hdRow("Tipo", tipoTxt) + hdRow("Fecha", fecha.charAt(0).toUpperCase() + fecha.slice(1));
+      var d = new Date(it.fecha + "T12:00:00"), fecha = d.toLocaleDateString("es-VE", { weekday: "short", day: "numeric", month: "short" }).replace(/\./g, "").replace(",", "");
+      // Como en metas: datos cortos en etiquetas; solo las transferencias llevan filas de origen y destino
+      var chip = function (t, cls) { return t ? '<span class="sg-tag' + (cls ? " " + cls : "") + '">' + t + "</span>" : ""; };
+      var tags = chip(fecha.charAt(0).toUpperCase() + fecha.slice(1)), rows = "";
       if (isTr) {
         var place = function (o) { if (!o) return ""; if (o.k === "meta") { var g = state.goals.filter(function (x) { return x.id === o.id; })[0]; return "Meta " + (g ? esc(g.nombre) : ""); } var a = accById(o.id); return (o.k === "ahorro" ? "Ahorros de " : "") + (a ? esc(a.nombre) : "una cuenta"); };
+        tags += chip(tipoTxt);
         rows += hdRow("Sale de", place(it.desde) + " · " + (hide ? "••••" : money(it.desde.monto, it.desde.moneda)));
         rows += hdRow("Llega a", place(it.hacia) + " · " + (hide ? "••••" : money(it.hacia.monto, it.hacia.moneda)));
-        if (it.tasa > 0) rows += hdRow("Tasa usada", num(it.tasa, it.tasa < 10 ? 4 : 2));
+        if (it.tasa > 0) tags += chip("Tasa " + num(it.tasa, it.tasa < 10 ? 4 : 2));
       } else {
         var acc = accById(it.cuenta);
-        if (it.tipo === "gasto" || it.tipo === "ingreso") rows += hdRow("Categoría", esc(it.cat) + (it.sub ? " → " + esc(it.sub) : ""));
-        if (it.split) rows += hdRow("Dividido", "Parte de un gasto dividido");
-        rows += hdRow("Cuenta", acc ? esc(acc.nombre) + " (" + curLabel(acc.moneda) + ")" : "Sin cuenta");
+        if (!(it.tipo === "gasto" || it.tipo === "ingreso")) tags += chip(tipoTxt);
+        tags += chip(acc ? accAvatarXs(acc) + esc(acc.nombre) : "Sin cuenta", acc ? "hd-acc" : "");
+        if (it.sub) tags += chip(esc(it.sub));
+        if (it.split) tags += chip("Gasto dividido");
       }
-      if (it.nota && !(isTr && !hg && k !== "sv")) rows += hdRow("Nota", esc(it.nota));
-      var tg = noteTags(it.nota);
-      if (tg.length) rows += hdRow("Etiquetas", tg.map(function (t) { return '<span class="tag-chip">#' + esc(t) + "</span>"; }).join(" "));
-      if (isTr && !hg && it.nota) rows += hdRow("Nota", esc(it.nota));
+      noteTags(it.nota).forEach(function (t) { tags += chip("#" + esc(t)); });
       var linked = state.items.filter(function (x) { return x.linkId === it.id; })[0];
-      if (linked && linked.tipo === "ahorro") rows += hdRow("Apartaste para ahorro", money(linked.monto, linked.moneda));
-      if (it.auto) rows += hdRow("Origen", "Creado por la app");
-      // Contexto del mes
-      var ctx = "";
+      if (linked && linked.tipo === "ahorro") tags += chip("Apartaste " + money(linked.monto, linked.moneda));
+      if (it.auto) tags += chip("Creado por la app");
+      var nota = it.nota ? String(it.nota).replace(/(^|\s)#[\wáéíóúñü-]+/gi, "").trim() : "";
+      // Contexto del mes: el anillo muestra su parte del total, como en «Tus gastos»
+      var sub = hide || !eq ? "" : eq, pr = 0, ctx = "";
       if (it.tipo === "gasto" || it.tipo === "ingreso") {
         var m = it.fecha.slice(0, 7), totC = 0, totT = 0, n = 0;
         state.items.forEach(function (x) {
@@ -9977,15 +9988,17 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           var v = conv(x.monto, x.moneda, D); if (v === null) return;
           totT += v; if (x.cat === it.cat) { totC += v; n++; }
         });
-        var mine = conv(it.monto, it.moneda, D) || 0, pc = totC > 0 ? Math.round(mine / totC * 100) : 0, pt = totT > 0 ? Math.round(mine / totT * 100) : 0;
-        var mesN = MESES[Number(m.slice(5, 7)) - 1];
-        ctx = '<div class="hd-ctx" style="--c:' + col + '">' + ringsSvg([{ p: totT > 0 ? mine / totT : 0, c: col }], 54, 7, 0) +
-          "<div><b>" + pt + "% de tus " + (it.tipo === "gasto" ? "gastos" : "ingresos") + " de " + mesN + "</b><span>" + n + (n === 1 ? " movimiento" : " movimientos") + " en " + esc(it.cat) + " · " + money(totC, D) + (n > 1 ? " (este es el " + pc + "%)" : "") + "</span></div></div>";
+        var mine = conv(it.monto, it.moneda, D) || 0, pt = totT > 0 ? Math.round(mine / totT * 100) : 0;
+        pr = totT > 0 ? mine / totT : 0;
+        ctx = pt + " % de tus " + (it.tipo === "gasto" ? "gastos" : "ingresos") + " de " + MESES[Number(m.slice(5, 7)) - 1];
       }
+      var icon = '<span class="hd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ic + "</svg></span>";
       var canEdit = !it.auto && (it.tipo === "gasto" || it.tipo === "ingreso" || isAccTr(it));
-      $("hd-body").innerHTML = '<div class="hd-top" style="--c:' + col + '"><span class="hd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ic + "</svg></span>" +
-        '<div class="hd-t">' + esc(histTitle(it)) + '</div><div class="hd-v ' + (k === "sv" ? "sv" : plus ? "in" : it.tipo === "gasto" ? "out" : "") + '">' + big + "</div>" + (hide || !eq ? "" : '<div class="hd-eq">' + eq + "</div>") + "</div>" +
-        ctx + '<div class="hd-rows">' + rows + "</div>";
+      $("h-hd").textContent = histTitle(it);
+      $("hd-body").innerHTML = '<div class="sgd-hero hd-hero" style="--c:' + col + '"><div class="hd-ring">' + (ctx ? ringsSvg([{ p: pr, c: col }], 88, 7, 0) : "") + icon + "</div>" +
+        '<div class="sgd-hv"><b class="hd-v ' + (k === "sv" ? "sv" : plus ? "in" : it.tipo === "gasto" ? "out" : "") + '">' + big + "</b>" + (sub ? "<small>" + sub + "</small>" : "") + (ctx ? "<small>" + ctx + "</small>" : "") + "</div></div>" +
+        '<div class="sgd-tags">' + tags + "</div>" + (rows ? '<div class="hd-rows">' + rows + "</div>" : "") +
+        (nota ? '<div class="sgd-h">Nota</div><p class="hd-nota">' + esc(nota) + "</p>" : "");
       $("hd-edit").hidden = !canEdit; $("hd-dup").hidden = !canEdit; $("hd-more").hidden = !canEdit; $("hd-del").hidden = !!it.auto;
       $("hd-del").textContent = "Eliminar movimiento"; $("hd-del").classList.remove("sure");
       $("hd-sheet").hidden = false;
