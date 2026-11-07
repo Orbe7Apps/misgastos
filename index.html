@@ -3053,6 +3053,18 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 @keyframes cvBubIn { from { transform: translate(-50%, -50%) scale(0); opacity: 0; } }
 .cvf .bub.out { transform: translate(-50%, -50%) scale(.2); opacity: 0; transition-duration: .26s; }
 /* Al tocar no se mueve: anula el «scale» general de los botones, que borraba el centrado */
+/* Bajar para agregar: la bolita que sale del notch */
+#pb { position: fixed; left: 0; right: 0; top: 0; height: 280px; z-index: 60; pointer-events: none; }
+#pb[hidden] { display: none !important; }
+#pb svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
+#pb .pb-plus { position: absolute; left: 50%; top: 0; width: 64px; height: 64px; margin: -32px 0 0 -32px; display: grid; place-items: center; color: var(--accent-ink, #fff); opacity: 0; transform: scale(.4); transition: opacity .18s ease, transform .32s cubic-bezier(.34,1.56,.64,1); }
+#pb .pb-plus.on { opacity: 1; transform: none; }
+#pb .pb-plus svg { position: static; width: 30px; height: 30px; }
+#pb .pb-hint { position: absolute; left: 0; right: 0; top: 0; text-align: center; font-size: 0.92rem; font-weight: 600; color: var(--muted); transition: color .2s ease; }
+#pb .pb-hint.go { color: var(--accent); }
+html.mono #pb .pb-hint.go { color: var(--ink); }
+main.pb-pull { will-change: transform; }
+main.pb-pull .trend-tip, main.pb-pull .trend-chart .cross, main.pb-pull .trend-chart .cdot { display: none !important; }
 .cvf .bub:not(.out):active { transform: translate(-50%, -50%) scale(var(--s, 1)); }
 .cvcard { margin-top: 6px; background: var(--surface); border-radius: 24px; padding: 15px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; overflow: hidden; }
 .cvcard > * { min-width: 0; }
@@ -3263,6 +3275,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     <button type="button" class="bn-x" id="bk-nudge-x" aria-label="Recordármelo más tarde">✕</button>
   </div>
 </main>
+  <div id="pb" hidden aria-hidden="true"><svg id="pb-svg"><defs><filter id="pb-goo" x="-30%" y="-30%" width="160%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="5.5" result="b"></feGaussianBlur><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"></feColorMatrix></filter></defs><g filter="url(#pb-goo)"><rect id="pb-src" rx="18.5" fill="#000"></rect><circle id="pb-ball" r="0" fill="#000"></circle></g></svg><div class="pb-plus" id="pb-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></div><div class="pb-hint" id="pb-hint">Baja para agregar</div></div>
 
   <button class="fab" id="fab" type="button" aria-label="Abrir menú de acciones" aria-haspopup="menu" aria-expanded="false">+</button>
   <div class="goals-view" id="goals-view" role="region" aria-label="Ahorro" aria-hidden="true">
@@ -3451,6 +3464,10 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       <div class="set-row" id="ai-row">
         <div class="tx"><b>Asistente</b><small>Diagnóstico de tu mes y consejos. Se abre desde el menú +.</small></div>
         <button type="button" class="switch" id="set-ai" role="switch" aria-checked="true" aria-label="Asistente"><span></span></button>
+      </div>
+      <div class="set-row" id="set-pull-row">
+        <div class="tx"><b>Bajar para agregar</b><small>En Inicio, arriba del todo, baja la pantalla: sale una bolita del notch y al soltarla agregas un movimiento.</small></div>
+        <button type="button" class="switch" id="set-pull" role="switch" aria-checked="true" aria-label="Bajar para agregar"><span></span></button>
       </div>
       <div class="set-row" id="set-fzt-row">
         <div class="tx"><b>«Puedes gastar hoy»</b><small>Tu presupuesto del día en el Inicio: saldo menos pagos del mes, entre los días que quedan.</small></div>
@@ -4633,6 +4650,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         if (d && d.fx && typeof d.fx === "object") state.fx = { bn: !!d.fx.bn, sg: !!d.fx.sg };
         else if (d && d.onb) { var bnUsed = (d.earn && d.earn.length) || (d.bn && ((d.bn.done && Object.keys(d.bn.done).length) || (d.bn.opened && Object.keys(d.bn.opened).length))); var sgUsed = false; try { sgUsed = !!localStorage.getItem("orbe-sesion"); } catch (e) {} state.fx = { bn: !!bnUsed, sg: sgUsed }; }
         if (d && typeof d.cqOff === "boolean") state.cqOff = d.cqOff;
+        if (d && typeof d.pullOff === "boolean") state.pullOff = d.pullOff;
         if (d && typeof d.sgName === "string") state.sgName = d.sgName.slice(0, 30);
         if (d && d.instSeen) state.instSeen = true;
         if (d && d.notif) state.notif = true;
@@ -4665,7 +4683,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
   }
   function save() {
     try {
-      localStorage.setItem(KEY, JSON.stringify({ items: state.items, rate: state.rate, rateDate: state.rateDate, hideSav: state.hideSav, rateManual: state.rateManual, rateAutoAt: state.rateAutoAt, accounts: state.accounts, templates: state.templates, goals: state.goals, payments: state.payments, paySeries: state.paySeries, earn: state.earn, limits: state.limits, rateHist: state.rateHist, rateHistAt: state.rateHistAt, theme: state.theme, mono: !!state.mono, accent: state.accent || "orbe", pin: state.pin, backupAt: state.backupAt, onb: state.onb, msumSeen: state.msumSeen, country: state.country, ratesOn: !!state.ratesOn, aiHide: !!state.aiHide, fx: state.fx || { bn: false, sg: false }, cqOff: !!state.cqOff, sgName: state.sgName || "", instSeen: state.instSeen, notif: state.notif, subs: state.subs, limCur: state.limCur, savTipOff: !!state.savTipOff, limPer: state.limPer, lastAcc: state.lastAcc, bn: state.bn, btcUsd: state.btcUsd, btcAt: state.btcAt, rateEur: state.rateEur, rateEurDate: state.rateEurDate, rateEurManual: state.rateEurManual, rateUsdt: state.rateUsdt, rateUsdtDate: state.rateUsdtDate, rateUsdtManual: state.rateUsdtManual, rateUsdtSrc: state.rateUsdtSrc, collapsed: state.collapsed, disp: state.disp, sav: state.sav, forz: state.forz, dayOn: !!state.dayOn, roundOn: !!state.roundOn }));
+      localStorage.setItem(KEY, JSON.stringify({ items: state.items, rate: state.rate, rateDate: state.rateDate, hideSav: state.hideSav, rateManual: state.rateManual, rateAutoAt: state.rateAutoAt, accounts: state.accounts, templates: state.templates, goals: state.goals, payments: state.payments, paySeries: state.paySeries, earn: state.earn, limits: state.limits, rateHist: state.rateHist, rateHistAt: state.rateHistAt, theme: state.theme, mono: !!state.mono, accent: state.accent || "orbe", pin: state.pin, backupAt: state.backupAt, onb: state.onb, msumSeen: state.msumSeen, country: state.country, ratesOn: !!state.ratesOn, aiHide: !!state.aiHide, fx: state.fx || { bn: false, sg: false }, cqOff: !!state.cqOff, pullOff: !!state.pullOff, sgName: state.sgName || "", instSeen: state.instSeen, notif: state.notif, subs: state.subs, limCur: state.limCur, savTipOff: !!state.savTipOff, limPer: state.limPer, lastAcc: state.lastAcc, bn: state.bn, btcUsd: state.btcUsd, btcAt: state.btcAt, rateEur: state.rateEur, rateEurDate: state.rateEurDate, rateEurManual: state.rateEurManual, rateUsdt: state.rateUsdt, rateUsdtDate: state.rateUsdtDate, rateUsdtManual: state.rateUsdtManual, rateUsdtSrc: state.rateUsdtSrc, collapsed: state.collapsed, disp: state.disp, sav: state.sav, forz: state.forz, dayOn: !!state.dayOn, roundOn: !!state.roundOn }));
       window.__saveFail = 0;
     } catch (e) {
       if (!window.__saveFail && window.__toast) window.__toast("No se pudo guardar en este teléfono (puede estar sin espacio). Guarda una copia en Archivos desde Ajustes.");
@@ -7780,6 +7798,90 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         }
         tabs[n].click();
       }, { passive: true });
+    })();
+    // Bajar para agregar: en Inicio, arriba del todo, bajar la pantalla saca una bolita del notch.
+    // Al pasar el punto toma el color de la app; al soltar se abre «Nuevo movimiento».
+    (function () {
+      var pb = $("pb"), svg = $("pb-svg"), src = $("pb-src"), ball = $("pb-ball"), plus = $("pb-plus"), hint = $("pb-hint"), main = document.querySelector("main");
+      if (!pb || !main) return;
+      var TH = 96, RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var cand = false, pulling = false, x0 = 0, y0 = 0, p = 0, armed = false, cy0 = 29.5, raf = 0, anim = 0;
+      var NO = "input, select, textarea, .sheet, .tabbar, .dial, .menu, .cat-chips, .hist-chips";
+      function safeTop() { var d = document.createElement("div"); d.style.cssText = "position:fixed;top:0;height:env(safe-area-inset-top,0px);visibility:hidden"; document.body.appendChild(d); var h = d.offsetHeight; d.remove(); return h; }
+      function blocked() {
+        if (state.pullOff || activeView() || document.querySelector(".sheet-backdrop:not([hidden])") || !$("dial").hidden) return true;
+        return ["onb", "lock", "tour", "ctry", "splash", "cal-backdrop"].some(function (id) { var el = $(id); return el && !el.hidden; });
+      }
+      // La «fuente» de la gota se dibuja donde está la isla o el notch (o fuera de pantalla si no hay)
+      function layout() {
+        var W = window.innerWidth, st = safeTop(), x = W / 2 - 62, y, h;
+        if (st >= 51) { y = 11; h = 37; } else if (st >= 30) { y = -20; h = 50; } else { y = -40; h = 38; }
+        cy0 = y + h / 2;
+        svg.setAttribute("viewBox", "0 0 " + W + " 280");
+        src.setAttribute("x", x); src.setAttribute("y", y); src.setAttribute("width", 124); src.setAttribute("height", h);
+        ball.setAttribute("cx", W / 2);
+      }
+      function rubber(dy) { return dy <= 0 ? 0 : 200 * (1 - Math.exp(-dy / 240)); }
+      // Vibración suave al llegar al punto (Android con vibrate; iPhone con el truco del interruptor nativo)
+      var hapt = null;
+      function haptic() {
+        if (navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} return; }
+        try {
+          if (!hapt) { hapt = document.createElement("label"); hapt.style.cssText = "position:fixed;left:-99px;top:0;opacity:0;pointer-events:none"; var i = document.createElement("input"); i.type = "checkbox"; i.setAttribute("switch", ""); i.tabIndex = -1; hapt.appendChild(i); document.body.appendChild(hapt); }
+          hapt.click();
+        } catch (e) {}
+      }
+      function paint() {
+        raf = 0;
+        main.style.transform = p > 0.5 ? "translateY(" + p.toFixed(1) + "px)" : "";
+        var r = p < 6 ? 0 : RM ? (armed ? 32 : 0) : Math.min(32, 5 + p * 0.3);
+        var cy = RM ? cy0 + TH * 0.68 : cy0 + p * 0.68;
+        ball.setAttribute("r", r.toFixed(2)); ball.setAttribute("cy", cy.toFixed(1));
+        ball.setAttribute("fill", armed ? getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#6a5cf2" : "#000");
+        plus.style.top = cy + "px"; plus.classList.toggle("on", armed);
+        hint.style.top = (cy + 42) + "px"; hint.style.opacity = p < 30 ? 0 : Math.min(1, (p - 30) / 30);
+        hint.textContent = armed ? "Suelta para agregar" : "Baja para agregar"; hint.classList.toggle("go", armed);
+        pb.hidden = p <= 0.5;
+      }
+      function setP(np) {
+        p = np; var was = armed; armed = p >= TH;
+        if (armed && !was) { haptic(); if (!RM && plus.animate) plus.animate([{ transform: "scale(.6)" }, { transform: "scale(1.15)" }, { transform: "scale(1)" }], { duration: 320, easing: "cubic-bezier(.34,1.56,.64,1)" }); }
+        if (!raf) raf = requestAnimationFrame(paint);
+      }
+      function settle(open) {
+        var from = p, t0 = performance.now(), D = RM ? 1 : open ? 420 : 380, keep = armed;
+        if (open) openSheet(null);
+        cancelAnimationFrame(anim);
+        (function step(now) {
+          var k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
+          p = from * (1 - e); armed = keep && open && k < 0.35; paint();
+          if (k < 1) anim = requestAnimationFrame(step); else { p = 0; armed = false; paint(); main.classList.remove("pb-pull"); }
+        })(t0);
+      }
+      document.addEventListener("touchstart", function (e) {
+        cand = pulling = false;
+        if (e.touches.length !== 1 || window.scrollY > 0 || blocked() || e.target.closest(NO)) return;
+        cand = true; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+      }, { passive: true });
+      document.addEventListener("touchmove", function (e) {
+        if (!cand) return;
+        var t = e.touches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+        if (!pulling) {
+          if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) { cand = false; return; }
+          if (dy < -4 || window.scrollY > 0) { cand = false; return; }
+          if (dy < 8) return;
+          pulling = true; y0 = t.clientY; layout(); main.classList.add("pb-pull");
+        }
+        if (e.cancelable) e.preventDefault();
+        setP(rubber(t.clientY - y0));
+      }, { passive: false });
+      function end() {
+        if (!cand) return; cand = false;
+        if (!pulling) return; pulling = false;
+        settle(armed);
+      }
+      document.addEventListener("touchend", end, { passive: true });
+      document.addEventListener("touchcancel", function () { if (pulling) { armed = false; } end(); }, { passive: true });
     })();
     /* ---------- Calendario ---------- */
     var cal = { mode: "day", target: "fecha", y: 0, m: 0, sel: "", nav: false };
@@ -12544,6 +12646,11 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       if (b.getAttribute("data-dy") === "hide") { state.dayOn = false; save(); render(); showToast("«Puedes gastar hoy» ya no sale en el Inicio. Lo vuelves a activar en Ajustes → Inicio."); }
     });
     $("set-fz").addEventListener("click", function () { if (fzOn()) fzOff(); else fzInfo(); });
+    $("set-pull").addEventListener("click", function () {
+      state.pullOff = !state.pullOff; save(); $("set-pull").setAttribute("aria-checked", state.pullOff ? "false" : "true");
+      showToast(state.pullOff ? "Bajar para agregar, apagado." : "Bajar para agregar, activado. Pruébalo arriba del todo en Inicio.");
+    });
+    $("set-pull").setAttribute("aria-checked", state.pullOff ? "false" : "true");
     $("set-fzt").addEventListener("click", function () {
       state.dayOn = !state.dayOn; save(); render();
       showToast(state.dayOn ? "«Puedes gastar hoy» aparece en el Inicio." : "«Puedes gastar hoy» ya no sale en el Inicio.");
