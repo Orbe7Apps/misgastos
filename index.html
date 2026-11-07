@@ -3033,9 +3033,7 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .cvf .bub.top .pc { font-size: 1.08rem; }
 .cvf .bub.small .nm, .cvf .bub.noname .nm { display: none; } .cvf .bub.small .pc { font-size: 0.76rem; } .cvf .bub.small .ic { width: 17px; height: 17px; }
 .cvf .bub.sel { z-index: 3; }
-/* Seleccionado: un aro fino de su color que aparece suave; los demás no cambian */
-.cvf .bub::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px solid var(--c); opacity: 0; transform: scale(.96); transition: opacity .4s ease, transform .5s cubic-bezier(.32,.72,0,1); pointer-events: none; }
-.cvf .bub.sel::after { opacity: .55; transform: none; }
+/* Seleccionado: solo el centro toma un tono algo más intenso de su color */
 .cvf svg.cvr .core { transition: fill .45s ease; }
 .cvf .bub.in { animation: cvBubIn .75s cubic-bezier(.34,1.5,.5,1) backwards; }
 @keyframes cvBubIn { from { transform: translate(-50%, -50%) scale(0); opacity: 0; } }
@@ -3046,7 +3044,7 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .cvcard.cc-in > * { animation: ccIn .55s cubic-bezier(.32,.72,0,1) backwards; }
 .cvcard.cc-in > *:nth-child(2) { animation-delay: .04s; } .cvcard.cc-in > *:nth-child(3) { animation-delay: .08s; } .cvcard.cc-in > *:nth-child(n+4) { animation-delay: .12s; }
 @keyframes ccIn { from { opacity: 0; transform: translateY(5px); } }
-@media (prefers-reduced-motion: reduce) { .cvcard.cc-in > *, .cvf .bub.in { animation: none; } .cvcard, .cvf .bub::after { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .cvcard.cc-in > *, .cvf .bub.in { animation: none; } .cvcard { transition: none; } }
 .cc-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .cc-h b { font-size: 0.95rem; }
 .cc-link { border: 0; background: none; color: var(--accent); font: inherit; font-weight: 700; font-size: 0.84rem; cursor: pointer; padding: 4px 0; }
@@ -6172,6 +6170,11 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       }
       P.forEach(function (o) { o.x += (W / 2 - o.x) * 0.012; o.y += (H / 2 - o.y) * 0.012; o.x = Math.max(o.r + 6, Math.min(W - o.r - 6, o.x)); o.y = Math.max(o.r + 6, Math.min(H - o.r - 6, o.y)); });
     }
+    // El grupo queda centrado en la sección (sin cargarse a un lado)
+    var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    P.forEach(function (o) { x0 = Math.min(x0, o.x - o.r); x1 = Math.max(x1, o.x + o.r); y0 = Math.min(y0, o.y - o.r); y1 = Math.max(y1, o.y + o.r); });
+    var dx = W / 2 - (x0 + x1) / 2, dy = H / 2 - (y0 + y1) / 2;
+    P.forEach(function (o) { o.x += dx; o.y += dy; });
     return P;
   }
   function cvPctS(v, T) { var q = T > 0 ? v / T * 100 : 0; return (q < 1 && q > 0 ? "<1" : q.toFixed(1).replace(".", ",").replace(",0", "")) + " %"; }
@@ -7700,7 +7703,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     (function () {
       var x0 = 0, y0 = 0, t0 = 0, ok = false, monthZone = null;
       function shiftM(m, d) { var p = m.split("-"), dt = new Date(Number(p[0]), Number(p[1]) - 1 + d, 1); return dt.getFullYear() + "-" + pad2(dt.getMonth() + 1); }
-      var NO = ".trend-chart, input, select, textarea, .hist-chips, #hist-cats, .sav-chart, .sheet, .seg, .rate-fields, .hrow[data-hid], .pay[data-pid], .cat-chips, .tabbar, .dial, .menu, .acc3";
+      var NO = ".trend-chart, input, select, textarea, .hist-chips, #hist-cats, .sav-chart, .sheet, .seg, .rate-fields, .hrow[data-hid], .pay[data-pid], .cat-chips, .tabbar, .dial, .menu, .acc3, .cvf, .cvcard";
       function blocked() {
         if (document.querySelector(".sheet-backdrop:not([hidden])")) return true;
         return ["onb", "lock", "tour", "ctry", "splash", "cal-backdrop"].some(function (id) { var el = $(id); return el && !el.hidden; });
