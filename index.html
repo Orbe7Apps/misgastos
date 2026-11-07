@@ -3028,26 +3028,26 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .cvf .bub.sel svg.cvr .core { fill: color-mix(in srgb, var(--c) 17%, var(--surface)); }
 .cvf .flo { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 1px; text-align: center; pointer-events: none; }
 .cvf .bub .ic { width: 22px; height: 22px; color: var(--c); display: block; } .cvf .bub .ic svg { width: 100%; height: 100%; display: block; }
-.cvf .bub .nm { font-size: 0.64rem; font-weight: 600; color: var(--muted); max-width: 70%; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cvf .bub .nm { font-size: 0.64rem; font-weight: 600; color: var(--muted); line-height: 1.15; white-space: nowrap; }
 .cvf .bub .pc { font-family: var(--display); font-size: 0.95rem; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
 .cvf .bub.top .pc { font-size: 1.08rem; }
 .cvf .bub.small .nm, .cvf .bub.noname .nm { display: none; } .cvf .bub.small .pc { font-size: 0.76rem; } .cvf .bub.small .ic { width: 17px; height: 17px; }
 .cvf.has-sel .bub:not(.sel) { opacity: .5; }
-.cvf .bub.sel { --s: 1.03; z-index: 3; }
+.cvf .bub.sel { z-index: 3; }
 .cvf svg.cvr .core { transition: fill .45s ease; }
 .cvf .bub.in { animation: cvBubIn .75s cubic-bezier(.34,1.5,.5,1) backwards; }
 @keyframes cvBubIn { from { transform: translate(-50%, -50%) scale(0); opacity: 0; } }
 .cvf .bub.out { transform: translate(-50%, -50%) scale(.2); opacity: 0; transition-duration: .26s; }
-@media (prefers-reduced-motion: no-preference) { .cvf .bub:not(.sel) .bw { animation: cvFlo var(--fd, 6s) ease-in-out infinite alternate; } }
-@keyframes cvFlo { from { transform: translateY(-2px); } to { transform: translateY(3px); } }
-.cvcard { margin-top: 6px; background: var(--surface); border-radius: 24px; padding: 15px 16px; display: grid; gap: 12px; }
+.cvcard { margin-top: 6px; background: var(--surface); border-radius: 24px; padding: 15px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; overflow: hidden; }
+.cvcard > * { min-width: 0; }
 .cvcard.cc-in { animation: ccIn .4s cubic-bezier(.32,.72,0,1); }
 @keyframes ccIn { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .cvcard.cc-in, .cvf .bub.in { animation: none; } }
 .cc-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .cc-h b { font-size: 0.95rem; }
 .cc-link { border: 0; background: none; color: var(--accent); font: inherit; font-weight: 700; font-size: 0.84rem; cursor: pointer; padding: 4px 0; }
-.cd-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cd-mini { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.cd-mini b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cd-mini.one { grid-template-columns: 1fr; }
 .cd-mini > div { background: var(--bg); border-radius: 16px; padding: 11px 12px; display: grid; gap: 3px; min-width: 0; }
 .cd-mini span { font-size: 0.74rem; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 6px; }
@@ -3058,7 +3058,8 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .cd-h .di { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); flex: none; }
 .cd-h .di svg { width: 21px; height: 21px; }
 .cd-h div { min-width: 0; } .cd-h div b { display: block; font-size: 0.97rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cd-h div small { color: var(--muted); font-size: 0.76rem; }
-.cd-h .cd-v { margin-left: auto; font-family: var(--display); font-size: 1.3rem; letter-spacing: -.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cvcard .cd-v { display: block; min-width: 0; margin-top: -4px; font-family: var(--display); font-size: 1.9rem; font-weight: 700; letter-spacing: -.035em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; }
+.cd-h .cv-x { margin-left: auto; }
 .cv-x { width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--bg); color: var(--muted); cursor: pointer; font-size: 0.8rem; flex: none; }
 .cd-lim { display: grid; gap: 7px; } .cd-lim .t { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); } .cd-lim .t b { color: var(--ink); }
 .cd-bar { height: 8px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 8%, transparent); position: relative; display: block; }
@@ -3067,7 +3068,8 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .cd-bar em { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--ink); border-radius: 2px; }
 .cd-lim p { margin: 0; font-size: 0.8rem; color: var(--muted); line-height: 1.4; } .cd-lim p b { color: var(--ink); }
 .st-fast { --st: var(--amber, #d98a00); } .st-over { --st: var(--out); }
-.cd-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .cd-btns.one { grid-template-columns: 1fr; }
+.cd-btns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; } .cd-btns.one { grid-template-columns: minmax(0, 1fr); }
+.cd-btns button { min-width: 0; padding-left: 8px !important; padding-right: 8px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cd-btns button { margin: 0 !important; min-height: 44px; }
 .cc-list { display: grid; }
 .cc-r { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border: 0; background: none; font: inherit; color: var(--ink); text-align: left; cursor: pointer; width: 100%; }
@@ -6190,7 +6192,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         '<circle class="trk" cx="' + p.r.toFixed(1) + '" cy="' + p.r.toFixed(1) + '" r="' + R1.toFixed(1) + '" stroke-width="' + sw.toFixed(1) + '"></circle>' +
         '<circle class="prg" cx="' + p.r.toFixed(1) + '" cy="' + p.r.toFixed(1) + '" r="' + R1.toFixed(1) + '" stroke-width="' + sw.toFixed(1) + '" stroke-dasharray="' + da(v1, L1) + '" data-len="' + v1.toFixed(1) + " " + L1.toFixed(1) + '"></circle>' +
         (S.lim ? '<circle class="trk2" style="--sc:' + sc + '" cx="' + p.r.toFixed(1) + '" cy="' + p.r.toFixed(1) + '" r="' + R2.toFixed(1) + '" stroke-width="' + sw2.toFixed(1) + '"></circle><circle class="prg2" style="--sc:' + sc + '" cx="' + p.r.toFixed(1) + '" cy="' + p.r.toFixed(1) + '" r="' + R2.toFixed(1) + '" stroke-width="' + sw2.toFixed(1) + '" stroke-dasharray="' + da(v2, L2) + '" data-len="' + v2.toFixed(1) + " " + L2.toFixed(1) + '"></circle>' : "") + "</svg>";
-      return '<button type="button" class="bub' + (top ? " top" : "") + (p.r < 42 ? " small" : rc < 40 ? " noname" : "") + (play ? " in" : "") + (state.cvSel === c ? " sel" : "") + '" data-cv-ring="' + esc(c) + '" style="--c:' + col(c) + ";left:" + p.x.toFixed(1) + "px;top:" + p.y.toFixed(1) + "px;width:" + d.toFixed(1) + "px;height:" + d.toFixed(1) + "px;animation-delay:" + (i * 0.07).toFixed(2) + "s;--fd:" + (5 + i * 0.7).toFixed(1) + 's" aria-label="' + esc(c) + ", " + cvPctS(v, T) + (S.lim ? ", lleva el " + Math.round(S.L.spent / S.L.lim * 100) + " % del límite" : "") + '"><span class="bw">' + rings +
+      return '<button type="button" class="bub' + (top ? " top" : "") + (p.r < 42 ? " small" : (rc < 40 || c.length * 6.4 > rc * 1.5) ? " noname" : "") + (play ? " in" : "") + (state.cvSel === c ? " sel" : "") + '" data-cv-ring="' + esc(c) + '" style="--c:' + col(c) + ";left:" + p.x.toFixed(1) + "px;top:" + p.y.toFixed(1) + "px;width:" + d.toFixed(1) + "px;height:" + d.toFixed(1) + "px;animation-delay:" + (i * 0.07).toFixed(2) + "s;--fd:" + (5 + i * 0.7).toFixed(1) + 's" aria-label="' + esc(c) + ", " + cvPctS(v, T) + (S.lim ? ", lleva el " + Math.round(S.L.spent / S.L.lim * 100) + " % del límite" : "") + '"><span class="bw">' + rings +
         '<span class="flo"><span class="ic">' + catSvg(c) + '</span><span class="nm">' + esc(c) + '</span><span class="pc">' + cvPctS(v, T) + "</span></span></span></button>";
     }).join("");
     f.classList.toggle("has-sel", !!state.cvSel && list.indexOf(state.cvSel) >= 0);
@@ -6218,7 +6220,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     var D = state.disp, m = state.month, isOut = tipo === "gasto", cur = cvData(m, tipo), v = cur.by[c] || 0, pm = prevMonth(m), prv = cvData(pm, tipo).by[c] || 0;
     var pmN = MESES[Number(pm.slice(5, 7)) - 1], col = isOut ? colorFor(c) : colorForIn(c), day = limDay(), same = 0;
     state.items.forEach(function (it) { if (it.tipo !== tipo || it.cat !== c || !it.fecha || it.fecha.slice(0, 7) !== pm || Number(it.fecha.slice(8, 10)) > day) return; var x = conv(it.monto, it.moneda, D); if (x !== null) same += x; });
-    var S = isOut ? cvStatus(c) : { lim: 0 }, h = '<div class="cd-h" style="--c:' + col + '"><span class="di">' + catSvg(c) + '</span><div><b>' + esc(c) + '</b><small>' + cvPctS(v, cur.tot) + ' del mes</small></div><b class="cd-v">' + money(v, D) + '</b><button type="button" class="cv-x" data-cv-close aria-label="Volver al total">✕</button></div>';
+    var S = isOut ? cvStatus(c) : { lim: 0 }, h = '<div class="cd-h" style="--c:' + col + '"><span class="di">' + catSvg(c) + '</span><div><b>' + esc(c) + '</b><small>' + cvPctS(v, cur.tot) + ' del mes</small></div><button type="button" class="cv-x" data-cv-close aria-label="Volver al total">✕</button></div><b class="cd-v fit">' + money(v, D) + "</b>";
     if (S.lim) {
       var L = S.L, w = L.lim > 0 ? Math.min(100, L.spent / L.lim * 100) : 100, pk = L.lim > 0 ? Math.min(100, L.pace / L.lim * 100) : 0, txt;
       if (L.sem) txt = S.st === "over" ? "Te pasaste <b>" + money(L.spent - L.lim, D) + "</b> esta semana." : "Te quedan <b>" + money(L.lim - L.spent, D) + "</b> esta semana.";
