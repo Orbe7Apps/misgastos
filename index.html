@@ -3055,6 +3055,13 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 @keyframes cvBubIn { from { transform: translate(-50%, -50%) scale(0); opacity: 0; } }
 .cvf .bub.out { transform: translate(-50%, -50%) scale(.2); opacity: 0; transition-duration: .26s; }
 /* Al tocar no se mueve: anula el «scale» general de los botones, que borraba el centrado */
+/* Botón + junto a la barra (opción 3A): a su derecha, a la misma altura y del mismo alto; la barra se acorta
+   solo donde el + se ve (Inicio). Al achicarse la barra al bajar, el + se achica con ella */
+body:not(.view-goals):not(.view-pay):not(.view-hist):not(.view-bn):not(.view-set):not(.view-accd) .tabbar { right: calc(var(--tbx) + var(--tbh) + 10px); }
+.fab { right: var(--tbx) !important; bottom: var(--tbb) !important; width: var(--tbh) !important; height: var(--tbh) !important; font-size: calc(var(--tbh) * 0.6) !important;
+  transition: transform 0.38s var(--spring), bottom 0.61s var(--spring), right 0.61s var(--spring), width 0.61s var(--spring), height 0.61s var(--spring), font-size 0.61s var(--spring), opacity 0.27s ease !important; }
+.ai-fab { right: var(--tbx) !important; bottom: calc(var(--tbb) + var(--tbh) + 12px) !important; }
+.dial-menu { bottom: calc(var(--tbb) + var(--tbh) + 14px) !important; }
 /* Bajar para agregar: la bolita que sale del notch */
 #pb { position: fixed; left: 0; right: 0; top: 0; height: 280px; z-index: 60; pointer-events: none; }
 #pb[hidden] { display: none !important; }
