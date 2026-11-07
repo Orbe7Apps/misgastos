@@ -38,24 +38,24 @@
   --ink: #1a1733;
   --muted: #625f7d;
   --line: #dedcf0;
-  --accent: #8f84ff;
+  --accent: #6a5cf2;
   --accent-ink: #ffffff;
-  --in: #12a37a;
+  --in: #0d8a63;
   --out: #e8436a;
-  --focus: #8f84ff;
+  --focus: #6a5cf2;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0b0a14; --surface: #16142a; --ink: #efeefe; --muted: #9a97b8;
-    --line: #2a2745; --accent: #8f84ff; --accent-ink: #ffffff;
+    --line: #2a2745; --accent: #8f84ff; --accent-ink: #0b0a14; --accent-strong: #8f84ff;
     --in: #3ddc9f; --out: #ff6b8b; --focus: #a9a1ff;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0b0a14; --surface: #16142a; --ink: #efeefe; --muted: #9a97b8;
-  --line: #2a2745; --accent: #8f84ff; --accent-ink: #ffffff;
+  --line: #2a2745; --accent: #8f84ff; --accent-ink: #0b0a14; --accent-strong: #8f84ff;
   --in: #3ddc9f; --out: #ff6b8b; --focus: #a9a1ff; }
 html { scroll-padding-top: env(safe-area-inset-top, 0px); }
 *, *::before, *::after { box-sizing: border-box; }
@@ -3009,21 +3009,22 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .dl-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dl-a { white-space: nowrap; }
 .dl-a small { display: block; color: var(--muted); font-weight: 500; font-size: 0.78rem; margin-top: 1px; }
-/* Color de la app (Ajustes → Apariencia) */
-html[data-accent="azul"] { --accent: #3d7bf5; --focus: #3d7bf5; --soft: #3d7bf5; --accent-strong: #2563eb; }
-html[data-accent="verde"] { --accent: #12a37a; --focus: #12a37a; --soft: #12a37a; --accent-strong: #087a58; }
-html[data-accent="rosa"] { --accent: #e8508f; --focus: #e8508f; --soft: #e8508f; --accent-strong: #c02d6a; }
-html[data-accent="naranja"] { --accent: #ee7d16; --focus: #ee7d16; --soft: #ee7d16; --accent-strong: #b35704; }
-@media (prefers-color-scheme: dark) {
-  html[data-accent="azul"]:not([data-theme="light"]) { --accent: #6b9dff; --focus: #6b9dff; --accent-strong: #3d7bf5; }
-  html[data-accent="verde"]:not([data-theme="light"]) { --accent: #34c995; --focus: #34c995; --accent-strong: #12a37a; }
-  html[data-accent="rosa"]:not([data-theme="light"]) { --accent: #f472a8; --focus: #f472a8; --accent-strong: #e8508f; }
-  html[data-accent="naranja"]:not([data-theme="light"]) { --accent: #f7983f; --focus: #f7983f; --accent-strong: #e07a12; }
-}
-html[data-accent="azul"][data-theme="dark"] { --accent: #6b9dff; --focus: #6b9dff; --accent-strong: #3d7bf5; }
-html[data-accent="verde"][data-theme="dark"] { --accent: #34c995; --focus: #34c995; --accent-strong: #12a37a; }
-html[data-accent="rosa"][data-theme="dark"] { --accent: #f472a8; --focus: #f472a8; --accent-strong: #e8508f; }
-html[data-accent="naranja"][data-theme="dark"] { --accent: #f7983f; --focus: #f7983f; --accent-strong: #e07a12; }
+.cq { color: var(--ink) !important; }
+.cq svg { color: var(--c); }
+.cq.on svg { color: currentColor; }
+/* Color de la app (Ajustes → Apariencia): cada color es una paleta completa (fondo, tarjetas, líneas, textos y acento) */
+html[data-accent="azul"] { --bg: #f1f5fc; --surface: #ffffff; --ink: #0f1b33; --muted: #56647d; --line: #d8e2f1; --accent: #2f6fe8; --focus: #2f6fe8; --soft: #2f6fe8; --accent-strong: #2563eb; --sw-tab: #2f6fe8; }
+@media (prefers-color-scheme: dark) { html[data-accent="azul"]:not([data-theme="light"]) { --bg: #070d18; --surface: #0f1a2c; --ink: #eaf1fd; --muted: #8fa1bd; --line: #1e2e47; --accent: #6b9dff; --focus: #6b9dff; --soft: #6b9dff; --accent-strong: #6b9dff; --sw-tab: #6b9dff;  --accent-ink: #071022; } }
+html[data-accent="azul"][data-theme="dark"] { --bg: #070d18; --surface: #0f1a2c; --ink: #eaf1fd; --muted: #8fa1bd; --line: #1e2e47; --accent: #6b9dff; --focus: #6b9dff; --soft: #6b9dff; --accent-strong: #6b9dff; --sw-tab: #6b9dff;  --accent-ink: #071022; }
+html[data-accent="verde"] { --bg: #eff7f3; --surface: #ffffff; --ink: #0e2219; --muted: #52705f; --line: #d3e7dd; --accent: #0e8a66; --focus: #0e8a66; --soft: #0e8a66; --accent-strong: #087a58; --sw-tab: #0e8a66; }
+@media (prefers-color-scheme: dark) { html[data-accent="verde"]:not([data-theme="light"]) { --bg: #06120d; --surface: #0d1f17; --ink: #e8f6ef; --muted: #8bb09d; --line: #1b3a2c; --accent: #34c995; --focus: #34c995; --soft: #34c995; --accent-strong: #34c995; --sw-tab: #34c995;  --accent-ink: #04140d; } }
+html[data-accent="verde"][data-theme="dark"] { --bg: #06120d; --surface: #0d1f17; --ink: #e8f6ef; --muted: #8bb09d; --line: #1b3a2c; --accent: #34c995; --focus: #34c995; --soft: #34c995; --accent-strong: #34c995; --sw-tab: #34c995;  --accent-ink: #04140d; }
+html[data-accent="rosa"] { --bg: #fbf2f6; --surface: #ffffff; --ink: #2a1320; --muted: #7a5869; --line: #f0d9e4; --accent: #d43c7d; --focus: #d43c7d; --soft: #d43c7d; --accent-strong: #c02d6a; --sw-tab: #d43c7d; }
+@media (prefers-color-scheme: dark) { html[data-accent="rosa"]:not([data-theme="light"]) { --bg: #140910; --surface: #22111b; --ink: #fbecf3; --muted: #b98fa3; --line: #3d2030; --accent: #f472a8; --focus: #f472a8; --soft: #f472a8; --accent-strong: #f472a8; --sw-tab: #f472a8;  --accent-ink: #1c0812; } }
+html[data-accent="rosa"][data-theme="dark"] { --bg: #140910; --surface: #22111b; --ink: #fbecf3; --muted: #b98fa3; --line: #3d2030; --accent: #f472a8; --focus: #f472a8; --soft: #f472a8; --accent-strong: #f472a8; --sw-tab: #f472a8;  --accent-ink: #1c0812; }
+html[data-accent="naranja"] { --bg: #fcf5ee; --surface: #ffffff; --ink: #2a1a0b; --muted: #7a644e; --line: #efdfcd; --accent: #c25e05; --focus: #c25e05; --soft: #c25e05; --accent-strong: #b35704; --sw-tab: #c25e05; }
+@media (prefers-color-scheme: dark) { html[data-accent="naranja"]:not([data-theme="light"]) { --bg: #130c05; --surface: #22160b; --ink: #fbf1e6; --muted: #b79c80; --line: #3d2a17; --accent: #f7983f; --focus: #f7983f; --soft: #f7983f; --accent-strong: #f7983f; --sw-tab: #f7983f;  --accent-ink: #1c1004; } }
+html[data-accent="naranja"][data-theme="dark"] { --bg: #130c05; --surface: #22160b; --ink: #fbf1e6; --muted: #b79c80; --line: #3d2a17; --accent: #f7983f; --focus: #f7983f; --soft: #f7983f; --accent-strong: #f7983f; --sw-tab: #f7983f;  --accent-ink: #1c1004; }
 .acc-sw { display: flex; justify-content: space-between; gap: 8px; padding: 2px 2px 4px; }
 .acc-sw button { width: 40px; height: 40px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: var(--sw); position: relative; box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px transparent; transition: box-shadow 0.2s ease, transform 0.15s ease; }
 .acc-sw button:active { transform: scale(0.92); }
@@ -3037,50 +3038,28 @@ html.mono .acc-sw button[aria-checked="true"] { box-shadow: none !important; out
 html.mono #fx-group.fx-hl { animation: fxHlM 1.6s ease 0.35s; }
 @keyframes fxHlM { 0%, 100% { outline: 0 solid transparent; } 25%, 60% { outline: 2.5px solid var(--ink); outline-offset: 3px; } }
 @media (prefers-reduced-motion: reduce) { #fx-group.fx-hl { animation: none; } }
-/* Colores «Blanco y negro» (Ajustes → Apariencia): solo negro y blanco, sin grises */
+/* Colores «Blanco y negro» (Ajustes → Apariencia): negro, blanco y grises neutros, sin otros colores ni filtros */
 .cur-swap { animation: curSwap 0.32s ease; }
 @keyframes curSwap { from { opacity: 0; transform: translateY(4px); } }
-html.mono { --bg: #fff; --surface: #fff; --ink: #000; --muted: #000; --line: #000; --accent: #000; --accent-ink: #fff; --in: #000; --out: #000; --focus: #000; --fill: #fff; --fill2: #fff; --amber: #000; --mbd: #000; }
-@media (prefers-color-scheme: dark) { html.mono:not([data-theme="light"]) { --bg: #000; --surface: #000; --ink: #fff; --muted: #fff; --line: #fff; --accent: #fff; --accent-ink: #000; --in: #fff; --out: #fff; --focus: #fff; --fill: #000; --fill2: #000; --amber: #fff; --mbd: #fff; } }
-html.mono[data-theme="dark"] { --bg: #000; --surface: #000; --ink: #fff; --muted: #fff; --line: #fff; --accent: #fff; --accent-ink: #000; --in: #fff; --out: #fff; --focus: #fff; --fill: #000; --fill2: #000; --amber: #fff; --mbd: #fff; }
+html.mono { --bg: #f4f4f4; --surface: #ffffff; --ink: #0a0a0a; --muted: #5c5c5c; --line: #e1e1e1; --accent: #0a0a0a; --accent-ink: #ffffff; --accent-strong: #0a0a0a; --in: #0a0a0a; --out: #0a0a0a; --focus: #0a0a0a; --soft: #0a0a0a; --amber: #5c5c5c; }
+@media (prefers-color-scheme: dark) { html.mono:not([data-theme="light"]) { --bg: #000000; --surface: #141414; --ink: #f5f5f5; --muted: #a3a3a3; --line: #2b2b2b; --accent: #f5f5f5; --accent-ink: #000000; --accent-strong: #f5f5f5; --in: #f5f5f5; --out: #f5f5f5; --focus: #f5f5f5; --soft: #f5f5f5; --amber: #a3a3a3; } }
+html.mono[data-theme="dark"] { --bg: #000000; --surface: #141414; --ink: #f5f5f5; --muted: #a3a3a3; --line: #2b2b2b; --accent: #f5f5f5; --accent-ink: #000000; --accent-strong: #f5f5f5; --in: #f5f5f5; --out: #f5f5f5; --focus: #f5f5f5; --soft: #f5f5f5; --amber: #a3a3a3; }
+/* Lo que tenía color propio (categorías, cuentas, metas) pasa a negro; sus fondos suaves quedan en gris claro */
 html.mono [style*="--c"], html.mono [style*="--gc"], html.mono [style*="--g:"] { --c: var(--ink) !important; --gc: var(--ink) !important; --g: var(--ink) !important; }
-html.mono *, html.mono *::before, html.mono *::after { box-shadow: none !important; text-shadow: none !important; }
-html.mono body button.primary:not(.btn-danger), html.mono body #add { background: var(--ink) !important; color: var(--bg) !important; }
-html.mono .toast { background: var(--ink) !important; color: var(--bg) !important; }
+html.mono body button.primary:not(.btn-danger), html.mono body #add { background: var(--ink) !important; color: var(--bg) !important; box-shadow: none !important; }
+html.mono .fab { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22) !important; }
 html.mono .toast .t-act { color: var(--bg) !important; text-decoration: underline; text-underline-offset: 3px; }
-/* Sin transparencias ni desenfoques: los velos y la barra son sólidos */
-html.mono *, html.mono *::before, html.mono *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-html.mono .sheet-backdrop, html.mono .cal-backdrop { background: transparent !important; }
-html.mono .dial, html.mono .disp-bg { background: var(--bg) !important; }
-html.mono .sheet, html.mono .panel.sheet { background: var(--bg) !important; border: 1.5px solid var(--ink) !important; }
-html.mono .sheet-foot { background: var(--bg) !important; border-top-color: var(--ink) !important; }
-html.mono .tabbar, html.mono #tabbar { background: var(--bg) !important; border: 1.5px solid var(--ink) !important; }
-html.mono .tabbar::after, html.mono .tabbar::before { background: none !important; }
-html.mono .tab, html.mono .tab * { color: var(--ink) !important; opacity: 1 !important; }
-html.mono .disp-pop { border: 1.5px solid var(--ink); }
-/* Fondos suaves de íconos, tarjetas y botones: blanco con borde negro */
-html.mono :is(.cv-dot, .hic, .acc-av, .set-ic, .earn-ic, .sg-ri, .dp-s, .ad-acts .i, .ai-item .b, .tr-swap, .cl-av, .inst-ic, .sv-ic, .pay-check, .cvd-head .cv-dot) { background: var(--bg) !important; color: var(--ink) !important; border: 1.5px solid var(--ink) !important; }
-html.mono :is(.cq, #ge-icons button, #acc-icons button, .mv-acc .ap, .sav-tip1, #inst, .pay-alert, .cq-alert, .msum, .fx-more, .earn-row, .sg-row1, .earn-card, .cvd-card, .cvd-cmp div, .ai-item, .ai-score, .set-group, .cv-all, .ge-cust, .disp-chip, .cal-nav, .del, .gv-add, .eye, .chev, .set-btn, .secondary, .sg-act, .rate-chip, .cvl-chips button, .sub-chip, .cat-chip, .hist-chips button, .seg, .switch, .dial-item > span, .bn-x, .cq-b) { background: var(--bg) !important; border: 1.5px solid var(--ink) !important; }
-html.mono :is(.cvd-bar, .cv-bar2, .cv-lbar, .bar, .gm-bar, .sv-bar) { background: var(--bg) !important; border: 1px solid var(--ink); box-sizing: border-box; }
-html.mono input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), html.mono select, html.mono textarea, html.mono .cat-btn, html.mono .pick { background: var(--bg) !important; border: 1.5px solid var(--ink) !important; color: var(--ink) !important; }
-/* Lo elegido o activo: negro sólido con texto blanco (al revés en oscuro) */
-html.mono :is(.seg button[aria-pressed="true"], .cq.on, .cvl-chips button.on, .mv-acc .ap.on, .mv-acc .ap[aria-checked="true"], #ge-icons button[aria-checked="true"], .cal-day.today, .cal-day.sel, .switch[aria-checked="true"], .disp-pop button.on .dp-s, .dial-item .ic, .tab[aria-current="true"]) { background: var(--ink) !important; color: var(--bg) !important; border-color: var(--ink) !important; }
-html.mono .tab[aria-current="true"] *, html.mono .dial-item .ic * { color: var(--bg) !important; }
-html.mono .switch span { background: var(--ink) !important; }
-html.mono .switch[aria-checked="true"] span { background: var(--bg) !important; }
+html.mono .sheet-backdrop, html.mono .disp-bg { background: rgba(0, 0, 0, 0.32) !important; }
+html.mono .dial { background: rgba(0, 0, 0, 0.36) !important; }
 html.mono .dial-item[data-dial="bn"] .ic { background: var(--ink) !important; color: var(--bg) !important; }
 html.mono .dial-item > span:first-child { color: var(--ink) !important; }
-html.mono .seg { padding: 2px !important; }
-html.mono .seg button { opacity: 1 !important; color: var(--ink); }
-/* Gráficos: líneas negras, sin rellenos de color ni transparencias */
-html.mono svg * { opacity: 1 !important; }
-html.mono .orbe-mk circle, html.mono .rings circle, html.mono .ring circle, html.mono svg.donut circle { stroke: var(--ink) !important; stroke-opacity: 1 !important; }
-html.mono .rings circle[style*="stroke-opacity:.18"], html.mono .rings circle[style*="stroke-opacity: 0.18"] { stroke-dasharray: 1.5 5 !important; stroke-width: 2px !important; }
-html.mono svg .area, html.mono svg [fill^="url("] { fill: none !important; }
-html.mono svg [stroke]:not([stroke="none"]):not([stroke="currentColor"]) { stroke: var(--ink) !important; }
-html.mono .cal-nav:disabled, html.mono .cal-nav[disabled] { opacity: 1 !important; visibility: hidden; }
-html.mono ::placeholder { color: var(--ink) !important; opacity: 1 !important; }
-html.mono .panel:not(.sheet) { border-color: transparent !important; }
+html.mono .seg button[aria-pressed="true"], html.mono .cq.on, html.mono .cvl-chips button.on { color: var(--ink); }
+html.mono .cq.on { background: var(--ink) !important; color: var(--bg) !important; }
+/* Gráficos en escala de grises: trazos negros, fondos y pistas en gris */
+html.mono .orbe-mk circle:nth-child(1) { stroke: var(--ink) !important; } html.mono .orbe-mk circle:nth-child(2) { stroke: #8a8a8a !important; } html.mono .orbe-mk circle:nth-child(3) { stroke: #c4c4c4 !important; }
+html.mono .rings circle, html.mono .ring circle, html.mono svg.donut circle { stroke: var(--ink) !important; }
+html.mono svg [stroke]:not([stroke="none"]):not([stroke="currentColor"]):not([stroke^="var("]) { stroke: var(--ink) !important; }
+html.mono svg [fill^="#"] { fill: var(--ink) !important; }
 </style>
 </head>
 <body>
@@ -4778,7 +4757,7 @@ html.mono .panel:not(.sheet) { border-color: transparent !important; }
     if (el._v !== undefined && el._key !== undefined && el._key !== key) {
       el._key = key; if (el._raf) { cancelAnimationFrame(el._raf); el._raf = 0; }
       el._v = value; el.innerHTML = fmt(value); scheduleFit();
-      if (!REDUCED) { el.classList.remove("cur-swap"); void el.offsetWidth; el.classList.add("cur-swap"); }
+      if (!REDUCED && el.animate) try { el.animate([{ opacity: 0, transform: "translateY(5px)" }, { opacity: 1, transform: "none" }], { duration: 340, easing: "cubic-bezier(0.32, 0.72, 0, 1)" }); } catch (e) {}
       return;
     }
     var from = (el._v === undefined) ? 0 : (el._key === key ? el._v : value);
