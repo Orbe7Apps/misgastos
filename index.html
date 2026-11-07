@@ -3062,6 +3062,9 @@ body:not(.view-goals):not(.view-pay):not(.view-hist):not(.view-bn):not(.view-set
   transition: transform 0.38s var(--spring), bottom 0.61s var(--spring), right 0.61s var(--spring), width 0.61s var(--spring), height 0.61s var(--spring), font-size 0.61s var(--spring), opacity 0.27s ease !important; }
 .ai-fab { right: var(--tbx) !important; bottom: calc(var(--tbb) + var(--tbh) + 12px) !important; }
 .dial-menu { bottom: calc(var(--tbb) + var(--tbh) + 14px) !important; }
+/* El + dibujado (no como letra) para que quede justo al centro */
+.fab { padding: 0 !important; }
+.fab .fab-ic { width: 46%; height: 46%; display: block; pointer-events: none; }
 /* Bajar para agregar: la bolita que sale del notch */
 #pb { position: fixed; left: 0; right: 0; top: 0; height: 280px; z-index: 60; pointer-events: none; }
 #pb[hidden] { display: none !important; }
@@ -3286,7 +3289,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
 </main>
   <div id="pb" hidden aria-hidden="true"><svg id="pb-svg"><defs><filter id="pb-goo" x="-30%" y="-30%" width="160%" height="200%"><feGaussianBlur in="SourceGraphic" stdDeviation="5.5" result="b"></feGaussianBlur><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"></feColorMatrix></filter></defs><g filter="url(#pb-goo)"><rect id="pb-src" rx="18.5" fill="#000"></rect><circle id="pb-ball" r="0" fill="#000"></circle></g></svg><div class="pb-plus" id="pb-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></div><div class="pb-hint" id="pb-hint">Baja para agregar</div></div>
 
-  <button class="fab" id="fab" type="button" aria-label="Abrir menú de acciones" aria-haspopup="menu" aria-expanded="false">+</button>
+  <button class="fab" id="fab" type="button" aria-label="Abrir menú de acciones" aria-haspopup="menu" aria-expanded="false"><svg class="fab-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
   <div class="goals-view" id="goals-view" role="region" aria-label="Ahorro" aria-hidden="true">
     <div class="gv-head">
       <button type="button" class="gv-back" id="gv-back" aria-label="Volver al inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>Inicio</button>
