@@ -3012,6 +3012,68 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .cq { color: var(--ink) !important; }
 .cq svg { color: var(--c); }
 .cq.on svg { color: currentColor; }
+/* «Tus gastos» en anillos: un anillo por categoría con su color; dentro, el del límite */
+.cv-sec .cvf { position: relative; margin: 6px -4px 2px; transition: height .4s cubic-bezier(.32,.72,0,1); }
+.cvf .bub { position: absolute; border-radius: 50%; border: 0; padding: 0; margin: 0; cursor: pointer; font: inherit; color: var(--ink); background: none; -webkit-tap-highlight-color: transparent;
+  transform: translate(-50%, -50%) scale(var(--s, 1)); transition: transform .55s cubic-bezier(.34,1.4,.5,1), opacity .35s; }
+.cvf .bub .bw { position: absolute; inset: 0; display: block; }
+.cvf svg.cvr { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
+.cvf svg.cvr circle { fill: none; stroke-linecap: round; transition: stroke-dasharray 1.1s cubic-bezier(.32,.72,0,1), stroke .3s, fill .3s; }
+.cvf svg.cvr .core { stroke: none; fill: color-mix(in srgb, var(--c) 7%, var(--surface)); }
+.cvf svg.cvr .trk { stroke: color-mix(in srgb, var(--c) 16%, transparent); }
+.cvf svg.cvr .prg { stroke: var(--c); }
+.cvf svg.cvr .trk2 { stroke: color-mix(in srgb, var(--sc) 16%, transparent); }
+.cvf svg.cvr .prg2 { stroke: var(--sc); }
+.cvf .bub.top svg.cvr .core { fill: color-mix(in srgb, var(--c) 12%, var(--surface)); }
+.cvf .bub.sel svg.cvr .core { fill: color-mix(in srgb, var(--c) 17%, var(--surface)); }
+.cvf .flo { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 1px; text-align: center; pointer-events: none; }
+.cvf .bub .ic { width: 22px; height: 22px; color: var(--c); display: block; } .cvf .bub .ic svg { width: 100%; height: 100%; display: block; }
+.cvf .bub .nm { font-size: 0.64rem; font-weight: 600; color: var(--muted); max-width: 70%; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cvf .bub .pc { font-family: var(--display); font-size: 0.95rem; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.cvf .bub.top .pc { font-size: 1.08rem; }
+.cvf .bub.small .nm, .cvf .bub.noname .nm { display: none; } .cvf .bub.small .pc { font-size: 0.76rem; } .cvf .bub.small .ic { width: 17px; height: 17px; }
+.cvf.has-sel .bub:not(.sel) { opacity: .38; }
+.cvf .bub.sel { --s: 1.1; z-index: 3; }
+.cvf .bub:active { --s: .96; }
+.cvf .bub.in { animation: cvBubIn .75s cubic-bezier(.34,1.5,.5,1) backwards; }
+@keyframes cvBubIn { from { transform: translate(-50%, -50%) scale(0); opacity: 0; } }
+.cvf .bub.out { transform: translate(-50%, -50%) scale(.2); opacity: 0; transition-duration: .26s; }
+@media (prefers-reduced-motion: no-preference) { .cvf .bub:not(.sel) .bw { animation: cvFlo var(--fd, 6s) ease-in-out infinite alternate; } }
+@keyframes cvFlo { from { transform: translateY(-2px); } to { transform: translateY(3px); } }
+.cvcard { margin-top: 6px; background: var(--surface); border-radius: 24px; padding: 15px 16px; display: grid; gap: 12px; }
+.cvcard.cc-in { animation: ccIn .4s cubic-bezier(.32,.72,0,1); }
+@keyframes ccIn { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { .cvcard.cc-in, .cvf .bub.in { animation: none; } }
+.cc-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.cc-h b { font-size: 0.95rem; }
+.cc-link { border: 0; background: none; color: var(--accent); font: inherit; font-weight: 700; font-size: 0.84rem; cursor: pointer; padding: 4px 0; }
+.cd-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cd-mini.one { grid-template-columns: 1fr; }
+.cd-mini > div { background: var(--bg); border-radius: 16px; padding: 11px 12px; display: grid; gap: 3px; min-width: 0; }
+.cd-mini span { font-size: 0.74rem; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.cd-mini span i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
+.cd-mini b { font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.cd-mini small { font-size: 0.72rem; font-weight: 700; } .cd-mini small.g { color: var(--in); } .cd-mini small.b { color: var(--out); }
+.cd-h { display: flex; align-items: center; gap: 10px; }
+.cd-h .di { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); flex: none; }
+.cd-h .di svg { width: 21px; height: 21px; }
+.cd-h div { min-width: 0; } .cd-h div b { display: block; font-size: 0.97rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cd-h div small { color: var(--muted); font-size: 0.76rem; }
+.cd-h .cd-v { margin-left: auto; font-family: var(--display); font-size: 1.3rem; letter-spacing: -.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cv-x { width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--bg); color: var(--muted); cursor: pointer; font-size: 0.8rem; flex: none; }
+.cd-lim { display: grid; gap: 7px; } .cd-lim .t { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); } .cd-lim .t b { color: var(--ink); }
+.cd-bar { height: 8px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 8%, transparent); position: relative; display: block; }
+.cd-bar.sm { height: 5px; margin-top: 5px; }
+.cd-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: var(--st, var(--c)); transition: width .8s cubic-bezier(.32,.72,0,1); }
+.cd-bar em { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--ink); border-radius: 2px; }
+.cd-lim p { margin: 0; font-size: 0.8rem; color: var(--muted); line-height: 1.4; } .cd-lim p b { color: var(--ink); }
+.st-fast { --st: var(--amber, #d98a00); } .st-over { --st: var(--out); }
+.cd-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .cd-btns.one { grid-template-columns: 1fr; }
+.cd-btns button { margin: 0 !important; min-height: 44px; }
+.cc-list { display: grid; }
+.cc-r { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border: 0; background: none; font: inherit; color: var(--ink); text-align: left; cursor: pointer; width: 100%; }
+.cc-r .ri { width: 30px; height: 30px; border-radius: 50%; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); display: grid; place-items: center; } .cc-r .ri svg { width: 15px; height: 15px; }
+.cc-r .rm { min-width: 0; } .cc-r .rm b { display: block; font-size: 0.86rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-r .rv { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 0.9rem; } .cc-r .rv small { display: block; color: var(--muted); font-weight: 600; font-size: 0.72rem; }
 /* Color de la app (Ajustes → Apariencia): cada color es una paleta completa (fondo, tarjetas, líneas, textos y acento) */
 html[data-accent="azul"] { --bg: #f1f5fc; --surface: #ffffff; --ink: #0f1b33; --muted: #56647d; --line: #d8e2f1; --accent: #2f6fe8; --focus: #2f6fe8; --soft: #2f6fe8; --accent-strong: #2563eb; --sw-tab: #2f6fe8; }
 @media (prefers-color-scheme: dark) { html[data-accent="azul"]:not([data-theme="light"]) { --bg: #070d18; --surface: #0f1a2c; --ink: #eaf1fd; --muted: #8fa1bd; --line: #1e2e47; --accent: #6b9dff; --focus: #6b9dff; --soft: #6b9dff; --accent-strong: #6b9dff; --sw-tab: #6b9dff;  --accent-ink: #071022; } }
@@ -6067,37 +6129,123 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     });
     return by;
   }
+  // «Tus gastos» en anillos de Orbe: un anillo por categoría (su parte del mes) y, si tiene límite, otro por dentro
+  function cvCats(tipo) {
+    var m = state.month, cur = cvData(m, tipo), isOut = tipo === "gasto";
+    var cats = Object.keys(cur.by).filter(function (c) { return cur.by[c] > 0.004; }).sort(function (a, b) { return cur.by[b] - cur.by[a]; });
+    var all = cats.slice(); if (isOut) limCats().forEach(function (c) { if (all.indexOf(c) < 0) { all.push(c); cur.by[c] = 0; } });
+    return { cur: cur, cats: cats, all: all };
+  }
   function cvSection(tipo) {
-    var D = state.disp, isOut = tipo === "gasto", m = state.month, cur = cvData(m, tipo), mName = MESES[Number(m.slice(5, 7)) - 1];
-    var cats = Object.keys(cur.by).sort(function (a, b) { return cur.by[b] - cur.by[a]; });
-    var col = function (c) { return isOut ? colorFor(c) : colorForIn(c); };
+    var isOut = tipo === "gasto", m = state.month, mName = MESES[Number(m.slice(5, 7)) - 1], K = cvCats(tipo);
     var h = '<section class="cv-sec ' + (isOut ? "out" : "in") + '">';
-    if (!cats.length) return h + '<p class="cv-empty">' + (isOut ? "Aún no hay gastos en " + mName + "." : "Aún no hay ingresos en " + mName + ".") + "</p></section>";
-    var pct = function (v) { var q = v / cur.tot * 100; return (q < 1 ? "<1" : Math.round(q)) + "%"; };
-    var prv = cvData(prevMonth(m), tipo).by, pmN = MESES[Number(prevMonth(m).slice(5, 7)) - 1].toLowerCase();
-    var dlt = function (c) {
-      var a = prv[c] || 0, b = cur.by[c] || 0;
-      if (!(a > 0.004) || !(b > 0.004)) return "";
-      var q = Math.round((b - a) / a * 100); if (!q) return '<span class="cv-dl">= ' + pmN.slice(0, 3) + "</span>";
-      var good = isOut ? q < 0 : q > 0;
-      return '<span class="cv-dl ' + (good ? "g" : "b") + '" title="vs. ' + pmN + '">' + (q > 0 ? "▲ " : "▼ ") + Math.abs(q) + "%</span>";
-    };
-    var prevTot = cvData(prevMonth(m), tipo).tot;
-    if (isOut) limCats().forEach(function (c) { if (cats.indexOf(c) < 0) { cats.push(c); cur.by[c] = 0; } });
-    var TOP = 5, shown = state.cvAll || cats.length <= TOP + 1 ? cats : cats.slice(0, TOP);
-    var dec = function (v) { return Math.abs(v - Math.round(v)) < 0.005 ? 0 : 2; };
-    h += '<ul class="cv-list2">' + shown.map(function (c) {
-      var lim = isOut ? catLimit(c) : null, v = cur.by[c] || 0, cls = "", w, val;
-      if (lim) {
-        var L = limInfo(c, lim), over = L.spent > L.lim + 0.004, fast = !L.sem && !over && L.spent > L.pace * 1.1 + 0.5;
-        cls = " lim" + (over ? " over" : fast ? " fast" : "");
-        w = L.lim > 0 ? Math.min(100, L.spent / L.lim * 100) : 100;
-        val = money(L.sem ? L.spent : v, D) + ' <small>de ' + money(L.lim, D, dec(L.lim)) + (L.sem ? " esta semana" : "") + "</small>";
-      } else { w = cur.tot > 0 ? v / cur.tot * 100 : 0; val = money(v, D); }
-      return '<li><button type="button" class="cv-row2' + cls + '" data-cv-cat="' + esc(c) + '" style="--c:' + col(c) + '" aria-label="' + esc(c) + ', ver detalle"><span class="cv-dot">' + catSvg(c) + '</span><b class="cv-n">' + esc(c) + '</b><span class="cv-v">' + val + '</span><span class="cv-bar2"><i style="width:' + Math.max(w > 0 ? 2 : 0, w).toFixed(1) + '%"></i></span></button></li>';
-    }).join("") + "</ul>";
-    if (shown.length < cats.length || state.cvAll && cats.length > TOP + 1) h += '<button type="button" class="cv-all" data-cv-all>' + (state.cvAll ? "Ver menos" : "Ver todas (" + cats.length + ")") + "</button>";
-    return h + "</section>";
+    if (!K.all.length) return h + '<p class="cv-empty">' + (isOut ? "Aún no hay gastos en " + mName + "." : "Aún no hay ingresos en " + mName + ".") + "</p></section>";
+    var sig = tipo + "|" + m + "|" + state.disp + "|" + K.all.map(function (c) { return c + ":" + (K.cur.by[c] || 0).toFixed(2) + ":" + (isOut ? (catLimit(c) || 0).toFixed(2) : ""); }).join(",") + "|" + state.limPer;
+    return h + '<div class="cvf" id="cvf" data-sig="' + esc(sig) + '"></div><div class="cvcard" id="cvcard"></div></section>';
+  }
+  var CVF = { obs: null, ro: null, pend: false, lastTab: "" };
+  function cvStatus(c) {
+    var lim = catLimit(c); if (!lim) return { lim: 0, st: "" };
+    var L = limInfo(c, lim), over = L.spent > L.lim + 0.004, fast = !L.sem && !over && L.spent > L.pace * 1.1 + 0.5;
+    return { lim: lim, L: L, st: over ? "over" : fast ? "fast" : "ok" };
+  }
+  function cvPack(items, W, H) {
+    var P = items.map(function (it, i) { var a = i * 2.4, d = i ? 40 + i * 14 : 0; return { x: W / 2 + Math.cos(a) * d, y: H / 2 + Math.sin(a) * d, r: it.r, it: it }; });
+    for (var k = 0; k < 420; k++) {
+      for (var i = 0; i < P.length; i++) for (var j = i + 1; j < P.length; j++) {
+        var A = P[i], B = P[j], dx = B.x - A.x, dy = B.y - A.y, d = Math.sqrt(dx * dx + dy * dy) || 0.01, min = A.r + B.r + 12;
+        if (d < min) { var q = (min - d) / 2, ux = dx / d, uy = dy / d; A.x -= ux * q; A.y -= uy * q; B.x += ux * q; B.y += uy * q; }
+      }
+      P.forEach(function (o) { o.x += (W / 2 - o.x) * 0.012; o.y += (H / 2 - o.y) * 0.012; o.x = Math.max(o.r + 6, Math.min(W - o.r - 6, o.x)); o.y = Math.max(o.r + 6, Math.min(H - o.r - 6, o.y)); });
+    }
+    return P;
+  }
+  function cvPctS(v, T) { var q = T > 0 ? v / T * 100 : 0; return (q < 1 && q > 0 ? "<1" : q.toFixed(1).replace(".", ",").replace(",0", "")) + " %"; }
+  function cvDraw(anim) {
+    var f = $("cvf"); if (!f) return;
+    var W = f.clientWidth; if (!W) { CVF.pend = true; return; }
+    var tipo = state.cvTab === "ingreso" ? "ingreso" : "gasto", isOut = tipo === "gasto", K = cvCats(tipo), T = K.cur.tot, list = K.cats.slice(0, 7);
+    if (!list.length) { f.innerHTML = ""; f.style.height = "0px"; cvCard(); return; }
+    var H = list.length <= 2 ? 210 : list.length <= 4 ? 270 : 330; f.style.height = H + "px";
+    var area = W * H * 0.46, sum = list.reduce(function (a, c) { return a + K.cur.by[c]; }, 0), col = function (c) { return isOut ? colorFor(c) : colorForIn(c); };
+    var P = cvPack(list.map(function (c) { return { c: c, r: Math.min(Math.min(W, H) * 0.3, Math.max(29, Math.sqrt(area * K.cur.by[c] / sum / Math.PI))) }; }), W, H);
+    var vis = (function () { var rr = f.getBoundingClientRect(); return rr.top < innerHeight && rr.bottom > 0 && !f.closest('[aria-hidden="true"]') && !document.body.className.match(/view-/); })();
+    var play = anim && vis && !REDUCED;
+    if (anim && !vis) CVF.pend = true;
+    f.innerHTML = P.map(function (p, i) {
+      var c = p.it.c, v = K.cur.by[c], pct = T > 0 ? v / T * 100 : 0, S = isOut ? cvStatus(c) : { lim: 0, st: "" }, d = 2 * p.r, top = i === 0;
+      var sw = Math.max(6, p.r * (top ? 0.2 : 0.17)), R1 = p.r - sw / 2, L1 = 2 * Math.PI * R1, v1 = Math.max(0.035, pct / 100) * L1;
+      var sw2 = Math.max(4, sw * 0.62), R2 = R1 - sw / 2 - sw2 / 2 - 3, L2 = 2 * Math.PI * R2, v2 = S.lim ? Math.max(0.02, Math.min(1, S.L.spent / S.L.lim)) * L2 : 0;
+      var sc = S.st === "over" ? "var(--out)" : S.st === "fast" ? "var(--amber, #d98a00)" : "var(--c)", rc = S.lim ? R2 - sw2 / 2 - 2 : R1 - sw / 2 - 2;
+      var da = function (len, L) { return play ? "0 " + L.toFixed(1) : len.toFixed(1) + " " + L.toFixed(1); };
+      var rings = '<svg class="cvr" viewBox="0 0 ' + d.toFixed(1) + " " + d.toFixed(1) + '" aria-hidden="true"><circle class="core" cx="' + p.r.toFixed(1) + '" cy="' + p.r.toFixed(1) + '" r="' + Math.max(8, rc).toFixed(1) + '"></circle>' +
+        '<circle class="trk" cx="' + p.r.toFixed(1) + '" cy="' + p.r.toFixed(1) + '" r="' + R1.toFixed(1) + '" stroke-width="' + sw.toFixed(1) + '"></circle>' +
+        '<circle class="prg" cx="' + p.r.toFixed(1) + '" cy="' + p.r.toFixed(1) + '" r="' + R1.toFixed(1) + '" stroke-width="' + sw.toFixed(1) + '" stroke-dasharray="' + da(v1, L1) + '" data-len="' + v1.toFixed(1) + " " + L1.toFixed(1) + '"></circle>' +
+        (S.lim ? '<circle class="trk2" style="--sc:' + sc + '" cx="' + p.r.toFixed(1) + '" cy="' + p.r.toFixed(1) + '" r="' + R2.toFixed(1) + '" stroke-width="' + sw2.toFixed(1) + '"></circle><circle class="prg2" style="--sc:' + sc + '" cx="' + p.r.toFixed(1) + '" cy="' + p.r.toFixed(1) + '" r="' + R2.toFixed(1) + '" stroke-width="' + sw2.toFixed(1) + '" stroke-dasharray="' + da(v2, L2) + '" data-len="' + v2.toFixed(1) + " " + L2.toFixed(1) + '"></circle>' : "") + "</svg>";
+      return '<button type="button" class="bub' + (top ? " top" : "") + (p.r < 42 ? " small" : rc < 40 ? " noname" : "") + (play ? " in" : "") + (state.cvSel === c ? " sel" : "") + '" data-cv-ring="' + esc(c) + '" style="--c:' + col(c) + ";left:" + p.x.toFixed(1) + "px;top:" + p.y.toFixed(1) + "px;width:" + d.toFixed(1) + "px;height:" + d.toFixed(1) + "px;animation-delay:" + (i * 0.07).toFixed(2) + "s;--fd:" + (5 + i * 0.7).toFixed(1) + 's" aria-label="' + esc(c) + ", " + cvPctS(v, T) + (S.lim ? ", lleva el " + Math.round(S.L.spent / S.L.lim * 100) + " % del límite" : "") + '"><span class="bw">' + rings +
+        '<span class="flo"><span class="ic">' + catSvg(c) + '</span><span class="nm">' + esc(c) + '</span><span class="pc">' + cvPctS(v, T) + "</span></span></span></button>";
+    }).join("");
+    f.classList.toggle("has-sel", !!state.cvSel && list.indexOf(state.cvSel) >= 0);
+    if (play) { CVF.pend = false; requestAnimationFrame(function () { requestAnimationFrame(function () {
+      Array.prototype.forEach.call(f.querySelectorAll(".bub"), function (b, i) { setTimeout(function () { Array.prototype.forEach.call(b.querySelectorAll("circle[data-len]"), function (c) { c.setAttribute("stroke-dasharray", c.getAttribute("data-len")); }); }, 240 + i * 70); });
+    }); }); }
+    cvCard(); cvWatch();
+  }
+  // La entrada se reproduce cuando la sección aparece en pantalla; si cambia el tamaño, se reacomoda
+  function cvWatch() {
+    var f = $("cvf"); if (!f) return;
+    if (window.IntersectionObserver) {
+      if (CVF.obs) CVF.obs.disconnect();
+      CVF.obs = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && CVF.pend) { CVF.pend = false; cvDraw(true); } }); }, { threshold: 0.25 });
+      CVF.obs.observe(f);
+    }
+    if (window.ResizeObserver) {
+      if (CVF.ro) CVF.ro.disconnect();
+      var lw = f.clientWidth;
+      CVF.ro = new ResizeObserver(function () { var w = f.clientWidth; if (w && Math.abs(w - lw) > 4) { lw = w; cvDraw(CVF.pend); } });
+      CVF.ro.observe(f);
+    }
+  }
+  function cvDetail(c, tipo) {
+    var D = state.disp, m = state.month, isOut = tipo === "gasto", cur = cvData(m, tipo), v = cur.by[c] || 0, pm = prevMonth(m), prv = cvData(pm, tipo).by[c] || 0;
+    var pmN = MESES[Number(pm.slice(5, 7)) - 1], col = isOut ? colorFor(c) : colorForIn(c), day = limDay(), same = 0;
+    state.items.forEach(function (it) { if (it.tipo !== tipo || it.cat !== c || !it.fecha || it.fecha.slice(0, 7) !== pm || Number(it.fecha.slice(8, 10)) > day) return; var x = conv(it.monto, it.moneda, D); if (x !== null) same += x; });
+    var S = isOut ? cvStatus(c) : { lim: 0 }, h = '<div class="cd-h" style="--c:' + col + '"><span class="di">' + catSvg(c) + '</span><div><b>' + esc(c) + '</b><small>' + cvPctS(v, cur.tot) + ' del mes</small></div><b class="cd-v">' + money(v, D) + '</b><button type="button" class="cv-x" data-cv-close aria-label="Volver al total">✕</button></div>';
+    if (S.lim) {
+      var L = S.L, w = L.lim > 0 ? Math.min(100, L.spent / L.lim * 100) : 100, pk = L.lim > 0 ? Math.min(100, L.pace / L.lim * 100) : 0, txt;
+      if (L.sem) txt = S.st === "over" ? "Te pasaste <b>" + money(L.spent - L.lim, D) + "</b> esta semana." : "Te quedan <b>" + money(L.lim - L.spent, D) + "</b> esta semana.";
+      else if (S.st === "over") txt = "Te pasaste <b>" + money(L.spent - L.lim, D) + "</b> este mes.";
+      else txt = "Te quedan <b>" + money(L.lim - L.spent, D) + "</b>, unos <b>" + money((L.lim - L.spent) / L.daysLeft, D) + "</b> por día. " + (S.st === "fast" ? "Vas más rápido de lo previsto." : "Vas bien para esta fecha.");
+      h += '<div class="cd-lim st-' + S.st + '" style="--c:' + col + '"><div class="t"><span>Límite ' + (L.sem ? "de la semana" : "del mes") + '</span><b>' + money(L.lim, D) + '</b></div><div class="cd-bar"><i style="width:0%" data-w="' + w.toFixed(1) + '"></i>' + (L.sem ? "" : '<em style="left:' + pk.toFixed(1) + '%"></em>') + "</div><p>" + txt + "</p></div>";
+    }
+    var dq = same > 0.004 ? Math.round((v - same) / same * 100) : null, good = dq !== null && (isOut ? dq <= 0 : dq >= 0);
+    h += '<div class="cd-mini"><div><span>' + pmN.charAt(0).toUpperCase() + pmN.slice(1) + ' completo</span><b>' + money(prv, D) + '</b></div><div><span>A esta altura de ' + pmN.toLowerCase() + '</span><b>' + money(same, D) + (dq === null ? "" : ' <small class="' + (good ? "g" : "b") + '">' + (dq === 0 ? "= igual" : (dq < 0 ? "▼ " : "▲ ") + Math.abs(dq) + " %") + "</small>") + "</b></div></div>";
+    h += '<div class="cd-btns' + (isOut ? "" : " one") + '">' + (isOut ? '<button type="button" class="secondary" data-cvd-lim="' + esc(c) + '">' + (S.lim ? "Cambiar límite" : "Poner un límite") + "</button>" : "") + '<button type="button" class="primary" data-cvd-mov="' + esc(c) + '">Ver movimientos</button></div>';
+    return h;
+  }
+  function cvCard() {
+    var el = $("cvcard"); if (!el) return;
+    var tipo = state.cvTab === "ingreso" ? "ingreso" : "gasto", isOut = tipo === "gasto", K = cvCats(tipo), D = state.disp, col = function (c) { return isOut ? colorFor(c) : colorForIn(c); }, h;
+    if (state.cvSel && K.all.indexOf(state.cvSel) < 0) state.cvSel = null;
+    if (state.cvAll) {
+      h = '<div class="cc-h"><b>Todas las categorías</b><button type="button" class="cv-x" data-cv-close aria-label="Cerrar">✕</button></div><div class="cc-list">' + K.all.map(function (c) {
+        var v = K.cur.by[c] || 0, S = isOut ? cvStatus(c) : { lim: 0, st: "" }, w = S.lim ? Math.min(100, S.L.spent / S.L.lim * 100) : (K.cur.tot > 0 ? v / K.cur.tot * 100 : 0);
+        return '<button type="button" class="cc-r st-' + (S.st || "ok") + '" data-cv-row="' + esc(c) + '" style="--c:' + col(c) + '"><span class="ri">' + catSvg(c) + '</span><span class="rm"><b>' + esc(c) + '</b><span class="cd-bar sm"><i style="width:' + Math.max(w > 0 ? 2 : 0, w).toFixed(1) + '%"></i></span></span><span class="rv">' + money(v, D) + (S.lim ? '<small>de ' + money(S.lim, D, Math.abs(S.lim - Math.round(S.lim)) < 0.005 ? 0 : 2) + "</small>" : "") + "</span></button>";
+      }).join("") + "</div>";
+    } else if (state.cvSel) {
+      h = cvDetail(state.cvSel, tipo);
+    } else {
+      var top2 = K.cats.slice(0, 2);
+      h = '<div class="cc-h"><b>Lo más alto del mes</b>' + (K.all.length > 1 ? '<button type="button" class="cc-link" data-cv-all>Ver todas</button>' : "") + '</div><div class="cd-mini' + (top2.length === 1 ? " one" : "") + '">' + top2.map(function (c) { return '<div style="--c:' + col(c) + '"><span>' + esc(c) + '<i></i></span><b>' + money(K.cur.by[c], D) + "</b></div>"; }).join("") + "</div>";
+    }
+    el.innerHTML = h; el.classList.remove("cc-in"); void el.offsetWidth; el.classList.add("cc-in");
+    var bi = el.querySelector(".cd-bar i[data-w]"); if (bi) setTimeout(function () { bi.style.width = bi.getAttribute("data-w") + "%"; }, 60);
+    scheduleFit();
+  }
+  function cvApplySel() {
+    var f = $("cvf");
+    if (f) { Array.prototype.forEach.call(f.querySelectorAll(".bub"), function (b) { b.classList.toggle("sel", b.getAttribute("data-cv-ring") === state.cvSel); }); f.classList.toggle("has-sel", !!state.cvSel && !!f.querySelector(".bub.sel")); }
+    cvCard();
   }
   // Saldo con el que se crearon las cuentas en ese mes: cuenta como dinero disponible desde ese día
   function accCreated(a) {
@@ -6125,7 +6273,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     var hc = $("h-cat"), ht = tab === "ingreso" ? "Tus ingresos" : "Tus gastos";
     if (hc && hc.textContent !== ht) hc.textContent = ht;
     var html = '<div class="cv-top"><div class="seg cv-tabs" role="group" aria-label="Ver gastos o ingresos"><button type="button" data-cv-tab="gasto" aria-pressed="' + (tab === "gasto") + '">Gastos</button><button type="button" data-cv-tab="ingreso" aria-pressed="' + (tab === "ingreso") + '">Ingresos</button></div>' + (cvData(state.month, tab).tot > 0.004 ? '<b class="cv-total fit">' + money(cvData(state.month, tab).tot, state.disp) + "</b>" : "") + "</div>" + cvSection(tab);
-    if (w._h !== html) { w.innerHTML = html; w._h = html; }
+    if (w._h !== html) { var tabCh = CVF.lastTab !== tab; CVF.lastTab = tab; w.innerHTML = html; w._h = html; void tabCh; cvDraw(true); }
   }
   function render() {
     limMigrate();
@@ -8585,9 +8733,14 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     /* ---------- Ingresos y gastos del mes ---------- */
     $("cv").addEventListener("click", function (e) {
       if (e.target.closest("[data-cv-lim]")) { openLim(); return; }
-      if (e.target.closest("[data-cv-all]")) { state.cvAll = !state.cvAll; renderCv(); return; }
+      if (e.target.closest("[data-cv-all]")) { state.cvAll = true; state.cvSel = null; cvApplySel(); return; }
+      var rg = e.target.closest("[data-cv-ring], [data-cv-row]");
+      if (rg) { var cn = rg.getAttribute("data-cv-ring") || rg.getAttribute("data-cv-row"); state.cvSel = state.cvSel === cn && !state.cvAll ? null : cn; state.cvAll = false; cvApplySel(); return; }
+      if (e.target.closest("[data-cv-close]")) { state.cvSel = null; state.cvAll = false; cvApplySel(); return; }
+      var dl = e.target.closest("[data-cvd-lim]"); if (dl) { cvdCat = dl.getAttribute("data-cvd-lim"); openCvl(cvdCat); return; }
+      var dm = e.target.closest("[data-cvd-mov]"); if (dm) { cvMovs(dm.getAttribute("data-cvd-mov")); return; }
       var tb = e.target.closest("[data-cv-tab]");
-      if (tb) { state.cvTab = tb.getAttribute("data-cv-tab"); renderCv(); return; }
+      if (tb) { if (state.cvTab !== tb.getAttribute("data-cv-tab")) { state.cvTab = tb.getAttribute("data-cv-tab"); state.cvSel = null; state.cvAll = false; var ff = $("cvf"); if (ff) Array.prototype.forEach.call(ff.querySelectorAll(".bub"), function (b) { b.classList.add("out"); }); setTimeout(renderCv, REDUCED ? 0 : 260); } return; }
       var b = e.target.closest("[data-cv-cat]"); if (!b) return;
       if (state.cvTab === "ingreso") { cvMovs(b.getAttribute("data-cv-cat")); return; }
       openCvd(b.getAttribute("data-cv-cat"));
@@ -8662,11 +8815,11 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       var u = conv(v, D, "USD"); if (u === null) { $("cvl-err").textContent = "Falta la tasa del día para convertir este monto."; return; }
       state.limits = state.limits || {}; state.limCur = state.limCur || {};
       state.limits[c] = u; state.limCur[c] = { v: v, cur: D }; state.limPer = cvlPer;
-      save(); render(); closeCvl(); openCvd(c); showToast("Límite guardado.");
+      save(); render(); closeCvl(); if (!$("cvd-sheet").hidden) openCvd(c); showToast("Límite guardado.");
     });
     $("cvl-del").addEventListener("click", function () {
       var c = cvdCat; if (state.limits) delete state.limits[c]; if (state.limCur) delete state.limCur[c];
-      save(); render(); closeCvl(); openCvd(c); showToast("Límite quitado.");
+      save(); render(); closeCvl(); if (!$("cvd-sheet").hidden) openCvd(c); showToast("Límite quitado.");
     });
     /* ---------- Asistente financiero (IA) ---------- */
     var AI_KINDS = { warn: "Atención", tip: "Consejo", good: "Bien hecho", info: "Dato" };
