@@ -3039,6 +3039,8 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 .cvf .bub.in { animation: cvBubIn .75s cubic-bezier(.34,1.5,.5,1) backwards; }
 @keyframes cvBubIn { from { transform: translate(-50%, -50%) scale(0); opacity: 0; } }
 .cvf .bub.out { transform: translate(-50%, -50%) scale(.2); opacity: 0; transition-duration: .26s; }
+/* Al tocar no se mueve: anula el «scale» general de los botones, que borraba el centrado */
+.cvf .bub:not(.out):active { transform: translate(-50%, -50%) scale(var(--s, 1)); }
 .cvcard { margin-top: 6px; background: var(--surface); border-radius: 24px; padding: 15px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; overflow: hidden; }
 .cvcard > * { min-width: 0; }
 .cvcard { transition: height .5s cubic-bezier(.32,.72,0,1); }
