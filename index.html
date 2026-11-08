@@ -3062,6 +3062,9 @@ body:not(.view-goals):not(.view-pay):not(.view-hist):not(.view-bn):not(.view-set
   transition: transform 0.38s var(--spring), bottom 0.61s var(--spring), right 0.61s var(--spring), width 0.61s var(--spring), height 0.61s var(--spring), font-size 0.61s var(--spring), opacity 0.27s ease !important; }
 .ai-fab { right: var(--tbx) !important; bottom: calc(var(--tbb) + var(--tbh) + 12px) !important; }
 .dial-menu { bottom: calc(var(--tbb) + var(--tbh) + 14px) !important; }
+/* Cuentas y subcategorías que se deslizan: con margen a los lados, como los filtros de Historial (no tocan el borde) */
+.mv-acc, .tr-box .mv-acc { margin-left: 0 !important; margin-right: 0 !important; padding-left: 2px !important; padding-right: 2px !important; scroll-padding: 0 2px; }
+.sub-row { margin-left: 0 !important; margin-right: 0 !important; padding-left: 1px !important; padding-right: 1px !important; }
 /* El + dibujado (no como letra) para que quede justo al centro */
 .fab { padding: 0 !important; }
 .fab .fab-ic { width: 46%; height: 46%; display: block; pointer-events: none; }
@@ -6807,7 +6810,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       if (on && (fresh || box._last !== sel.value)) {
         box._last = sel.value;
         setTimeout(function () {
-          var l = on.offsetLeft - 20, r = on.offsetLeft + on.offsetWidth + 20 - box.clientWidth;
+          var rel = on.getBoundingClientRect().left - box.getBoundingClientRect().left + box.scrollLeft, l = rel - 2, r = rel + on.offsetWidth + 2 - box.clientWidth;
           if (fresh) box.scrollLeft = Math.max(0, l);
           else if (box.scrollLeft > l) box.scrollTo({ left: Math.max(0, l), behavior: "smooth" });
           else if (box.scrollLeft < r) box.scrollTo({ left: r, behavior: "smooth" });
@@ -7393,7 +7396,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           '<span class="ap-t"><b>' + esc(a ? a.nombre : o.textContent) + "</b><small>" + (a ? money(accBalance(a), a.moneda) : "Sin cuenta") + "</small></span></button>";
       }).join("");
       var cur = box.querySelector(".ap.on");
-      if (cur) setTimeout(function () { box.scrollLeft = Math.max(0, cur.offsetLeft - 16); }, 0);
+      if (cur) setTimeout(function () { var rel = cur.getBoundingClientRect().left - box.getBoundingClientRect().left + box.scrollLeft; box.scrollLeft = Math.max(0, rel - 2); }, 0);
     }
     $("acc-pick").addEventListener("click", function (e) {
       var b = e.target.closest("[data-ap]"); if (!b) return;
@@ -8029,7 +8032,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       ["tr-from", "tr-to"].forEach(function (id) {
         var w = $(id).parentNode.querySelector(".mv-acc"), on = w && w.querySelector('[aria-checked="true"]');
         if (!w || !on) return;
-        var x = on.offsetLeft - (w.clientWidth - on.offsetWidth) / 2;
+        var x = on.getBoundingClientRect().left - w.getBoundingClientRect().left + w.scrollLeft - (w.clientWidth - on.offsetWidth) / 2;
         try { w.scrollTo({ left: Math.max(0, x), behavior: "smooth" }); } catch (e) { w.scrollLeft = Math.max(0, x); }
       });
       $("tr-rate-wrap").style.display = rate ? "" : "none";
