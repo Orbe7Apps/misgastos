@@ -3058,8 +3058,11 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 /* Botón + junto a la barra (opción 3A): a su derecha, a la misma altura y del mismo alto; la barra se acorta
    solo donde el + se ve (Inicio). Al achicarse la barra al bajar, el + se achica con ella */
 body:not(.view-goals):not(.view-pay):not(.view-hist):not(.view-bn):not(.view-set):not(.view-accd) .tabbar { right: calc(var(--tbx) + var(--tbh) + 10px); }
-.fab { right: var(--tbx) !important; bottom: var(--tbb) !important; width: var(--tbh) !important; height: var(--tbh) !important; font-size: calc(var(--tbh) * 0.6) !important;
-  transition: transform 0.38s var(--spring), bottom 0.61s var(--spring), right 0.61s var(--spring), width 0.61s var(--spring), height 0.61s var(--spring), font-size 0.61s var(--spring), opacity 0.27s ease !important; }
+.fab { right: 16px !important; bottom: var(--tbb) !important; width: 58px !important; height: 58px !important;
+  transition: transform 0.38s var(--spring), scale 0.61s var(--spring), translate 0.61s var(--spring), opacity 0.27s ease !important; will-change: transform; }
+/* Barra pequeña (alto 48, margen 44): el + se encoge con «scale» y se corre con «translate», que no recalculan la página */
+body.tb-min .fab { scale: 0.8276; translate: -23px 5px; }
+body.nav-sync .fab { transition: transform 0.38s var(--spring), scale 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), translate 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.27s ease !important; }
 .ai-fab { right: var(--tbx) !important; bottom: calc(var(--tbb) + var(--tbh) + 12px) !important; }
 .dial-menu { bottom: calc(var(--tbb) + var(--tbh) + 14px) !important; }
 /* Cuentas y subcategorías que se deslizan: con margen a los lados, como los filtros de Historial (no tocan el borde) */
@@ -3071,6 +3074,7 @@ body:not(.view-goals):not(.view-pay):not(.view-hist):not(.view-bn):not(.view-set
 /* Bajar para agregar: la bolita que sale del notch */
 #pb { position: fixed; left: 0; right: 0; top: 0; height: 280px; z-index: 60; pointer-events: none; }
 #pb[hidden] { display: none !important; }
+#pb-ball { transform-box: fill-box; transform-origin: center; }
 #pb svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
 #pb .pb-plus { position: absolute; left: 50%; top: 0; width: 48px; height: 48px; margin: -24px 0 0 -24px; display: grid; place-items: center; color: var(--accent-ink, #fff); opacity: 0; transform: scale(.4); transition: opacity .18s ease, transform .32s cubic-bezier(.34,1.56,.64,1); }
 #pb .pb-plus.on { opacity: 1; transform: none; }
@@ -7819,7 +7823,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     (function () {
       var pb = $("pb"), svg = $("pb-svg"), src = $("pb-src"), ball = $("pb-ball"), plus = $("pb-plus"), hint = $("pb-hint"), main = document.querySelector("main");
       if (!pb || !main) return;
-      var TH = 88, RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var TH = 132, RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       var cand = false, pulling = false, x0 = 0, y0 = 0, p = 0, armed = false, cy0 = 29.5, raf = 0, anim = 0;
       var NO = "input, select, textarea, .sheet, .tabbar, .dial, .menu, .cat-chips, .hist-chips";
       function safeTop() { var d = document.createElement("div"); d.style.cssText = "position:fixed;top:0;height:env(safe-area-inset-top,0px);visibility:hidden"; document.body.appendChild(d); var h = d.offsetHeight; d.remove(); return h; }
@@ -7839,12 +7843,15 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       function rubber(dy) { return dy <= 0 ? 0 : 200 * (1 - Math.exp(-dy / 240)); }
       // Vibración suave al llegar al punto (Android con vibrate; iPhone con el truco del interruptor nativo)
       var hapt = null;
+      try {
+        var hi = document.createElement("input"); hi.type = "checkbox"; hi.id = "pb-hap"; hi.setAttribute("switch", ""); hi.tabIndex = -1; hi.setAttribute("aria-hidden", "true");
+        hapt = document.createElement("label"); hapt.htmlFor = "pb-hap"; hapt.setAttribute("aria-hidden", "true");
+        var hw = document.createElement("div"); hw.style.cssText = "position:fixed;left:0;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;z-index:-1";
+        hw.appendChild(hi); hw.appendChild(hapt); document.body.appendChild(hw);
+      } catch (e) { hapt = null; }
       function haptic() {
-        if (navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} return; }
-        try {
-          if (!hapt) { hapt = document.createElement("label"); hapt.style.cssText = "position:fixed;left:-99px;top:0;opacity:0;pointer-events:none"; var i = document.createElement("input"); i.type = "checkbox"; i.setAttribute("switch", ""); i.tabIndex = -1; hapt.appendChild(i); document.body.appendChild(hapt); }
-          hapt.click();
-        } catch (e) {}
+        if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) {} return; }
+        try { if (hapt) hapt.click(); } catch (e) {}
       }
       function paint() {
         raf = 0;
@@ -7855,12 +7862,12 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         ball.setAttribute("fill", armed ? getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#6a5cf2" : "#000");
         plus.style.top = cy + "px"; plus.classList.toggle("on", armed);
         hint.style.top = (cy + 34) + "px"; hint.style.opacity = p < 30 ? 0 : Math.min(1, (p - 30) / 30);
-        hint.textContent = armed ? "Suelta para agregar" : "Baja para agregar"; hint.classList.toggle("go", armed);
+        hint.textContent = armed ? "Suelta para agregar" : "Sigue bajando para agregar"; hint.classList.toggle("go", armed);
         pb.hidden = p <= 0.5;
       }
       function setP(np) {
-        p = np; var was = armed; armed = p >= TH;
-        if (armed && !was) { haptic(); if (!RM && plus.animate) plus.animate([{ transform: "scale(.6)" }, { transform: "scale(1.15)" }, { transform: "scale(1)" }], { duration: 320, easing: "cubic-bezier(.34,1.56,.64,1)" }); }
+        p = np; var was = armed; armed = was ? p >= TH - 10 : p >= TH;
+        if (armed && !was) { haptic(); if (!RM && ball.animate) ball.animate([{ transform: "scale(1)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }], { duration: 300, easing: "cubic-bezier(.34,1.56,.64,1)" }); if (!RM && plus.animate) plus.animate([{ transform: "scale(.6)" }, { transform: "scale(1.15)" }, { transform: "scale(1)" }], { duration: 320, easing: "cubic-bezier(.34,1.56,.64,1)" }); }
         if (!raf) raf = requestAnimationFrame(paint);
       }
       function settle(open) {
@@ -7884,7 +7891,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         if (!pulling) {
           if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) { cand = false; return; }
           if (dy < -4 || window.scrollY > 0) { cand = false; return; }
-          if (dy < 8) return;
+          if (dy < 16) return;
           pulling = true; y0 = t.clientY; layout(); main.classList.add("pb-pull");
         }
         if (e.cancelable) e.preventDefault();
