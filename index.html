@@ -7789,51 +7789,87 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     });
     document.addEventListener("click", function (e) { if (!e.target.closest(".menu-wrap")) closeMenus(); });
 
-    // Gesto: deslizar de lado cambia de pestaña (izquierda = siguiente, derecha = anterior).
+    // Gesto: deslizar de lado cambia de página (dedo a la izquierda = siguiente, a la derecha = anterior).
+    // La página sigue al dedo; en Inicio y en Historial hay tope (rebota, no da la vuelta).
     // En Ajustes, detalle de cuenta y guía de Binance, deslizar a la derecha vuelve atrás.
     (function () {
-      var x0 = 0, y0 = 0, t0 = 0, ok = false, monthZone = null, onRow = null;
+      var x0 = 0, y0 = 0, t0 = 0, ok = false, dir = 0, monthZone = null, onRow = null, pg = null, lastDx = 0;
+      var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
       function shiftM(m, d) { var p = m.split("-"), dt = new Date(Number(p[0]), Number(p[1]) - 1 + d, 1); return dt.getFullYear() + "-" + pad2(dt.getMonth() + 1); }
       var NO = ".trend-chart, input, select, textarea, .hist-chips, #hist-cats, .sav-chart, .sheet, .seg, .rate-fields, .cat-chips, .tabbar, .dial, .menu, .acc3, .cvf, .cvcard";
       function blocked() {
-        if (document.querySelector(".sheet-backdrop:not([hidden])")) return true;
+        if (document.querySelector(".sheet-backdrop:not([hidden])") || !$("dial").hidden) return true;
         return ["onb", "lock", "tour", "ctry", "splash", "cal-backdrop"].some(function (id) { var el = $(id); return el && !el.hidden; });
       }
+      function pageEl() { var v = activeView(); return v ? $(v === "goals" ? "goals-view" : v + "-view") : document.querySelector("main"); }
+      function tabsInfo() {
+        var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab[data-tab]"));
+        return { tabs: tabs, cur: tabs.findIndex(function (t) { return t.getAttribute("aria-current") === "true"; }) };
+      }
+      // ¿Hacia dónde iría este deslizamiento? null = no cambia de página (tope o no aplica)
+      function target(dx) {
+        var v = activeView();
+        if (v === "set" || v === "accd" || v === "bn") return dx > 0 ? "back" : null;
+        var t = tabsInfo(); if (t.cur < 0) return null;
+        var n = t.cur + (dx < 0 ? 1 : -1);
+        return n < 0 || n >= t.tabs.length ? null : n;
+      }
+      function pageNav() { return !monthZone && !(onRow && lastDx < 0); }
+      function setX(x, anim) {
+        if (!pg) return;
+        pg.style.transition = anim ? "transform 0.45s " + EASE : "none";
+        pg.style.transform = x ? "translateX(" + x.toFixed(1) + "px)" : "";
+      }
+      function release(el) { if (!el) return; setTimeout(function () { if (el !== pg || !ok) { el.style.transition = ""; if (!el.style.transform) el.style.transform = ""; } }, 470); }
       document.addEventListener("touchstart", function (e) {
         monthZone = e.target.closest(".field-month, .hist-month");
         onRow = e.target.closest(".hrow[data-hid], .pay[data-pid]");
         var ex = e.touches[0] ? e.touches[0].clientX : 0;
         ok = e.touches.length === 1 && ex > 22 && ex < window.innerWidth - 22 && (monthZone || !e.target.closest(NO)) && !blocked();
+        dir = 0; lastDx = 0; pg = null;
         if (ok) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }
       }, { passive: true });
-      document.addEventListener("touchend", function (e) {
-        if (!ok) return; ok = false;
-        var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
-        if (Math.abs(dx) < (monthZone ? 40 : 70) || Math.abs(dy) > Math.abs(dx) * 0.6 || Date.now() - t0 > 800) return;
-        // Sobre una fila, deslizar a la izquierda es su papelera; a la derecha sí cambia de página (si la fila no estaba abierta)
-        if (onRow && (dx < 0 || onRow.classList.contains("open") || (onRow._swiped && Date.now() - onRow._swiped < 400 && dx < 0))) return;
+      document.addEventListener("touchmove", function (e) {
+        if (!ok) return;
+        var dx = e.touches[0].clientX - x0, dy = e.touches[0].clientY - y0;
+        if (!dir) {
+          if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+          dir = Math.abs(dx) > Math.abs(dy) * 1.2 ? 1 : 2;
+          if (dir === 2) { ok = false; return; }
+        }
+        lastDx = dx;
+        if (RM || !pageNav()) { if (pg) setX(0, true); return; }
+        if (!pg) pg = pageEl();
+        // Con página al otro lado sigue al dedo; en el tope cede poco (resistencia)
+        var free = target(dx) !== null, k = free ? 0.32 : 0.12, cap = free ? 90 : 34;
+        var x = Math.sign(dx) * Math.min(cap, Math.abs(dx) * k);
+        setX(x, false);
+      }, { passive: true });
+      function finish(e) {
+        if (!ok) { return; }
+        ok = false;
+        var el = pg;
+        var dx = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX - x0 : lastDx, dy = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY - y0 : 0, dt = Date.now() - t0;
+        lastDx = dx;
+        var horiz = dir === 1 || (Math.abs(dx) > Math.abs(dy) * 1.2);
+        var enough = horiz && (Math.abs(dx) >= 60 || (Math.abs(dx) >= 28 && dt < 260));
+        if (!enough || (onRow && (dx < 0 || onRow.classList.contains("open")))) { if (el) { setX(0, true); release(el); } pg = null; return; }
         if (monthZone) {
           if (monthZone.classList.contains("hist-month")) { var hb = $(dx < 0 ? "hist-next" : "hist-prev"); if (!hb.disabled) hb.click(); }
           else { var n2 = shiftM(state.month, dx < 0 ? 1 : -1); if (n2 <= today().slice(0, 7)) setMonth(n2); }
-          return;
+          pg = null; return;
         }
-        var v = activeView();
-        if (v === "set" || v === "accd" || v === "bn") { if (dx > 0) { closeViews(); setTab(currentTab()); } return; }
-        var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab[data-tab]"));
-        var cur = tabs.findIndex(function (t) { return t.getAttribute("aria-current") === "true"; });
-        var n = cur + (dx < 0 ? 1 : -1);
-        if (cur < 0) return;
-        if (n < 0 || n >= tabs.length) {
-          var box = v ? $(v === "goals" ? "goals-view" : v + "-view") : document.querySelector("main");
-          if (box && box.animate && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
-            var d = dx < 0 ? -1 : 1;
-            box.animate([{ transform: "translateX(0)" }, { transform: "translateX(" + (d * 22) + "px)", offset: 0.35 }, { transform: "translateX(" + (d * -4) + "px)", offset: 0.75 }, { transform: "translateX(0)" }], { duration: 560, easing: "cubic-bezier(0.32, 0.72, 0, 1)" });
-          }
-          return;
-        }
+        var n = target(dx);
+        if (n === null) { if (el) { setX(0, true); release(el); } pg = null; return; }   // tope: vuelve a su sitio
+        if (el) { el.style.transition = "none"; el.style.transform = ""; requestAnimationFrame(function () { el.style.transition = ""; }); }
+        pg = null;
         if (window.__navNoBack) window.__navNoBack();
-        tabs[n].click();
-      }, { passive: true });
+        if (n === "back") { closeViews(); setTab(currentTab()); return; }
+        tabsInfo().tabs[n].click();
+      }
+      document.addEventListener("touchend", finish, { passive: true });
+      document.addEventListener("touchcancel", function () { if (!ok) return; ok = false; if (pg) { var el = pg; setX(0, true); release(el); } pg = null; }, { passive: true });
     })();
     // Bajar para agregar: en Inicio, arriba del todo, bajar la pantalla saca una bolita del notch.
     // Al pasar el punto toma el color de la app; al soltar se abre «Nuevo movimiento».
@@ -10274,7 +10310,9 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           return;
         }
         if (!$("dial").hidden) { closeDial(); return; }
-        if (activeView()) { closeViews(); setTab(currentTab()); }
+        var av = activeView();
+        if (av === "pay" || av === "hist") { var tb = document.querySelector('.tab[data-tab="' + (NAV_I[av] - 1) + '"]'); if (tb) { tb.click(); return; } }
+        if (av) { closeViews(); setTab(currentTab()); }
       }
       window.addEventListener("popstate", function () {
         var wasArmed = armed; armed = false;
