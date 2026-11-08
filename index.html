@@ -7815,6 +7815,9 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     });
     document.addEventListener("click", function (e) { if (!e.target.closest(".menu-wrap")) closeMenus(); });
 
+    // Ancho de la franja de cada borde desde la que se cambia de página
+    var EDGE = 44;
+    function atEdge(x) { return x <= EDGE || x >= window.innerWidth - EDGE; }
     // Gesto: deslizar de lado cambia de página (dedo a la izquierda = siguiente, a la derecha = anterior).
     // La página sigue al dedo; en Inicio y en Historial hay tope (rebota, no da la vuelta).
     // En Ajustes, detalle de cuenta y guía de Binance, deslizar a la derecha vuelve atrás.
@@ -7823,7 +7826,10 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       var EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
       function shiftM(m, d) { var p = m.split("-"), dt = new Date(Number(p[0]), Number(p[1]) - 1 + d, 1); return dt.getFullYear() + "-" + pad2(dt.getMonth() + 1); }
-      var NO = ".trend-chart, input, select, textarea, .hist-chips, #hist-cats, .sav-chart, .sheet, .seg, .rate-fields, .cat-chips, .tabbar, .dial, .menu, .acc3, .cvf, .cvcard";
+      // Solo desde los bordes: desde la izquierda va a la página anterior, desde la derecha a la siguiente.
+      // Se excluye lo que se desliza de lado por sí mismo (filtros, cuentas, categorías) y los campos
+      var NO = "input, select, textarea, .hist-chips, #hist-cats, .sheet, .rate-fields, .cat-chips, .tabbar, .dial, .menu, .acc3, .mv-acc, .sub-row";
+      var side = 0;
       function blocked() {
         if (document.querySelector(".sheet-backdrop:not([hidden])") || !$("dial").hidden) return true;
         return ["onb", "lock", "tour", "ctry", "splash", "cal-backdrop"].some(function (id) { var el = $(id); return el && !el.hidden; });
@@ -7852,7 +7858,9 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         monthZone = e.target.closest(".field-month, .hist-month");
         onRow = e.target.closest(".hrow[data-hid], .pay[data-pid]");
         var ex = e.touches[0] ? e.touches[0].clientX : 0;
-        ok = e.touches.length === 1 && ex > 22 && ex < window.innerWidth - 22 && (monthZone || !e.target.closest(NO)) && !blocked();
+        side = ex <= EDGE ? 1 : ex >= window.innerWidth - EDGE ? -1 : 0;   // 1 = borde izquierdo, -1 = derecho
+        if (side) onRow = null;   // desde el borde manda el cambio de página, no la papelera de la fila
+        ok = e.touches.length === 1 && (monthZone ? true : side !== 0 && !e.target.closest(NO)) && !blocked();
         dir = 0; lastDx = 0; pg = null;
         if (ok) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }
       }, { passive: true });
@@ -7865,6 +7873,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           if (dir === 2) { ok = false; return; }
         }
         lastDx = dx;
+        if (!monthZone && side && Math.sign(dx) !== side) { if (pg) setX(0, true); return; }
         if (RM || !pageNav()) { if (pg) setX(0, true); return; }
         if (!pg) pg = pageEl();
         // Con página al otro lado sigue al dedo; en el tope cede poco (resistencia)
@@ -7879,7 +7888,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         var dx = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX - x0 : lastDx, dy = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY - y0 : 0, dt = Date.now() - t0;
         lastDx = dx;
         var horiz = dir === 1 || (Math.abs(dx) > Math.abs(dy) * 1.2);
-        var enough = horiz && (Math.abs(dx) >= 60 || (Math.abs(dx) >= 28 && dt < 260));
+        var enough = horiz && (Math.abs(dx) >= 60 || (Math.abs(dx) >= 28 && dt < 260)) && (monthZone || Math.sign(dx) === side);
         if (!enough || (onRow && (dx < 0 || onRow.classList.contains("open")))) { if (el) { setX(0, true); release(el); } pg = null; return; }
         if (monthZone) {
           if (monthZone.classList.contains("hist-month")) { var hb = $(dx < 0 ? "hist-next" : "hist-prev"); if (!hb.disabled) hb.click(); }
@@ -10035,6 +10044,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         var r = e.target.closest(".pay[data-pid]");
         closeAll(r);
         if (!r || e.touches.length !== 1 || e.target.closest(".menu")) { row = null; return; }
+        if (atEdge(e.touches[0].clientX) && !r.classList.contains("open")) { row = null; return; }
         row = r; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = r.classList.contains("open") ? -80 : 0; dir = 0;
       }, { passive: true });
       el.addEventListener("touchmove", function (e) {
@@ -10130,7 +10140,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     $("hist-list").addEventListener("touchstart", function (e) {
       var r = e.target.closest(".hrow[data-hid]");
       closeSwipes(r);
-      if (!r || r.hasAttribute("data-auto") || e.touches.length !== 1) { swRow = null; return; }
+      if (!r || r.hasAttribute("data-auto") || e.touches.length !== 1 || (atEdge(e.touches[0].clientX) && !r.classList.contains("open"))) { swRow = null; return; }
       swRow = r; swX = e.touches[0].clientX; swY = e.touches[0].clientY; swDx = r.classList.contains("open") ? -80 : 0; swDir = 0; swMx = 0;
     }, { passive: true });
     $("hist-list").addEventListener("touchmove", function (e) {
@@ -11977,7 +11987,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       { tab: 0, sel: '[data-panel="acc"]', t: "Tus cuentas", p: "Cuánto hay en cada cuenta. Toca una para ver sus movimientos o cuadrarla con tu banco. Con ⇄ transfieres y con + agregas otra." },
       { tab: 0, sel: '[data-panel="cat"]', t: "Tus gastos e ingresos", p: "Tus gastos por categoría. Toca una para ver cómo vas contra el mes pasado o ponerle un límite." },
       { tab: 0, sel: "#fab", t: "El botón +", p: "Tócalo para anotar un gasto o ingreso, ahorrar, usar una plantilla o abrir la calculadora.", round: true },
-      { tab: 0, sel: "#tabbar", t: "Secciones", p: "Muévete entre Inicio, Ahorro, Pagos e Historial. Desliza de lado para cambiar de pestaña; para cambiar de mes, desliza sobre el mes de arriba.", round: true },
+      { tab: 0, sel: "#tabbar", t: "Secciones", p: "Muévete entre Inicio, Ahorro, Pagos e Historial. Desliza desde el borde de la pantalla para cambiar de pestaña; para cambiar de mes, desliza sobre el mes de arriba.", round: true },
       { tab: 1, sel: '#goals-view [data-panel="sav"]', t: "Tu ahorro", p: "Lo que tienes apartado. Desde aquí ahorras, retiras o cambias de moneda. Al anotar un ingreso puedes apartar un % de una vez." },
       { tab: 1, sel: "#gv-hero", alt: "#goal-empty", t: "Metas", p: "Crea una meta con «Crear meta» y mira cuánto llevas y cuándo llegas." },
       { tab: 1, sel: "#sg-sec", t: "Metas compartidas", p: "Junten dinero con amigos para un regalo o un viaje. Invitas con un código y confirmas cada aporte." },
