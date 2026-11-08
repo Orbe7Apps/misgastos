@@ -3057,16 +3057,18 @@ html.mono .cv-row2.fast .cv-bar2 i, html.mono .cvd-card.fast .cvd-bar i { backgr
 /* Al tocar no se mueve: anula el «scale» general de los botones, que borraba el centrado */
 /* Botón + junto a la barra (opción 3A): a su derecha, a la misma altura y del mismo alto; la barra se acorta
    solo donde el + se ve (Inicio). Al achicarse la barra al bajar, el + se achica con ella */
-body:not(.view-goals):not(.view-pay):not(.view-hist):not(.view-bn):not(.view-set):not(.view-accd) .tabbar { right: calc(var(--tbx) + var(--tbh) + 10px); }
+.tabbar { right: calc(16px + 58px + 10px) !important; }
+/* Fuera de Inicio el + no se ve: la barra no cambia de ancho (así el indicador de página no se deforma), solo se corre al centro */
+body.view-goals .tabbar, body.view-pay .tabbar, body.view-hist .tabbar, body.view-bn .tabbar, body.view-set .tabbar, body.view-accd .tabbar { translate: 34px 0; }
 .fab { right: 16px !important; bottom: var(--tbb) !important; width: 58px !important; height: 58px !important;
   transition: transform 0.38s var(--spring), scale 0.61s var(--spring), translate 0.61s var(--spring), opacity 0.27s ease !important; will-change: transform; }
 /* Barra pequeña (alto 48, margen 44): el + se encoge con «scale» y se corre con «translate», que no recalculan la página */
 /* Barra pequeña sin recalcular la página: la barra conserva su tamaño real y solo se escala (como el +).
    Las medidas (--tbh, --tbx) ya no cambian; los textos se desvanecen y los íconos bajan al centro con transform */
 body.tb-min { --tbh: 58px !important; --tbx: 16px !important; }
-.tabbar { transform-origin: 50% 100%; transition: right 0.61s var(--spring), scale 0.61s var(--spring), opacity 0.4s ease !important; will-change: scale; }
+.tabbar { transform-origin: 50% 100%; transition: translate 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), scale 0.61s var(--spring), opacity 0.4s ease !important; will-change: transform, scale, translate; }
 body.tb-min .tabbar { scale: 0.83; }
-body.nav-sync .tabbar { transition: right 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), scale 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease !important; }
+body.nav-sync .tabbar { transition: translate 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), scale 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease !important; }
 body.tb-min .tab > :not(svg) { max-height: none !important; padding-bottom: 0; opacity: 0; }
 .tab > svg { transition: translate 0.61s var(--spring), scale 0.61s var(--spring); }
 body.tb-min .tab > svg { translate: 0 7.5px; scale: 1.1; }
@@ -7790,22 +7792,26 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     // Gesto: deslizar de lado cambia de pestaña (izquierda = siguiente, derecha = anterior).
     // En Ajustes, detalle de cuenta y guía de Binance, deslizar a la derecha vuelve atrás.
     (function () {
-      var x0 = 0, y0 = 0, t0 = 0, ok = false, monthZone = null;
+      var x0 = 0, y0 = 0, t0 = 0, ok = false, monthZone = null, onRow = null;
       function shiftM(m, d) { var p = m.split("-"), dt = new Date(Number(p[0]), Number(p[1]) - 1 + d, 1); return dt.getFullYear() + "-" + pad2(dt.getMonth() + 1); }
-      var NO = ".trend-chart, input, select, textarea, .hist-chips, #hist-cats, .sav-chart, .sheet, .seg, .rate-fields, .hrow[data-hid], .pay[data-pid], .cat-chips, .tabbar, .dial, .menu, .acc3, .cvf, .cvcard";
+      var NO = ".trend-chart, input, select, textarea, .hist-chips, #hist-cats, .sav-chart, .sheet, .seg, .rate-fields, .cat-chips, .tabbar, .dial, .menu, .acc3, .cvf, .cvcard";
       function blocked() {
         if (document.querySelector(".sheet-backdrop:not([hidden])")) return true;
         return ["onb", "lock", "tour", "ctry", "splash", "cal-backdrop"].some(function (id) { var el = $(id); return el && !el.hidden; });
       }
       document.addEventListener("touchstart", function (e) {
         monthZone = e.target.closest(".field-month, .hist-month");
-        ok = e.touches.length === 1 && (monthZone || !e.target.closest(NO)) && !blocked();
+        onRow = e.target.closest(".hrow[data-hid], .pay[data-pid]");
+        var ex = e.touches[0] ? e.touches[0].clientX : 0;
+        ok = e.touches.length === 1 && ex > 22 && ex < window.innerWidth - 22 && (monthZone || !e.target.closest(NO)) && !blocked();
         if (ok) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }
       }, { passive: true });
       document.addEventListener("touchend", function (e) {
         if (!ok) return; ok = false;
         var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
         if (Math.abs(dx) < (monthZone ? 40 : 70) || Math.abs(dy) > Math.abs(dx) * 0.6 || Date.now() - t0 > 800) return;
+        // Sobre una fila, deslizar a la izquierda es su papelera; a la derecha sí cambia de página (si la fila no estaba abierta)
+        if (onRow && (dx < 0 || onRow.classList.contains("open") || (onRow._swiped && Date.now() - onRow._swiped < 400 && dx < 0))) return;
         if (monthZone) {
           if (monthZone.classList.contains("hist-month")) { var hb = $(dx < 0 ? "hist-next" : "hist-prev"); if (!hb.disabled) hb.click(); }
           else { var n2 = shiftM(state.month, dx < 0 ? 1 : -1); if (n2 <= today().slice(0, 7)) setMonth(n2); }
@@ -7825,6 +7831,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           }
           return;
         }
+        if (window.__navNoBack) window.__navNoBack();
         tabs[n].click();
       }, { passive: true });
     })();
@@ -7833,7 +7840,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     (function () {
       var pb = $("pb"), svg = $("pb-svg"), src = $("pb-src"), ball = $("pb-ball"), plus = $("pb-plus"), hint = $("pb-hint"), main = document.querySelector("main");
       if (!pb || !main) return;
-      var TH = 132, RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var TH = 108, RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       var cand = false, pulling = false, x0 = 0, y0 = 0, p = 0, armed = false, cy0 = 29.5, raf = 0, anim = 0;
       var NO = "input, select, textarea, .sheet, .tabbar, .dial, .menu, .cat-chips, .hist-chips";
       function safeTop() { var d = document.createElement("div"); d.style.cssText = "position:fixed;top:0;height:env(safe-area-inset-top,0px);visibility:hidden"; document.body.appendChild(d); var h = d.offsetHeight; d.remove(); return h; }
@@ -10243,17 +10250,20 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     }
     // Botón o gesto «atrás» (Android, y deslizar en Safari): cierra primero lo que está encima
     // (hoja, menú + o pantalla) en vez de salir de la app. Cada capa abierta deja una entrada en el historial.
+    // Una sola entrada en el historial mientras haya algo abierto (hoja, menú + o pantalla): así el
+    // «atrás» del sistema cierra lo de encima y nunca se acumulan entradas (antes podía repetirse Inicio).
     (function () {
       if (!window.history || !history.pushState) return;
-      var depth = 0, skip = 0;
+      var armed = false, ignoreUntil = 0;
       function openSheets() { return Array.prototype.filter.call(document.querySelectorAll(".sheet-backdrop"), function (el) { return !el.hidden; }); }
       function layers() { return openSheets().length + (activeView() ? 1 : 0) + ($("dial").hidden ? 0 : 1); }
       function blocked() { return !$("lock").hidden || !$("onb").hidden || !!document.querySelector(".ctry:not([hidden])") || (!$("tour").hidden && $("tour").classList.contains("on")); }
       function sync() {
         var n = layers();
-        if (n > depth) { for (var i = depth; i < n; i++) try { history.pushState({ orbe: i + 1 }, ""); } catch (e) {} depth = n; }
-        else if (n < depth) { var d = depth - n; depth = n; skip += d; try { history.go(-d); } catch (e) { skip = 0; } }
+        if (n > 0 && !armed) { try { history.pushState({ orbe: 1 }, ""); armed = true; } catch (e) {} }
+        else if (n === 0 && armed) { armed = false; ignoreUntil = Date.now() + 600; try { history.back(); } catch (e) {} }
       }
+      window.__navNoBack = function () { ignoreUntil = Date.now() + 600; };
       function closeTop() {
         var sh = openSheets();
         if (sh.length) {
@@ -10267,10 +10277,13 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         if (activeView()) { closeViews(); setTab(currentTab()); }
       }
       window.addEventListener("popstate", function () {
-        if (skip > 0) { skip--; return; }
-        if (blocked()) { try { history.pushState({ orbe: depth }, ""); } catch (e) {} return; }
-        depth = Math.max(0, depth - 1);
-        closeTop();
+        var wasArmed = armed; armed = false;
+        // «Adelante» del sistema hacia una entrada vieja con nada abierto: se deshace en silencio
+        if (!wasArmed && history.state && history.state.orbe && layers() === 0) { ignoreUntil = Date.now() + 600; try { history.back(); } catch (e) {} return; }
+        // Vuelta provocada por la propia app, o un «atrás» del sistema justo tras deslizar entre páginas: no se cierra nada más
+        if (Date.now() < ignoreUntil) { setTimeout(sync, 0); return; }
+        if (blocked()) { setTimeout(sync, 0); return; }
+        if (wasArmed && layers() > 0) closeTop();
         setTimeout(sync, 0);
       });
       var t = 0;
