@@ -2401,7 +2401,7 @@ input, textarea, [contenteditable="true"], .hd-rows, .siri-url code { -webkit-us
 .cx-copy { width: 36px; height: 36px; border-radius: 50%; border: 0; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); display: grid; place-items: center; cursor: pointer; padding: 0; transition: transform 0.15s ease, background 0.25s ease, color 0.25s ease, opacity 0.25s ease; }
 .cx-copy svg { width: 18px; height: 18px; }
 .cx-copy:active { transform: scale(0.9); }
-.cx-copy:disabled { opacity: 0.35; cursor: default; }
+.cx-copy:disabled { opacity: 0.5; cursor: default; }
 .cx-copy.ok { background: color-mix(in srgb, var(--in) 18%, transparent); color: var(--in); }
 
 /* Cuadrar con el banco */
@@ -3092,6 +3092,11 @@ html.mono .pay.paid .pay-check svg { stroke: var(--bg); }
 /* Días pagados del calendario: no heredan el estilo de los mensajes «.ok» (los bajaba 6 px, achicaba y teñía) */
 .cal-day.ok { margin: 0 !important; font-size: inherit !important; }
 .cal-day.ok:not(.today):not(.sel) { color: var(--ink) !important; }
+/* Modo oscuro con color: los íconos de categoría se aclaran un poco para que se distingan sobre el fondo oscuro */
+@media (prefers-color-scheme: dark) { html:not([data-theme="light"]):not(.mono) .hic.k-goal { color: color-mix(in srgb, var(--gc, var(--accent)) 68%, #fff) !important; }
+  html:not([data-theme="light"]):not(.mono) .cat-btn .cb-ic:not(.cb-more), html:not([data-theme="light"]):not(.mono) .cat-btn .cb-ic:not(.cb-more) svg, html:not([data-theme="light"]):not(.mono) .cat-chip .ci { color: color-mix(in srgb, var(--c) 68%, #fff) !important; } }
+html[data-theme="dark"]:not(.mono) .hic.k-goal { color: color-mix(in srgb, var(--gc, var(--accent)) 68%, #fff) !important; }
+html[data-theme="dark"]:not(.mono) .cat-btn .cb-ic:not(.cb-more), html[data-theme="dark"]:not(.mono) .cat-btn .cb-ic:not(.cb-more) svg, html[data-theme="dark"]:not(.mono) .cat-chip .ci { color: color-mix(in srgb, var(--c) 68%, #fff) !important; }
 /* Calendario de Pagos en blanco y negro: sin colores, cada estado tiene su forma.
    Pendiente = punto, pagado = aro vacío, vencido = raya */
 html.mono #pay-cal .cal-day.ok::after { background: transparent !important; width: 6px; height: 6px; margin-left: -3px; bottom: 3px; box-shadow: inset 0 0 0 1.5px var(--ink); }
