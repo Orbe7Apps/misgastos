@@ -2189,8 +2189,8 @@ h1 .brand { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-u
   .tab-lens { transition: transform 0.38s cubic-bezier(0.3, 0.9, 0.3, 1.04), border-radius 0.4s var(--spring) !important; }
   .tab { transition: color 0.22s ease; }
 }
-@keyframes navInR { from { opacity: 0.4; transform: translateX(22px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes navInL { from { opacity: 0.4; transform: translateX(-22px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes navInR { from { opacity: 0.5; transform: translateX(var(--nav-from, 22px)); } to { opacity: 1; transform: translateX(0); } }
+@keyframes navInL { from { opacity: 0.5; transform: translateX(calc(var(--nav-from, 22px) * -1)); } to { opacity: 1; transform: translateX(0); } }
 /* Durante el tutorial la página cambia al instante bajo el fondo oscuro; solo se mueve el recuadro */
 html.touring body .goals-view, html.touring body .pay-view, html.touring body .hist-view, html.touring body .bn-view, html.touring body .set-view, html.touring body .accd-view, html.touring body main { animation: none !important; }
 /* Subcategorías, etiquetas y gasto dividido */
@@ -3121,7 +3121,7 @@ html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data
 #pb .pb-hint.go { color: var(--accent); }
 html.mono #pb .pb-hint.go { color: var(--ink); }
 main.pb-pull { will-change: transform; }
-main.pb-pull .trend-tip, main.pb-pull .trend-chart .cross, main.pb-pull .trend-chart .cdot { display: none !important; }
+body.pg-drag .trend-tip, body.pg-drag .trend-chart .cross, body.pg-drag .trend-chart .cdot, main.pb-pull .trend-tip, main.pb-pull .trend-chart .cross, main.pb-pull .trend-chart .cdot { display: none !important; }
 .cvf .bub:not(.out):active { transform: translate(-50%, -50%) scale(var(--s, 1)); }
 .cvcard { margin-top: 6px; background: var(--surface); border-radius: 24px; padding: 15px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; overflow: hidden; }
 .cvcard > * { min-width: 0; }
@@ -7823,6 +7823,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     // En Ajustes, detalle de cuenta y guía de Binance, deslizar a la derecha vuelve atrás.
     (function () {
       var x0 = 0, y0 = 0, t0 = 0, ok = false, dir = 0, monthZone = null, onRow = null, pg = null, lastDx = 0;
+      var vx = 0, lx = 0, lt = 0, curTab = 0, lens = document.querySelector(".tab-lens");
       var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       var EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
       function shiftM(m, d) { var p = m.split("-"), dt = new Date(Number(p[0]), Number(p[1]) - 1 + d, 1); return dt.getFullYear() + "-" + pad2(dt.getMonth() + 1); }
@@ -7848,6 +7849,13 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         return n < 0 || n >= t.tabs.length ? null : n;
       }
       function pageNav() { return !monthZone && !(onRow && lastDx < 0); }
+      // El indicador de la barra acompaña al dedo hacia la página de destino
+      function lensTo(i, live) {
+        if (!lens) return;
+        lens.style.transition = live ? "none" : "";
+        tabbar.style.setProperty("--i", i);
+      }
+      function endDrag() { document.body.classList.remove("pg-drag"); if (lens) lens.style.transition = ""; }
       function setX(x, anim) {
         if (!pg) return;
         pg.style.transition = anim ? "transform 0.45s " + EASE : "none";
@@ -7861,8 +7869,8 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         side = ex <= EDGE ? 1 : ex >= window.innerWidth - EDGE ? -1 : 0;   // 1 = borde izquierdo, -1 = derecho
         if (side) onRow = null;   // desde el borde manda el cambio de página, no la papelera de la fila
         ok = e.touches.length === 1 && (monthZone ? true : side !== 0 && !e.target.closest(NO)) && !blocked();
-        dir = 0; lastDx = 0; pg = null;
-        if (ok) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }
+        dir = 0; lastDx = 0; pg = null; vx = 0;
+        if (ok) { x0 = lx = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = lt = Date.now(); curTab = Math.max(0, tabsInfo().cur); }
       }, { passive: true });
       document.addEventListener("touchmove", function (e) {
         if (!ok) return;
@@ -7873,13 +7881,16 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           if (dir === 2) { ok = false; return; }
         }
         lastDx = dx;
-        if (!monthZone && side && Math.sign(dx) !== side) { if (pg) setX(0, true); return; }
+        var now = Date.now(), cx = e.touches[0].clientX; if (now > lt) { vx = vx * 0.4 + ((cx - lx) / (now - lt)) * 0.6; lx = cx; lt = now; }
+        if (!monthZone && side && Math.sign(dx) !== side) { if (pg) { setX(0, true); lensTo(curTab, false); } return; }
         if (RM || !pageNav()) { if (pg) setX(0, true); return; }
-        if (!pg) pg = pageEl();
-        // Con página al otro lado sigue al dedo; en el tope cede poco (resistencia)
-        var free = target(dx) !== null, k = free ? 0.32 : 0.12, cap = free ? 90 : 34;
-        var x = Math.sign(dx) * Math.min(cap, Math.abs(dx) * k);
+        if (!pg) { pg = pageEl(); document.body.classList.add("pg-drag"); }
+        // Con página al otro lado sigue al dedo de cerca; en el tope cede poco y frena (resistencia)
+        var tg = target(dx), free = tg !== null, a = Math.abs(dx), W = window.innerWidth;
+        var x = Math.sign(dx) * (free ? Math.min(W * 0.42, a * 0.55) : 38 * (1 - Math.exp(-a / 110)));
         setX(x, false);
+        if (typeof tg === "number") lensTo(curTab + (tg - curTab) * Math.min(1, a / (W * 0.55)), true);
+        else if (tg === null && ["set", "accd", "bn"].indexOf(activeView()) < 0) lensTo(curTab + (dx < 0 ? 1 : -1) * 0.1 * (1 - Math.exp(-a / 110)), true);
       }, { passive: true });
       function finish(e) {
         if (!ok) { return; }
@@ -7888,23 +7899,29 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         var dx = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX - x0 : lastDx, dy = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY - y0 : 0, dt = Date.now() - t0;
         lastDx = dx;
         var horiz = dir === 1 || (Math.abs(dx) > Math.abs(dy) * 1.2);
-        var enough = horiz && (Math.abs(dx) >= 60 || (Math.abs(dx) >= 28 && dt < 260)) && (monthZone || Math.sign(dx) === side);
-        if (!enough || (onRow && (dx < 0 || onRow.classList.contains("open")))) { if (el) { setX(0, true); release(el); } pg = null; return; }
+        var flick = Math.abs(vx) > 0.4 && Math.sign(vx) === Math.sign(dx) && Math.abs(dx) >= 24;
+        var enough = horiz && (Math.abs(dx) >= 70 || flick || (Math.abs(dx) >= 28 && dt < 220)) && (monthZone || Math.sign(dx) === side);
+        if (!enough || (onRow && (dx < 0 || onRow.classList.contains("open")))) { if (el) { setX(0, true); release(el); lensTo(curTab, false); } endDrag(); pg = null; return; }
         if (monthZone) {
           if (monthZone.classList.contains("hist-month")) { var hb = $(dx < 0 ? "hist-next" : "hist-prev"); if (!hb.disabled) hb.click(); }
           else { var n2 = shiftM(state.month, dx < 0 ? 1 : -1); if (n2 <= today().slice(0, 7)) setMonth(n2); }
           pg = null; return;
         }
         var n = target(dx);
-        if (n === null) { if (el) { setX(0, true); release(el); } pg = null; return; }   // tope: vuelve a su sitio
+        if (n === null) { if (el) { setX(0, true); release(el); } lensTo(curTab, false); endDrag(); pg = null; return; }   // tope: vuelve a su sitio
+        // La página nueva entra desde donde quedó el dedo (menos recorrido cuanto más se arrastró)
+        var moved = el ? Math.abs(parseFloat((el.style.transform.match(/-?[\d.]+/) || [0])[0])) : 0;
+        document.body.style.setProperty("--nav-from", Math.max(8, 30 - moved * 0.18).toFixed(0) + "px");
+        setTimeout(function () { document.body.style.removeProperty("--nav-from"); }, 520);
         if (el) { el.style.transition = "none"; el.style.transform = ""; requestAnimationFrame(function () { el.style.transition = ""; }); }
+        endDrag(); if (lens) lens.style.transition = "";
         pg = null;
         if (window.__navNoBack) window.__navNoBack();
         if (n === "back") { closeViews(); setTab(currentTab()); return; }
         tabsInfo().tabs[n].click();
       }
       document.addEventListener("touchend", finish, { passive: true });
-      document.addEventListener("touchcancel", function () { if (!ok) return; ok = false; if (pg) { var el = pg; setX(0, true); release(el); } pg = null; }, { passive: true });
+      document.addEventListener("touchcancel", function () { if (!ok) return; ok = false; if (pg) { var el = pg; setX(0, true); release(el); lensTo(curTab, false); } endDrag(); pg = null; }, { passive: true });
     })();
     // Bajar para agregar: en Inicio, arriba del todo, bajar la pantalla saca una bolita del notch.
     // Al pasar el punto toma el color de la app; al soltar se abre «Nuevo movimiento».
