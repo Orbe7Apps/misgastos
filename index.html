@@ -1705,7 +1705,7 @@ html[data-theme="dark"] .fz-opt .bd.am { color: #f0a020; }
 .ai-fab { bottom: calc(var(--tbb) + var(--tbh) + 12px + 58px + 12px) !important; }
 .dial-menu { bottom: calc(var(--tbb) + var(--tbh) + 12px + 58px + 14px) !important; }
 .toast { bottom: calc(var(--tbb) + var(--tbh) + 12px) !important; }
-body::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--tbb) + var(--tbh) + 28px); z-index: 16; pointer-events: none;
+body::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--tbb) + 58px + 28px); z-index: 16; pointer-events: none;
   background: linear-gradient(to top, color-mix(in srgb, var(--bg) 88%, transparent) 30%, color-mix(in srgb, var(--bg) 0%, transparent));
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   -webkit-mask-image: linear-gradient(to top, #000 45%, transparent); mask-image: linear-gradient(to top, #000 45%, transparent); }
@@ -3061,7 +3061,17 @@ body:not(.view-goals):not(.view-pay):not(.view-hist):not(.view-bn):not(.view-set
 .fab { right: 16px !important; bottom: var(--tbb) !important; width: 58px !important; height: 58px !important;
   transition: transform 0.38s var(--spring), scale 0.61s var(--spring), translate 0.61s var(--spring), opacity 0.27s ease !important; will-change: transform; }
 /* Barra pequeña (alto 48, margen 44): el + se encoge con «scale» y se corre con «translate», que no recalculan la página */
-body.tb-min .fab { scale: 0.8276; translate: -23px 5px; }
+/* Barra pequeña sin recalcular la página: la barra conserva su tamaño real y solo se escala (como el +).
+   Las medidas (--tbh, --tbx) ya no cambian; los textos se desvanecen y los íconos bajan al centro con transform */
+body.tb-min { --tbh: 58px !important; --tbx: 16px !important; }
+.tabbar { transform-origin: 50% 100%; transition: right 0.61s var(--spring), scale 0.61s var(--spring), opacity 0.4s ease !important; will-change: scale; }
+body.tb-min .tabbar { scale: 0.83; }
+body.nav-sync .tabbar { transition: right 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), scale 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease !important; }
+body.tb-min .tab > :not(svg) { max-height: none !important; padding-bottom: 0; opacity: 0; }
+.tab > svg { transition: translate 0.61s var(--spring), scale 0.61s var(--spring); }
+body.tb-min .tab > svg { translate: 0 7.5px; scale: 1.1; }
+.tab > :not(svg) { transition: opacity 0.25s ease; }
+body.tb-min .fab { scale: 0.8276; translate: -32px 5px; }
 body.nav-sync .fab { transition: transform 0.38s var(--spring), scale 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), translate 0.38s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.27s ease !important; }
 .ai-fab { right: var(--tbx) !important; bottom: calc(var(--tbb) + var(--tbh) + 12px) !important; }
 .dial-menu { bottom: calc(var(--tbb) + var(--tbh) + 14px) !important; }
@@ -3554,7 +3564,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     <div class="set-group">
       <button type="button" class="set-row danger" id="data-del"><span class="tx"><b>Borrar todos los datos</b><small>Elimina todo lo guardado en este teléfono. No se puede deshacer.</small></span><svg class="chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
     </div>
-    <p class="set-foot">Orbe · versión 1.0<br>Orbe no es un banco ni una casa de cambio, y no da asesoría financiera.</p>
+    <p class="set-foot">Orbe · versión 1.0 · actualizada el 8 nov 2026<br>Orbe no es un banco ni una casa de cambio, y no da asesoría financiera.</p>
   </div>
   <div class="sheet-backdrop" id="rh-sheet" hidden>
     <section class="panel sheet" role="dialog" aria-modal="true" aria-labelledby="h-rh">
@@ -7900,6 +7910,8 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       function end() {
         if (!cand) return; cand = false;
         if (!pulling) return; pulling = false;
+        // En iPhone, Safari solo deja vibrar al soltar el dedo (no mientras se mueve): se confirma aquí
+        if (armed && !navigator.vibrate) haptic();
         settle(armed);
       }
       document.addEventListener("touchend", end, { passive: true });
