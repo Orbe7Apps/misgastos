@@ -3080,6 +3080,9 @@ body.nav-sync .fab { transition: transform 0.38s var(--spring), scale 0.38s cubi
 /* Cuentas y subcategorías que se deslizan: con margen a los lados, como los filtros de Historial (no tocan el borde) */
 .mv-acc, .tr-box .mv-acc { margin-left: 0 !important; margin-right: 0 !important; padding-left: 2px !important; padding-right: 2px !important; scroll-padding: 0 2px; }
 .sub-row { margin-left: 0 !important; margin-right: 0 !important; padding-left: 1px !important; padding-right: 1px !important; }
+/* Final del Inicio: con el + al lado de la barra ya no hace falta tanto espacio abajo; lo último queda justo encima de la barra */
+main { padding-bottom: calc(var(--tbb) + 58px + 16px) !important; }
+main > .panel:last-of-type { margin-bottom: 0 !important; }
 /* El + dibujado (no como letra) para que quede justo al centro */
 .fab { padding: 0 !important; }
 .fab .fab-ic { width: 46%; height: 46%; display: block; pointer-events: none; }
