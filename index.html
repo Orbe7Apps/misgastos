@@ -3269,16 +3269,16 @@ html.mono .w-pi.done .w-ck { background: var(--ink); color: var(--bg); }
 /* Gasto de la semana */
 .w-sgt { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .w-sgt .w-pill { margin-top: 4px; }
-.w-sgc { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; height: calc(var(--H) + 46px); margin-top: 8px; }
+.w-sgc { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; align-items: end; height: calc(var(--H) + 44px); margin-top: 6px; }
 .w-sgc button { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; border: 0; padding: 0; background: none; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.w-sgc b { width: 100%; max-width: 30px; height: var(--h); border-radius: 8px; background: color-mix(in srgb, var(--out) 32%, transparent); transform-origin: bottom; animation: wBar .6s cubic-bezier(.32,.72,0,1) backwards; animation-delay: var(--d); transition: background .25s ease, opacity .25s ease; }
+.w-sgc b { width: 100%; max-width: 22px; height: var(--h); border-radius: 6px; background: color-mix(in srgb, var(--out) 32%, transparent); transform-origin: bottom; animation: wBar .6s cubic-bezier(.32,.72,0,1) backwards; animation-delay: var(--d); transition: background .25s ease, opacity .25s ease; }
 .w-sgc button.t b { background: var(--out); }
 .w-sgc button.f b { background: var(--fill); }
 .w-sgc.pk button:not(.s) b { opacity: .4; }
 .w-sgc button.s b { background: var(--out); opacity: 1; }
 .w-sgc span { font-size: 0.7rem; font-weight: 600; color: var(--muted); line-height: 16px; }
 .w-sgc button.t span { color: var(--ink); font-weight: 800; }
-.w-sgc em { position: absolute; left: 50%; bottom: calc(var(--h) + 28px); translate: -50% 0; font-style: normal; font-size: 0.7rem; font-weight: 800; color: var(--ink); background: var(--surface); padding: 2px 6px; border-radius: 999px; box-shadow: 0 2px 8px rgba(10,8,25,.12); white-space: nowrap; z-index: 2; animation: wIn .25s ease; }
+.w-sgc em { position: absolute; left: 50%; bottom: calc(var(--h) + 26px); translate: -50% 0; font-style: normal; font-size: 0.7rem; font-weight: 800; color: var(--ink); background: var(--surface); padding: 2px 6px; border-radius: 999px; box-shadow: 0 2px 8px rgba(10,8,25,.12); white-space: nowrap; z-index: 2; animation: wIn .25s ease; }
 .w-avg { position: absolute; left: 0; right: 0; height: 0; border-top: 1.5px dashed color-mix(in srgb, var(--ink) 30%, transparent); pointer-events: none; z-index: 1; }
 .w-avg small { position: absolute; right: 0; top: -16px; font-size: 0.62rem; font-weight: 700; color: var(--muted); background: var(--surface); padding: 0 3px; }
 .w-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: 1px; }
@@ -3287,6 +3287,8 @@ html.mono .w-sgc button:not(.t):not(.s) b { opacity: .35; }
 html.mono .w-sgc button.f b { background: var(--fill); opacity: 1; }
 .w-two div { align-content: start; }
 @keyframes wBar { from { transform: scaleY(0); } }
+.w-dif { font-weight: 700; } .w-dif.ok { color: var(--in); } .w-dif.hot { color: var(--out); }
+html.mono .w-dif { color: var(--ink); }
 .w-quiet .w-sgc b { animation: none; }
 .w-bars button { flex: 1; display: grid; justify-items: center; align-content: end; gap: 4px; height: 100%; border: 0; padding: 0; background: none; font: inherit; font-size: 0.64rem; color: var(--muted); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .w-bars b { transition: opacity .2s, background .2s; }
@@ -3562,7 +3564,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
   </section>
 
 
-  <div class="wz" data-z="a"><button type="button" class="wz-lab" tabindex="-1">Arriba de Cuentas</button></div>
+  <div class="wz" data-z="a"><button type="button" class="wz-lab" tabindex="-1">Widgets</button></div>
   <section class="panel" data-panel="acc" aria-labelledby="h-acc">
     <div class="phead"><h2 id="h-acc">Cuentas</h2><div class="acc-hb">
       <button type="button" id="acc-transfer" aria-label="Transferir entre cuentas" title="Transferir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h13M16 3l4 4-4 4M17 17H4M8 13l-4 4 4 4"></path></svg></button>
@@ -3578,7 +3580,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     </div></div>
   </section>
 
-  <div class="wz" data-z="b"><button type="button" class="wz-lab" tabindex="-1">Entre Cuentas y Tus gastos</button></div>
+  <div class="wz" data-z="b"><button type="button" class="wz-lab" tabindex="-1">Widgets</button></div>
   <section class="panel" data-panel="cat" aria-labelledby="h-cat">
     <div class="phead"><h2 id="h-cat">Tus gastos</h2></div>
     <div class="cbody" id="b-cat"><div class="cbody-in">
@@ -3606,7 +3608,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     <button type="button" class="bk-go" id="bk-nudge-go">Guardar copia</button>
     <button type="button" class="bn-x" id="bk-nudge-x" aria-label="Recordármelo más tarde">✕</button>
   </div>
-  <div class="wz" data-z="c"><button type="button" class="wz-lab" tabindex="-1">Al final</button></div>
+  <div class="wz" data-z="c"><button type="button" class="wz-lab" tabindex="-1">Widgets</button></div>
   <div class="w-add" id="w-add">
     <button type="button" class="w-addb" id="w-addb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg><span id="w-addt">Agregar widget</span></button>
     <div class="w-meta"><span id="w-cnt">Puedes poner hasta 4</span><button type="button" id="w-editb" hidden>Editar</button></div>
@@ -8338,20 +8340,17 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           function top(o) { var k = null; for (var c in o) if (k === null || o[c] > o[k]) k = c; return k; }
           var vals = days.map(function (d) { return by[d] || 0; }), tot = vals.reduce(function (x, y) { return x + y; }, 0), mx = Math.max.apply(null, vals.concat([0.01]));
           var past = ti >= 0 ? ti + 1 : 7, avg = tot / past, dif = prevSo > 0 ? Math.round((tot - prevSo) / prevSo * 100) : null;
-          var si = barSel ? days.indexOf(barSel) : -1, L = ["L", "M", "M", "J", "V", "S", "D"], H = 84;
+          var si = barSel ? days.indexOf(barSel) : -1, L = ["L", "M", "M", "J", "V", "S", "D"], H = 56;
           var big = si >= 0 ? vals[si] : tot, sub = si >= 0 ? dayName(days[si]) + (days[si] === t ? " · hoy" : "") : "Lun " + Number(days[0].slice(8)) + " – Dom " + Number(days[6].slice(8)) + " " + MESES_C[Number(days[6].slice(5, 7)) - 1];
-          var pill = si < 0 && dif !== null ? '<span class="w-pill ' + (dif <= 0 ? "ok" : "hot") + '">' + (dif <= 0 ? "▼ " : "▲ ") + Math.abs(dif) + " % vs. la semana pasada</span>" : "";
+          var tc = si >= 0 ? top(dcat[days[si]] || {}) : null;
+          var line = si >= 0 ? (vals[si] > 0 ? (cnt[days[si]] || 0) + (cnt[days[si]] === 1 ? " movimiento" : " movimientos") + (tc ? " · más en " + esc(tc) : "") : "Sin gastos ese día")
+            : (dif !== null ? '<span class="w-dif ' + (dif <= 0 ? "ok" : "hot") + '">' + (dif <= 0 ? "▼ " : "▲ ") + Math.abs(dif) + " %</span> vs. la semana pasada · " : "") + m(avg) + " al día";
           var bars = vals.map(function (v, i) {
-            var fut = ti >= 0 && i > ti, h = v > 0 ? Math.max(6, v / mx * H) : 4;
-            return '<button type="button" data-w-bar="' + days[i] + '" class="' + (fut ? "f" : "") + (days[i] === t ? " t" : "") + (i === si ? " s" : "") + '" aria-label="' + dayName(days[i]) + '" style="--h:' + h.toFixed(0) + 'px;--d:' + (i * 40) + 'ms">' + (i === si && v > 0 ? "<em>" + m(v) + "</em>" : "") + "<b></b><span>" + L[i] + "</span></button>";
+            var fut = ti >= 0 && i > ti, h = v > 0 ? Math.max(5, v / mx * H) : 3;
+            return '<button type="button" data-w-bar="' + days[i] + '" class="' + (fut ? "f" : "") + (days[i] === t ? " t" : "") + (i === si ? " s" : "") + '" aria-label="' + dayName(days[i]) + '" style="--h:' + h.toFixed(0) + 'px;--d:' + (i * 40) + 'ms"><b></b><span>' + L[i] + "</span></button>";
           }).join("");
-          var avgLine = avg > 0 && mx > 0 ? '<i class="w-avg" style="bottom:calc(' + Math.min(H, avg / mx * H).toFixed(0) + 'px + 22px)"><small>prom.</small></i>' : "";
-          var tc = si >= 0 ? top(dcat[days[si]] || {}) : top(cats), tv = tc ? (si >= 0 ? dcat[days[si]][tc] : cats[tc]) : 0;
-          var two = si >= 0
-            ? '<div class="w-two"><div><span>Movimientos</span><b>' + (cnt[days[si]] || 0) + "</b></div><div><span>Donde más</span><b>" + (tc ? '<i class="w-dot" style="--c:' + colorFor(tc) + '"></i>' + esc(tc) : "—") + "</b>" + (tc ? "<small>" + m(tv) + "</small>" : "") + "</div></div>"
-            : '<div class="w-two"><div><span>Promedio por día</span><b>' + m(avg) + "</b></div><div><span>Donde más</span><b>" + (tc ? '<i class="w-dot" style="--c:' + colorFor(tc) + '"></i>' + esc(tc) : "—") + "</b>" + (tc ? "<small>" + m(tv) + "</small>" : "") + "</div></div>";
-          return head("bars", "Gasto de la semana") + '<div class="w-sgt"><div><div class="w-big">' + m(big) + '</div><div class="w-sub">' + sub + "</div></div>" + pill + "</div>" +
-            '<div class="w-sgc' + (si >= 0 ? " pk" : "") + '" style="--H:' + H + 'px">' + avgLine + bars + "</div>" + two; },
+          return head("bars", si >= 0 ? dayName(days[si]) + (days[si] === t ? " · hoy" : "") : "Gasto de la semana") + '<div class="w-big">' + m(big) + '</div><div class="w-sub">' + line + "</div>" +
+            '<div class="w-sgc' + (si >= 0 ? " pk" : "") + '" style="--H:' + H + 'px">' + bars + "</div>"; },
           go: function () { showHist(); } },
         ahorro: { n: "Ahorrado este mes", t: "Anillo", ic: "pig", html: function () {
           var Dd = D(), mo = today().slice(0, 7), sv = 0, inc = 0;
@@ -8446,7 +8445,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       function show(s) {
         document.querySelectorAll(".wz").forEach(function (z) { z.classList.toggle("hot", !!s && z.getAttribute("data-z") === s.z); });
         if (!s || s.lab) dropEl.classList.remove("on"); else { dropEl.style.top = (s.y - 2) + "px"; dropEl.classList.add("on"); }
-        $("w-bart").textContent = s ? "Suelta para ponerlo " + ZN[s.z] : "Arrastra el widget hasta donde lo quieras";
+        $("w-bart").textContent = s ? "Suelta para ponerlo aquí" : "Arrastra el widget hasta donde lo quieras";
       }
       function start(k, from, x, y) {
         Dg = { k: k, from: from, x0: x, y0: y, moved: 0, y: y, slot: null, dir: 0 }; pendK = null;
@@ -8527,7 +8526,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         if (fly && !RM && ghost.animate && !ghost.hidden) land(wi);
         requestAnimationFrame(function () { requestAnimationFrame(function () { wi.style.height = h + "px"; wi.classList.add("in"); }); });
         setTimeout(function () { wi.style.height = ""; wi.classList.add("flash"); setTimeout(function () { wi.classList.remove("flash"); }, 650); }, RM ? 0 : 460);
-        if (!document.body.classList.contains("w-edit")) toast("«" + W[k].n + "» " + (from ? "movido " : "puesto ") + ZN[z]);
+        if (!document.body.classList.contains("w-edit")) toast("«" + W[k].n + "» " + (from ? "movido" : "agregado"));
       }
       $("w-cat").addEventListener("pointerdown", function (e) {
         if (e.pointerType === "touch") return;
