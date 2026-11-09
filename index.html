@@ -2189,8 +2189,8 @@ h1 .brand { cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-u
   .tab-lens { transition: transform 0.38s cubic-bezier(0.3, 0.9, 0.3, 1.04), border-radius 0.4s var(--spring) !important; }
   .tab { transition: color 0.22s ease; }
 }
-@keyframes navInR { from { opacity: 0.5; transform: translateX(var(--nav-from, 22px)); } to { opacity: 1; transform: translateX(0); } }
-@keyframes navInL { from { opacity: 0.5; transform: translateX(calc(var(--nav-from, 22px) * -1)); } to { opacity: 1; transform: translateX(0); } }
+@keyframes navInR { from { opacity: 0.4; transform: translateX(22px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes navInL { from { opacity: 0.4; transform: translateX(-22px); } to { opacity: 1; transform: translateX(0); } }
 /* Durante el tutorial la página cambia al instante bajo el fondo oscuro; solo se mueve el recuadro */
 html.touring body .goals-view, html.touring body .pay-view, html.touring body .hist-view, html.touring body .bn-view, html.touring body .set-view, html.touring body .accd-view, html.touring body main { animation: none !important; }
 /* Subcategorías, etiquetas y gasto dividido */
@@ -3121,7 +3121,7 @@ html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data
 #pb .pb-hint.go { color: var(--accent); }
 html.mono #pb .pb-hint.go { color: var(--ink); }
 main.pb-pull { will-change: transform; }
-body.pg-drag .trend-tip, body.pg-drag .trend-chart .cross, body.pg-drag .trend-chart .cdot, main.pb-pull .trend-tip, main.pb-pull .trend-chart .cross, main.pb-pull .trend-chart .cdot { display: none !important; }
+main.pb-pull .trend-tip, main.pb-pull .trend-chart .cross, main.pb-pull .trend-chart .cdot { display: none !important; }
 .cvf .bub:not(.out):active { transform: translate(-50%, -50%) scale(var(--s, 1)); }
 .cvcard { margin-top: 6px; background: var(--surface); border-radius: 24px; padding: 15px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; overflow: hidden; }
 .cvcard > * { min-width: 0; }
@@ -7816,112 +7816,22 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     document.addEventListener("click", function (e) { if (!e.target.closest(".menu-wrap")) closeMenus(); });
 
     // Ancho de la franja de cada borde desde la que se cambia de página
-    var EDGE = 44;
-    function atEdge(x) { return x <= EDGE || x >= window.innerWidth - EDGE; }
-    // Gesto: deslizar de lado cambia de página (dedo a la izquierda = siguiente, a la derecha = anterior).
-    // La página sigue al dedo; en Inicio y en Historial hay tope (rebota, no da la vuelta).
-    // En Ajustes, detalle de cuenta y guía de Binance, deslizar a la derecha vuelve atrás.
+    // Sin gesto para cambiar de página: se cambia solo con la barra de abajo.
+    // Lo único que queda de lado es deslizar sobre el mes de arriba para cambiar de mes.
     (function () {
-      var x0 = 0, y0 = 0, t0 = 0, ok = false, dir = 0, monthZone = null, onRow = null, pg = null, lastDx = 0;
-      var vx = 0, lx = 0, lt = 0, curTab = 0, lens = document.querySelector(".tab-lens");
-      var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-      var EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
+      var x0 = 0, y0 = 0, t0 = 0, zone = null;
       function shiftM(m, d) { var p = m.split("-"), dt = new Date(Number(p[0]), Number(p[1]) - 1 + d, 1); return dt.getFullYear() + "-" + pad2(dt.getMonth() + 1); }
-      // Solo desde los bordes: desde la izquierda va a la página anterior, desde la derecha a la siguiente.
-      // Se excluye lo que se desliza de lado por sí mismo (filtros, cuentas, categorías) y los campos
-      var NO = "input, select, textarea, .hist-chips, #hist-cats, .sheet, .rate-fields, .cat-chips, .tabbar, .dial, .menu, .acc3, .mv-acc, .sub-row";
-      var side = 0;
-      function blocked() {
-        if (document.querySelector(".sheet-backdrop:not([hidden])") || !$("dial").hidden) return true;
-        return ["onb", "lock", "tour", "ctry", "splash", "cal-backdrop"].some(function (id) { var el = $(id); return el && !el.hidden; });
-      }
-      function pageEl() { var v = activeView(); return v ? $(v === "goals" ? "goals-view" : v + "-view") : document.querySelector("main"); }
-      function tabsInfo() {
-        var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab[data-tab]"));
-        return { tabs: tabs, cur: tabs.findIndex(function (t) { return t.getAttribute("aria-current") === "true"; }) };
-      }
-      // ¿Hacia dónde iría este deslizamiento? null = no cambia de página (tope o no aplica)
-      function target(dx) {
-        var v = activeView();
-        if (v === "set" || v === "accd" || v === "bn") return dx > 0 ? "back" : null;
-        var t = tabsInfo(); if (t.cur < 0) return null;
-        var n = t.cur + (dx < 0 ? 1 : -1);
-        return n < 0 || n >= t.tabs.length ? null : n;
-      }
-      function pageNav() { return !monthZone && !(onRow && lastDx < 0); }
-      // El indicador de la barra acompaña al dedo hacia la página de destino
-      function lensTo(i, live) {
-        if (!lens) return;
-        lens.style.transition = live ? "none" : "";
-        tabbar.style.setProperty("--i", i);
-      }
-      function endDrag() { document.body.classList.remove("pg-drag"); if (lens) lens.style.transition = ""; }
-      function setX(x, anim) {
-        if (!pg) return;
-        pg.style.transition = anim ? "transform 0.45s " + EASE : "none";
-        pg.style.transform = x ? "translateX(" + x.toFixed(1) + "px)" : "";
-      }
-      function release(el) { if (!el) return; setTimeout(function () { if (el !== pg || !ok) { el.style.transition = ""; if (!el.style.transform) el.style.transform = ""; } }, 470); }
       document.addEventListener("touchstart", function (e) {
-        monthZone = e.target.closest(".field-month, .hist-month");
-        onRow = e.target.closest(".hrow[data-hid], .pay[data-pid]");
-        var ex = e.touches[0] ? e.touches[0].clientX : 0;
-        side = ex <= EDGE ? 1 : ex >= window.innerWidth - EDGE ? -1 : 0;   // 1 = borde izquierdo, -1 = derecho
-        if (side) onRow = null;   // desde el borde manda el cambio de página, no la papelera de la fila
-        ok = e.touches.length === 1 && (monthZone ? true : side !== 0 && !e.target.closest(NO)) && !blocked();
-        dir = 0; lastDx = 0; pg = null; vx = 0;
-        if (ok) { x0 = lx = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = lt = Date.now(); curTab = Math.max(0, tabsInfo().cur); }
+        zone = e.touches.length === 1 && !document.querySelector(".sheet-backdrop:not([hidden])") ? e.target.closest(".field-month, .hist-month") : null;
+        if (zone) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }
       }, { passive: true });
-      document.addEventListener("touchmove", function (e) {
-        if (!ok) return;
-        var dx = e.touches[0].clientX - x0, dy = e.touches[0].clientY - y0;
-        if (!dir) {
-          if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-          dir = Math.abs(dx) > Math.abs(dy) * 1.2 ? 1 : 2;
-          if (dir === 2) { ok = false; return; }
-        }
-        lastDx = dx;
-        var now = Date.now(), cx = e.touches[0].clientX; if (now > lt) { vx = vx * 0.4 + ((cx - lx) / (now - lt)) * 0.6; lx = cx; lt = now; }
-        if (!monthZone && side && Math.sign(dx) !== side) { if (pg) { setX(0, true); lensTo(curTab, false); } return; }
-        if (RM || !pageNav()) { if (pg) setX(0, true); return; }
-        if (!pg) { pg = pageEl(); document.body.classList.add("pg-drag"); }
-        // Con página al otro lado sigue al dedo de cerca; en el tope cede poco y frena (resistencia)
-        var tg = target(dx), free = tg !== null, a = Math.abs(dx), W = window.innerWidth;
-        var x = Math.sign(dx) * (free ? Math.min(W * 0.42, a * 0.55) : 38 * (1 - Math.exp(-a / 110)));
-        setX(x, false);
-        if (typeof tg === "number") lensTo(curTab + (tg - curTab) * Math.min(1, a / (W * 0.55)), true);
-        else if (tg === null && ["set", "accd", "bn"].indexOf(activeView()) < 0) lensTo(curTab + (dx < 0 ? 1 : -1) * 0.1 * (1 - Math.exp(-a / 110)), true);
+      document.addEventListener("touchend", function (e) {
+        if (!zone) return; var z = zone; zone = null;
+        var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+        if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx) * 0.6 || Date.now() - t0 > 800) return;
+        if (z.classList.contains("hist-month")) { var hb = $(dx < 0 ? "hist-next" : "hist-prev"); if (!hb.disabled) hb.click(); }
+        else { var n2 = shiftM(state.month, dx < 0 ? 1 : -1); if (n2 <= today().slice(0, 7)) setMonth(n2); }
       }, { passive: true });
-      function finish(e) {
-        if (!ok) { return; }
-        ok = false;
-        var el = pg;
-        var dx = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX - x0 : lastDx, dy = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY - y0 : 0, dt = Date.now() - t0;
-        lastDx = dx;
-        var horiz = dir === 1 || (Math.abs(dx) > Math.abs(dy) * 1.2);
-        var flick = Math.abs(vx) > 0.4 && Math.sign(vx) === Math.sign(dx) && Math.abs(dx) >= 24;
-        var enough = horiz && (Math.abs(dx) >= 70 || flick || (Math.abs(dx) >= 28 && dt < 220)) && (monthZone || Math.sign(dx) === side);
-        if (!enough || (onRow && (dx < 0 || onRow.classList.contains("open")))) { if (el) { setX(0, true); release(el); lensTo(curTab, false); } endDrag(); pg = null; return; }
-        if (monthZone) {
-          if (monthZone.classList.contains("hist-month")) { var hb = $(dx < 0 ? "hist-next" : "hist-prev"); if (!hb.disabled) hb.click(); }
-          else { var n2 = shiftM(state.month, dx < 0 ? 1 : -1); if (n2 <= today().slice(0, 7)) setMonth(n2); }
-          pg = null; return;
-        }
-        var n = target(dx);
-        if (n === null) { if (el) { setX(0, true); release(el); } lensTo(curTab, false); endDrag(); pg = null; return; }   // tope: vuelve a su sitio
-        // La página nueva entra desde donde quedó el dedo (menos recorrido cuanto más se arrastró)
-        var moved = el ? Math.abs(parseFloat((el.style.transform.match(/-?[\d.]+/) || [0])[0])) : 0;
-        document.body.style.setProperty("--nav-from", Math.max(8, 30 - moved * 0.18).toFixed(0) + "px");
-        setTimeout(function () { document.body.style.removeProperty("--nav-from"); }, 520);
-        if (el) { el.style.transition = "none"; el.style.transform = ""; requestAnimationFrame(function () { el.style.transition = ""; }); }
-        endDrag(); if (lens) lens.style.transition = "";
-        pg = null;
-        if (window.__navNoBack) window.__navNoBack();
-        if (n === "back") { closeViews(); setTab(currentTab()); return; }
-        tabsInfo().tabs[n].click();
-      }
-      document.addEventListener("touchend", finish, { passive: true });
-      document.addEventListener("touchcancel", function () { if (!ok) return; ok = false; if (pg) { var el = pg; setX(0, true); release(el); lensTo(curTab, false); } endDrag(); pg = null; }, { passive: true });
     })();
     // Bajar para agregar: en Inicio, arriba del todo, bajar la pantalla saca una bolita del notch.
     // Al pasar el punto toma el color de la app; al soltar se abre «Nuevo movimiento».
@@ -10061,7 +9971,6 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         var r = e.target.closest(".pay[data-pid]");
         closeAll(r);
         if (!r || e.touches.length !== 1 || e.target.closest(".menu")) { row = null; return; }
-        if (atEdge(e.touches[0].clientX) && !r.classList.contains("open")) { row = null; return; }
         row = r; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; dx = r.classList.contains("open") ? -80 : 0; dir = 0;
       }, { passive: true });
       el.addEventListener("touchmove", function (e) {
@@ -10157,7 +10066,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     $("hist-list").addEventListener("touchstart", function (e) {
       var r = e.target.closest(".hrow[data-hid]");
       closeSwipes(r);
-      if (!r || r.hasAttribute("data-auto") || e.touches.length !== 1 || (atEdge(e.touches[0].clientX) && !r.classList.contains("open"))) { swRow = null; return; }
+      if (!r || r.hasAttribute("data-auto") || e.touches.length !== 1) { swRow = null; return; }
       swRow = r; swX = e.touches[0].clientX; swY = e.touches[0].clientY; swDx = r.classList.contains("open") ? -80 : 0; swDir = 0; swMx = 0;
     }, { passive: true });
     $("hist-list").addEventListener("touchmove", function (e) {
@@ -10177,7 +10086,6 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       var r = swRow; swRow = null;
       if (swDir !== 1) return;
       r.classList.remove("drag");
-      if (!r.classList.contains("open") && swMx > 70) { sxReset(r); var pt = document.querySelector('.tab[data-tab="2"]'); if (pt) pt.click(); return; }
       var open = swDx < -40;
       r.classList.toggle("open", open); if (open) r.style.setProperty("--sx", "-80px"); else sxReset(r);
       r._swiped = Date.now();
@@ -12004,7 +11912,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       { tab: 0, sel: '[data-panel="acc"]', t: "Tus cuentas", p: "Cuánto hay en cada cuenta. Toca una para ver sus movimientos o cuadrarla con tu banco. Con ⇄ transfieres y con + agregas otra." },
       { tab: 0, sel: '[data-panel="cat"]', t: "Tus gastos e ingresos", p: "Tus gastos por categoría. Toca una para ver cómo vas contra el mes pasado o ponerle un límite." },
       { tab: 0, sel: "#fab", t: "El botón +", p: "Tócalo para anotar un gasto o ingreso, ahorrar, usar una plantilla o abrir la calculadora.", round: true },
-      { tab: 0, sel: "#tabbar", t: "Secciones", p: "Muévete entre Inicio, Ahorro, Pagos e Historial. Desliza desde el borde de la pantalla para cambiar de pestaña; para cambiar de mes, desliza sobre el mes de arriba.", round: true },
+      { tab: 0, sel: "#tabbar", t: "Secciones", p: "Muévete entre Inicio, Ahorro, Pagos e Historial. Toca una para cambiar de página; para cambiar de mes, desliza sobre el mes de arriba.", round: true },
       { tab: 1, sel: '#goals-view [data-panel="sav"]', t: "Tu ahorro", p: "Lo que tienes apartado. Desde aquí ahorras, retiras o cambias de moneda. Al anotar un ingreso puedes apartar un % de una vez." },
       { tab: 1, sel: "#gv-hero", alt: "#goal-empty", t: "Metas", p: "Crea una meta con «Crear meta» y mira cuánto llevas y cuándo llegas." },
       { tab: 1, sel: "#sg-sec", t: "Metas compartidas", p: "Junten dinero con amigos para un regalo o un viaje. Invitas con un código y confirmas cada aporte." },
