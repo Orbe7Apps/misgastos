@@ -3264,6 +3264,28 @@ html.mono .w-pi.done .w-ck { background: var(--ink); color: var(--bg); }
 .w-two div { background: var(--bg); border-radius: 16px; padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
 .w-two div > span, .w-two div > small { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
 .w-two b { font-family: var(--display); font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Gasto de la semana */
+.w-sgt { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.w-sgt .w-pill { margin-top: 4px; }
+.w-sgc { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; height: calc(var(--H) + 46px); margin-top: 8px; }
+.w-sgc button { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; border: 0; padding: 0; background: none; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.w-sgc b { width: 100%; max-width: 30px; height: var(--h); border-radius: 8px; background: color-mix(in srgb, var(--out) 32%, transparent); transform-origin: bottom; animation: wBar .6s cubic-bezier(.32,.72,0,1) backwards; animation-delay: var(--d); transition: background .25s ease, opacity .25s ease; }
+.w-sgc button.t b { background: var(--out); }
+.w-sgc button.f b { background: var(--fill); }
+.w-sgc.pk button:not(.s) b { opacity: .4; }
+.w-sgc button.s b { background: var(--out); opacity: 1; }
+.w-sgc span { font-size: 0.7rem; font-weight: 600; color: var(--muted); line-height: 16px; }
+.w-sgc button.t span { color: var(--ink); font-weight: 800; }
+.w-sgc em { position: absolute; left: 50%; bottom: calc(var(--h) + 28px); translate: -50% 0; font-style: normal; font-size: 0.7rem; font-weight: 800; color: var(--ink); background: var(--surface); padding: 2px 6px; border-radius: 999px; box-shadow: 0 2px 8px rgba(10,8,25,.12); white-space: nowrap; z-index: 2; animation: wIn .25s ease; }
+.w-avg { position: absolute; left: 0; right: 0; height: 0; border-top: 1.5px dashed color-mix(in srgb, var(--ink) 30%, transparent); pointer-events: none; z-index: 1; }
+.w-avg small { position: absolute; right: 0; top: -16px; font-size: 0.62rem; font-weight: 700; color: var(--muted); background: var(--surface); padding: 0 3px; }
+.w-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: 1px; }
+html.mono .w-sgc b, html.mono .w-sgc button.t b, html.mono .w-sgc button.s b { background: var(--ink); }
+html.mono .w-sgc button:not(.t):not(.s) b { opacity: .35; }
+html.mono .w-sgc button.f b { background: var(--fill); opacity: 1; }
+.w-two div { align-content: start; }
+@keyframes wBar { from { transform: scaleY(0); } }
+.w-quiet .w-sgc b { animation: none; }
 .w-bars button { flex: 1; display: grid; justify-items: center; align-content: end; gap: 4px; height: 100%; border: 0; padding: 0; background: none; font: inherit; font-size: 0.64rem; color: var(--muted); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .w-bars b { transition: opacity .2s, background .2s; }
 .w-bars.w-pk b:not(.s) { opacity: .45; }
@@ -3318,7 +3340,7 @@ body.w-edit .w-addb, body.w-edit .w-meta { display: none; }
 .w-shd h2 { margin: 0; font-size: 1.3rem; }
 .w-cnt2 { font-size: 0.78rem; font-weight: 700; color: var(--muted); background: var(--fill); padding: 5px 10px; border-radius: 999px; }
 .w-shp { margin: 4px 0 12px; font-size: 0.84rem; color: var(--muted); }
-.w-cat { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; padding-bottom: 4px; }
+.w-cat { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; min-height: 0; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; align-content: start; overflow-y: auto; padding-bottom: 4px; }
 .w-cat button.w-hold { transform: scale(.95); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); transition: transform .3s ease, background .3s ease; }
 .w-shp.w-hint { color: var(--accent); font-weight: 600; }
 .w-cat button { border: 0; text-align: left; background: var(--bg); color: var(--ink); border-radius: 18px; padding: 12px; display: grid; gap: 8px; cursor: grab; font: inherit; font-size: 0.86rem; font-weight: 600; touch-action: pan-y; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
@@ -3329,9 +3351,12 @@ body.w-edit .w-addb, body.w-edit .w-meta { display: none; }
 .w-cat button.used::after { content: "Ya está"; justify-self: start; font-size: 0.66rem; font-weight: 700; color: var(--muted); background: var(--fill); padding: 2px 7px; border-radius: 999px; }
 /* Mientras se arrastra */
 .w-ghost { position: fixed; left: 16px; right: 16px; max-width: 728px; margin: 0 auto; z-index: 45; pointer-events: none; transition: opacity .2s; }
-.w-ghost .w-card { opacity: 1; transform: none; margin: 0; rotate: -1.2deg; box-shadow: 0 22px 44px rgba(10,8,25,.28), inset 0 0 0 2px var(--accent); transition: rotate .4s cubic-bezier(.32,.72,0,1), box-shadow .4s ease; }
-.w-ghost.land .w-card { rotate: 0deg; box-shadow: 0 0 0 rgba(10,8,25,0), inset 0 0 0 2px var(--accent); }
+.w-ghost .w-card { opacity: 1; transform: rotate(-1.2deg); margin: 0; box-shadow: 0 22px 44px rgba(10,8,25,.28), inset 0 0 0 2px var(--accent); transition: none; will-change: transform; }
+.w-ghost.land .w-card { transform: none !important; box-shadow: 0 0 0 rgba(10,8,25,0), inset 0 0 0 2px var(--accent) !important; transition: transform .4s cubic-bezier(.32,.72,0,1), box-shadow .4s ease; }
 .w-ghost .w-tools { display: none !important; }
+/* El widget que se arrastra se ve normal, aunque se esté en modo edición */
+body.w-edit .w-ghost .w-card { padding-top: 14px; }
+body.w-edit .w-ghost .w-card > :not(.w-tools) { opacity: 1; }
 .w-ghost.out { opacity: 0; }
 .w-drop { position: fixed; left: 16px; right: 16px; max-width: 728px; margin: 0 auto; height: 4px; border-radius: 2px; background: var(--accent); z-index: 44; pointer-events: none; opacity: 0; transition: top .12s ease, opacity .15s; }
 .w-drop::before, .w-drop::after { content: ""; position: absolute; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 50%; background: var(--accent); }
@@ -7912,7 +7937,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     // Con el fondo bloqueado, solo se desliza el contenido de la hoja abierta
     document.addEventListener("touchmove", function (e) {
       if (!bgOn) return;
-      var t = e.target, box = t.closest && t.closest(".sheet, .dial-menu, .cal");
+      var t = e.target, box = t.closest && t.closest(".sheet, .dial-menu, .cal, .w-sheet");
       if (!box) { e.preventDefault(); return; }
       for (var el = t; el && el !== box.parentNode; el = el.parentNode) {
         if (el.nodeType !== 1) continue;
@@ -8219,7 +8244,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         sun: '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"></path>',
         cal: '<rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M8 3v4M16 3v4M3 10h18"></path>', flag: '<path d="M6.5 21V4M6.5 4h11l-2 4 2 4H6.5"></path>',
         rate: '<path d="M7 7h13M16 3l4 4-4 4M17 17H4M8 13l-4 4 4 4"></path>', calc: '<rect x="5" y="2" width="14" height="20" rx="2"></rect><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01"></path>',
-        list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"></path>', bars: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path>',
+        list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"></path>', bars: '<rect x="3.5" y="12" width="4" height="8" rx="1.6"></rect><rect x="10" y="5" width="4" height="15" rx="1.6" fill="currentColor"></rect><rect x="16.5" y="9" width="4" height="11" rx="1.6"></rect>',
         pig: '<path d="M4.5 11.5a6.5 5.5 0 0 1 11.6-3.4H19l-.6 2.6 2.1 1.1v3.4l-2.2.5-1.6 2.8h-2.2l-.5-1.7H9.8l-.5 1.7H7.1l-1.4-2.6c-.8-1.1-1.2-2.6-1.2-4.4z"></path>',
         hour: '<path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"></path>', users: '<circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"></path>',
         gauge: '<path d="M4 18a8 8 0 1 1 16 0"></path><path d="M12 18l4-5"></path>', x: '<path d="M6 6l12 12M18 6L6 18"></path>', grip: '<path d="M5 9h14M5 15h14"></path>'
@@ -8271,23 +8296,6 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           return head("cal", "Próximo pago") + '<div class="w-row"><div class="w-date"><b>' + Number(dp[2]) + "</b><small>" + MESES_C[Number(dp[1]) - 1].toUpperCase() + '</small></div><div class="w-grow"><div class="w-name">' + esc(p.titulo || "Pago") + '</div><div class="w-sub">' + (p.serie ? "Cada mes" : "Una vez") + (a ? " · " + esc(a.nombre) : "") + '</div></div><div class="w-r"><div class="w-big sm">' + m(p.monto, p.moneda) + '</div><span class="w-pill ' + tag[1] + '">' + tag[0] + "</span></div></div>" +
             foot(btn("pagos", "Ver pagos"), btn("paid:" + p.id, "Marcar pagado", true)); },
           go: function () { var p = nextPay(); showPay(); if (p) setTimeout(function () { openPg(p); }, 250); } },
-        semana: { n: "Pagos de la semana", t: "Calendario", ic: "cal", html: function () {
-          var t = today(), L = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"], np = 0, nv = 0, nk = 0;
-          var cells = weekDays().map(function (d, i) {
-            var ps = state.payments.filter(function (p) { return !p.cobro && p.fecha === d; }), pend = ps.filter(function (p) { return !p.paid; }).length, st = "";
-            if (ps.length) { if (!pend) { st = "ok"; nk++; } else if (d < t) { st = "ov"; nv += pend; } else { st = "p"; np += pend; } }
-            return "<span>" + L[i] + '<button type="button" data-w-day="' + d + '" class="w-d ' + st + (d === t ? " t" : "") + (d === semSel ? " s" : "") + '" aria-label="' + dayName(d) + '">' + Number(d.slice(8)) + "</button></span>";
-          }).join("");
-          var det = "";
-          if (semSel && weekDays().indexOf(semSel) >= 0) {
-            var ps2 = state.payments.filter(function (p) { return !p.cobro && p.fecha === semSel; });
-            det = '<div class="w-pl"><div class="w-plh">' + dayName(semSel) + "</div>" + (ps2.length ? ps2.map(function (p) {
-              return '<div class="w-pi' + (p.paid ? " done" : "") + '"><button type="button" class="w-ck" data-w-act="tg:' + p.id + '" aria-label="' + (p.paid ? "Marcar pendiente" : "Marcar pagado") + '">' + SV('<path d="M5 12.5l4.5 4.5L19 7.5"></path>', 2.6) + "</button><span>" + esc(p.titulo || "Pago") + "</span><b>" + m(p.monto, p.moneda) + "</b></div>";
-            }).join("") : '<div class="w-empty">Sin pagos ese día.</div>') + "</div>";
-          }
-          var parts = []; if (np) parts.push(np + (np === 1 ? " pendiente" : " pendientes")); if (nv) parts.push(nv + (nv === 1 ? " vencido" : " vencidos")); if (nk) parts.push(nk + (nk === 1 ? " pagado" : " pagados"));
-          return head("cal", "Pagos de la semana") + '<div class="w-wk">' + cells + '</div><div class="w-sub">' + (parts.join(" · ") || "Sin pagos esta semana") + (semSel ? "" : " · toca un día") + "</div>" + det; },
-          go: function () { showPay(); } },
         meta: { n: "Meta", t: "Anillo", ic: "flag", html: function () {
           var g = goalNow(); if (!g) return head("flag", "Meta") + '<div class="w-empty">Aún no tienes metas. Toca para crear una.</div>';
           var bal = goalMap()[g.id] || 0, p = g.meta > 0 ? bal / g.meta : 0, col = goalColor(g);
@@ -8311,14 +8319,32 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
             (L.spent <= L.lim ? '<div class="w-two"><div><span>Te quedan</span><b>' + m(L.lim - L.spent) + "</b></div><div><span>Por día</span><b>" + m((L.lim - L.spent) / left) + "</b><small>" + (left === 1 ? "solo hoy" : "durante " + left + " días") + "</small></div></div>"
               : '<div class="w-sub">Pasaste por <b>' + m(L.spent - L.lim) + "</b> · hoy mejor no gastar en " + esc(b.c) + "</div>"); },
           go: function () { var b = limTop(), pn = document.querySelector('[data-panel="cat"]'); if (b) { state.cvSel = b.c; try { renderCv(); } catch (e) {} } if (pn) pn.scrollIntoView({ behavior: "smooth", block: "start" }); } },
-        semgasto: { n: "Gasto de la semana", t: "Barras", ic: "bars", html: function () {
-          var Dd = D(), days = weekDays(), t = today(), by = {}, prev = 0, a0 = addDaysIso(days[0], -7);
-          state.items.forEach(function (it) { if (it.tipo !== "gasto") return; var v = conv(it.monto, it.moneda, Dd); if (v === null) return; if (it.fecha >= days[0] && it.fecha <= days[6]) by[it.fecha] = (by[it.fecha] || 0) + v; else if (it.fecha >= a0 && it.fecha < days[0]) prev += v; });
-          var vals = days.map(function (d) { return by[d] || 0; }), tot = vals.reduce(function (s, x) { return s + x; }, 0), mx = Math.max.apply(null, vals.concat([1])), L = ["L", "M", "M", "J", "V", "S", "D"];
-          var dif = prev > 0 ? Math.round((tot - prev) / prev * 100) : null;
-          var si = barSel ? days.indexOf(barSel) : -1;
-          return head("bars", "Gasto de la semana") + '<div class="w-row"><div><div class="w-big sm">' + (si >= 0 ? m(vals[si]) : m(tot)) + '</div><div class="w-sub">' + (si >= 0 ? dayName(days[si]) + (days[si] === t ? " · hoy" : "") : dif === null ? "Esta semana" : (dif <= 0 ? "▼ " : "▲ ") + Math.abs(dif) + " % que la anterior") + '</div></div><div class="w-grow"><div class="w-bars' + (si >= 0 ? " w-pk" : "") + '">' +
-            vals.map(function (v, i) { return '<button type="button" data-w-bar="' + days[i] + '" aria-label="' + dayName(days[i]) + '"><b class="' + (days[i] === t ? "t" : "") + (i === si ? " s" : "") + '" style="height:' + Math.max(3, v / mx * 52).toFixed(0) + 'px"></b>' + L[i] + "</button>"; }).join("") + "</div></div></div>"; },
+        semgasto: { n: "Gasto de la semana", t: "Barras por día", ic: "bars", html: function () {
+          var Dd = D(), days = weekDays(), t = today(), ti = days.indexOf(t), by = {}, cnt = {}, cats = {}, dcat = {}, prevSo = 0, a0 = addDaysIso(days[0], -7), aT = addDaysIso(t, -7);
+          state.items.forEach(function (it) {
+            if (it.tipo !== "gasto") return; var v = conv(it.monto, it.moneda, Dd); if (v === null) return;
+            if (it.fecha >= days[0] && it.fecha <= days[6]) {
+              by[it.fecha] = (by[it.fecha] || 0) + v; cnt[it.fecha] = (cnt[it.fecha] || 0) + 1; cats[it.cat] = (cats[it.cat] || 0) + v;
+              var dc = dcat[it.fecha] || (dcat[it.fecha] = {}); dc[it.cat] = (dc[it.cat] || 0) + v;
+            } else if (it.fecha >= a0 && it.fecha <= aT) prevSo += v;
+          });
+          function top(o) { var k = null; for (var c in o) if (k === null || o[c] > o[k]) k = c; return k; }
+          var vals = days.map(function (d) { return by[d] || 0; }), tot = vals.reduce(function (x, y) { return x + y; }, 0), mx = Math.max.apply(null, vals.concat([0.01]));
+          var past = ti >= 0 ? ti + 1 : 7, avg = tot / past, dif = prevSo > 0 ? Math.round((tot - prevSo) / prevSo * 100) : null;
+          var si = barSel ? days.indexOf(barSel) : -1, L = ["L", "M", "M", "J", "V", "S", "D"], H = 84;
+          var big = si >= 0 ? vals[si] : tot, sub = si >= 0 ? dayName(days[si]) + (days[si] === t ? " · hoy" : "") : "Lun " + Number(days[0].slice(8)) + " – Dom " + Number(days[6].slice(8)) + " " + MESES_C[Number(days[6].slice(5, 7)) - 1];
+          var pill = si < 0 && dif !== null ? '<span class="w-pill ' + (dif <= 0 ? "ok" : "hot") + '">' + (dif <= 0 ? "▼ " : "▲ ") + Math.abs(dif) + " % vs. la semana pasada</span>" : "";
+          var bars = vals.map(function (v, i) {
+            var fut = ti >= 0 && i > ti, h = v > 0 ? Math.max(6, v / mx * H) : 4;
+            return '<button type="button" data-w-bar="' + days[i] + '" class="' + (fut ? "f" : "") + (days[i] === t ? " t" : "") + (i === si ? " s" : "") + '" aria-label="' + dayName(days[i]) + '" style="--h:' + h.toFixed(0) + 'px;--d:' + (i * 40) + 'ms">' + (i === si && v > 0 ? "<em>" + m(v) + "</em>" : "") + "<b></b><span>" + L[i] + "</span></button>";
+          }).join("");
+          var avgLine = avg > 0 && mx > 0 ? '<i class="w-avg" style="bottom:calc(' + Math.min(H, avg / mx * H).toFixed(0) + 'px + 22px)"><small>prom.</small></i>' : "";
+          var tc = si >= 0 ? top(dcat[days[si]] || {}) : top(cats), tv = tc ? (si >= 0 ? dcat[days[si]][tc] : cats[tc]) : 0;
+          var two = si >= 0
+            ? '<div class="w-two"><div><span>Movimientos</span><b>' + (cnt[days[si]] || 0) + "</b></div><div><span>Donde más</span><b>" + (tc ? '<i class="w-dot" style="--c:' + colorFor(tc) + '"></i>' + esc(tc) : "—") + "</b>" + (tc ? "<small>" + m(tv) + "</small>" : "") + "</div></div>"
+            : '<div class="w-two"><div><span>Promedio por día</span><b>' + m(avg) + "</b></div><div><span>Donde más</span><b>" + (tc ? '<i class="w-dot" style="--c:' + colorFor(tc) + '"></i>' + esc(tc) : "—") + "</b>" + (tc ? "<small>" + m(tv) + "</small>" : "") + "</div></div>";
+          return head("bars", "Gasto de la semana") + '<div class="w-sgt"><div><div class="w-big">' + m(big) + '</div><div class="w-sub">' + sub + "</div></div>" + pill + "</div>" +
+            '<div class="w-sgc' + (si >= 0 ? " pk" : "") + '" style="--H:' + H + 'px">' + avgLine + bars + "</div>" + two; },
           go: function () { showHist(); } },
         ahorro: { n: "Ahorrado este mes", t: "Anillo", ic: "pig", html: function () {
           var Dd = D(), mo = today().slice(0, 7), sv = 0, inc = 0;
@@ -8334,19 +8360,12 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
           var days = Math.max(0, Math.floor(avail / per)), dd = new Date(addDaysIso(t, Math.min(days, 3650)) + "T12:00:00"), ok = days >= 30;
           return head("hour", "Te alcanza hasta") + '<div class="w-row"><div class="w-grow"><div class="w-big sm">' + (days > 3650 ? "Más de 10 años" : dd.getDate() + " de " + MESES[dd.getMonth()] + (dd.getFullYear() !== new Date().getFullYear() ? " " + dd.getFullYear() : "")) + '</div><div class="w-sub">A tu ritmo de <b>' + m(per) + " por día</b> · " + days + (days === 1 ? " día" : " días") + '</div></div><span class="w-pill ' + (ok ? "ok" : "hot") + '">' + (ok ? "Bien" : "Atento") + "</span></div>"; },
           go: function () { showHist(); } },
-        calc: { n: "Convertir", t: "Atajo", ic: "calc", ok: function () { return !LOC.none; }, html: function () {
-          var cc = cvCur(), a = cvName(cc.a), z = cvName(cc.b), r1 = conv(1, cc.a, cc.b);
-          var chip = function (side, cur) { return '<button type="button" class="w-cur' + (cvz.pick === side ? " on" : "") + '" data-w-act="pick:' + side + '">' + esc(cvName(cur)) + SV('<path d="M6 9l6 6 6-6"></path>', 2.4) + "</button>"; };
-          var picker = cvz.pick ? '<div class="w-curs">' + CV_ALL.map(function (c) { var cur = cc[cvz.pick]; return '<button type="button" data-w-act="set:' + c + '"' + (c === cur ? ' class="on"' : "") + ">" + esc(cvName(c)) + "</button>"; }).join("") + "</div>" : "";
-          return head("calc", "Convertir") + '<div class="w-cvt"><div class="w-cvr">' + chip("a", cc.a) + '<input type="text" inputmode="decimal" autocomplete="off" data-w-in value="' + esc(cvz.v) + '" aria-label="Monto en ' + esc(a) + '"></div><button type="button" class="w-sw" data-w-act="swap" aria-label="Cambiar dirección">' + SV(I.rate) + '</button><div class="w-cvr">' + chip("b", cc.b) + "<b data-w-out>" + cvOut() + "</b></div></div>" + picker +
-            '<div class="w-foot c2"><span>' + (r1 !== null && cc.a !== cc.b ? "1 " + esc(curLabel(cc.a)) + " = " + esc(money(r1, cc.b, r1 >= 1 ? 2 : 4).replace(/^-/, "")) : "") + "</span>" + btn("calc", "Abrir calculadora") + "</div>"; },
-          go: function () { openCalc(); } },
         comp: { n: "Meta compartida", t: "Avance", ic: "users", ok: function () { return !!(window.__sgFirst && window.__sgFirst()); }, html: function () {
           var s = window.__sgFirst && window.__sgFirst(); if (!s) return head("users", "Meta compartida") + '<div class="w-empty">Aún no tienes metas compartidas.</div>';
           return head("users", "Meta compartida") + '<div class="w-name">' + esc(s.name) + '</div><div class="w-sub"><b>' + esc(s.ok) + "</b> de " + esc(s.target) + " · " + Math.round(s.pct) + ' %</div><div class="w-track"><i style="width:' + s.pct.toFixed(1) + '%;background:var(--accent)"></i></div><div class="w-sub">' + s.n + (s.n === 1 ? " persona" : " personas") + "</div>"; },
           go: function () { var s = window.__sgFirst && window.__sgFirst(); showGoals(); if (s && window.__sgOpen) setTimeout(function () { window.__sgOpen(s.id); }, 250); } }
       };
-      var ORDER = ["hoy", "pago", "semana", "meta", "movs", "limite", "semgasto", "ahorro", "dura", "calc", "comp"];
+      var ORDER = ["hoy", "pago", "meta", "movs", "limite", "semgasto", "ahorro", "dura", "comp"];
       function list() { return (state.widgets || []).filter(function (w) { return W[w.k]; }); }
       function card(k) { return '<div class="w-card" role="button" tabindex="0" data-w-go="' + k + '">' + W[k].html() + '<div class="w-tools"><button type="button" class="w-grip" data-w-grip aria-label="Mantén y arrastra para mover">' + SV(I.grip, 2.4) + '<span>Mover</span></button><button type="button" class="w-x" data-w-rm aria-label="Quitar">' + SV(I.x, 2.4) + "<span>Quitar</span></button></div></div>"; }
       function zone(z) { return document.querySelector('.wz[data-z="' + z + '"]'); }
@@ -8383,8 +8402,8 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         }).join("");
         $("w-cnt2").textContent = have.length + " de " + MAX;
       }
-      function openCat() { if (list().length >= MAX) return; catalog(); document.querySelectorAll(".toast.show").forEach(function (t) { t.classList.remove("show"); }); bd.hidden = false; sheet.hidden = false; requestAnimationFrame(function () { bd.classList.add("on"); sheet.classList.add("on"); }); }
-      function closeSheet() { bd.classList.remove("on"); sheet.classList.remove("on"); setTimeout(function () { if (!sheet.classList.contains("on")) { sheet.hidden = true; bd.hidden = true; } }, 360); }
+      function openCat() { if (list().length >= MAX) return; catalog(); bgLock(true); $("w-cat").scrollTop = 0; document.querySelectorAll(".toast.show").forEach(function (t) { t.classList.remove("show"); }); bd.hidden = false; sheet.hidden = false; requestAnimationFrame(function () { bd.classList.add("on"); sheet.classList.add("on"); }); }
+      function closeSheet() { bgLock(document.documentElement.classList.contains("sheet-open")); bd.classList.remove("on"); sheet.classList.remove("on"); setTimeout(function () { if (!sheet.classList.contains("on")) { sheet.hidden = true; bd.hidden = true; } }, 360); }
       function toast(t) { try { showToast(t); } catch (e) {} }
       function act(a) {
         try { navigator.vibrate && navigator.vibrate(6); } catch (e) {}
@@ -8434,11 +8453,23 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         try { navigator.vibrate && navigator.vibrate(8); } catch (e) {}
       }
       function move(x, y) {
-        if (!Dg) return; if (Math.abs(y - Dg.y) > 3) Dg.dir = y < Dg.y ? -1 : 1; Dg.y = y; Dg.moved = Math.max(Dg.moved, Math.hypot(x - Dg.x0, y - Dg.y0));
+        if (!Dg) return; var now = performance.now(), dt = Math.max(8, now - (Dg.t || now - 16));
+        Dg.vy = (Dg.vy || 0) * 0.5 + 0.5 * (y - Dg.y) / dt; Dg.vx = (Dg.vx || 0) * 0.5 + 0.5 * (x - (Dg.x == null ? x : Dg.x)) / dt; Dg.t = now; Dg.x = x;
+        if (Math.abs(y - Dg.y) > 3) Dg.dir = y < Dg.y ? -1 : 1; Dg.y = y; Dg.moved = Math.max(Dg.moved, Math.hypot(x - Dg.x0, y - Dg.y0));
         ghost.style.top = (y - Dg.off) + "px"; Dg.slot = pick(y); show(Dg.slot);
       }
+      // Inclinación: al subir se inclina hacia atrás, al bajar hacia delante, y se endereza al quedarse quieto
+      function tilt() {
+        var c = ghost.firstChild; if (!c || RM) return;
+        if (performance.now() - (Dg.t || 0) > 60) { Dg.vy *= 0.8; Dg.vx *= 0.8; }
+        var tx = Math.max(-12, Math.min(12, -(Dg.vy || 0) * 13)), tz = -1.2 + Math.max(-4, Math.min(4, (Dg.vx || 0) * 3));
+        Dg.rx = (Dg.rx || 0) + (tx - (Dg.rx || 0)) * 0.2; Dg.rz = (Dg.rz == null ? -1.2 : Dg.rz) + (tz - (Dg.rz == null ? -1.2 : Dg.rz)) * 0.2;
+        var lift = Math.abs(Dg.rx);
+        c.style.transform = "perspective(800px) rotateX(" + Dg.rx.toFixed(2) + "deg) rotateZ(" + Dg.rz.toFixed(2) + "deg) scale(" + (1 + lift * 0.002).toFixed(4) + ")";
+        c.style.boxShadow = "0 " + (22 + Dg.rx * 0.9).toFixed(1) + "px " + (44 + lift).toFixed(0) + "px rgba(10,8,25," + (0.26 + lift * 0.006).toFixed(3) + "), inset 0 0 0 2px var(--accent)";
+      }
       function auto() {
-        if (!Dg) return; var y = Dg.y, h = window.innerHeight, sp = 0;
+        if (!Dg) return; tilt(); var y = Dg.y, h = window.innerHeight, sp = 0;
         // Cerca del borde la pantalla corre sola, más rápido cuanto más cerca del borde
         var E = Math.max(90, Math.min(160, h * .19)); if (y < E && Dg.dir <= 0) sp = -(3 + Math.pow(Math.min(1, (E - y) / E), 1.5) * 21); else if (y > h - E && Dg.dir >= 0) sp = 3 + Math.pow(Math.min(1, (y - (h - E)) / E), 1.5) * 21;
         if (sp) { var y0 = window.scrollY; try { window.scrollTo({ top: Math.round(y0 + sp), behavior: "instant" }); } catch (e) { window.scrollTo(0, Math.round(y0 + sp)); } if (window.scrollY !== y0) { Dg.slot = pick(y); show(Dg.slot); } }
@@ -8578,7 +8609,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         if (document.body.classList.contains("w-edit")) { if (!e.target.closest(".w-card, .w-bar, .w-add, .w-sheet, .toast")) { editOff(); toast("Inicio guardado"); } return; }
         var ac = e.target.closest("[data-w-act]"); if (ac) { act(ac.getAttribute("data-w-act")); return; }
         var dy = e.target.closest("[data-w-day]"); if (dy) { var d0 = dy.getAttribute("data-w-day"); semSel = semSel === d0 ? null : d0; render(); return; }
-        var br = e.target.closest("[data-w-bar]"); if (br) { var d1 = br.getAttribute("data-w-bar"); barSel = barSel === d1 ? null : d1; render(); return; }
+        var br = e.target.closest("[data-w-bar]"); if (br) { var d1 = br.getAttribute("data-w-bar"); barSel = barSel === d1 ? null : d1; var sw = br.closest(".w-wi"); if (sw) sw.classList.add("w-quiet"); render(); try { navigator.vibrate && navigator.vibrate(5); } catch (x) {} return; }
         if (e.target.closest(".w-card input, .w-card label")) return;
         var mv = e.target.closest("[data-w-mov]"); if (mv) { var it = state.items.filter(function (z) { return String(z.id) === mv.getAttribute("data-w-mov"); })[0]; if (it) openHd(it.id); return; }
         var c = e.target.closest("[data-w-go]"); if (c && W[c.getAttribute("data-w-go")]) W[c.getAttribute("data-w-go")].go();
