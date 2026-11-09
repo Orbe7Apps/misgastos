@@ -7862,7 +7862,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       var DISC = 60, PR = 66, GAP = 13, OUT = 138;
       var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       var rings = [], rot = [], vel = [], mom = 0, sel = null, spin = 0, data = [], total = 0, cur = "USD", miss = false, raf = 0, last = 0, seen = false, sig = "";
-      box.innerHTML = '<svg class="ao-svg" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><defs><filter id="ao-gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter></defs><g class="ao-r"></g></svg>' +
+      box.innerHTML = '<svg class="ao-svg" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><defs><filter id="ao-gl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="b"></feGaussianBlur><feComponentTransfer in="b" result="s"><feFuncA type="linear" slope="0.55"></feFuncA></feComponentTransfer><feMerge><feMergeNode in="s"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter></defs><g class="ao-r"></g></svg>' +
         '<div class="ao-mid" aria-live="polite"></div>';
       var svg = box.querySelector("svg"), G = box.querySelector(".ao-r"), mid = box.querySelector(".ao-mid");
       // Radios de fuera hacia dentro; con muchas cuentas los anillos se afinan en vez de acercarse al núcleo
@@ -7876,11 +7876,10 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         var withRing = data.filter(function (r) { return r.u > 0; }).sort(function (x, y) { return y.u - x.u; }).slice(0, 5), R = radii(withRing.length);
         G.innerHTML = ""; rings = [];
         withRing.forEach(function (r, i) {
-          var g = document.createElementNS(NS, "g"), c = accColor(r.a), L = 2 * Math.PI * R[i], len = Math.max(L * 0.045, L * r.p - SW * 0.6), bead = Math.max(3, SW * 0.28);
+          var g = document.createElementNS(NS, "g"), c = accColor(r.a), L = 2 * Math.PI * R[i], len = Math.max(L * 0.045, L * r.p - SW * 0.6);
           g.setAttribute("class", "ao-ring"); g.setAttribute("data-id", r.a.id);
           g.innerHTML = '<circle cx="' + CX + '" cy="' + CY + '" r="' + R[i] + '" fill="none" stroke="' + c + '" stroke-opacity=".14" stroke-width="' + SW + '"></circle>' +
-            '<g class="ao-arm"><circle class="ao-arc" cx="' + CX + '" cy="' + CY + '" r="' + R[i] + '" fill="none" stroke="' + c + '" stroke-width="' + SW + '" stroke-linecap="round" stroke-dasharray="' + len.toFixed(1) + " " + L.toFixed(1) + '"></circle>' +
-            '<circle class="ao-bead" r="' + bead.toFixed(1) + '" fill="#fff" stroke="' + c + '" stroke-width="' + (bead * 0.66).toFixed(1) + '" cx="' + (CX + R[i] * Math.cos(len / R[i])).toFixed(1) + '" cy="' + (CY + R[i] * Math.sin(len / R[i])).toFixed(1) + '"></circle></g>';
+            '<g class="ao-arm"><circle class="ao-arc" cx="' + CX + '" cy="' + CY + '" r="' + R[i] + '" fill="none" stroke="' + c + '" stroke-width="' + SW + '" stroke-linecap="round" stroke-dasharray="' + len.toFixed(1) + " " + L.toFixed(1) + '"></circle></g>';
           G.appendChild(g);
           rings.push({ id: String(r.a.id), r: R[i], g: g, arm: g.querySelector(".ao-arm"), arc: g.querySelector(".ao-arc") });
           if (rot[i] == null) { rot[i] = -90 + i * 47; vel[i] = (i % 2 ? -1 : 1) * (5 + i * 3); }
