@@ -3106,6 +3106,26 @@ html.mono #pay-cal .cal-day.today.over::after { background: var(--accent-ink) !i
 /* Papelera al deslizar: en blanco y negro oscuro el fondo es blanco, así que el ícono va en negro */
 html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data-pid])::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3'/%3E%3C/svg%3E") !important; }
 @media (prefers-color-scheme: dark) { html.mono:not([data-theme="light"]) :is(#hist-list .hrow[data-hid], .pay-list .pay[data-pid])::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3'/%3E%3C/svg%3E") !important; } }
+/* Orbe de cuentas */
+.acc3 { grid-template-columns: minmax(0, 1fr) !important; gap: 6px !important; justify-items: center; }
+.acc3 .acc-sum { display: block !important; position: relative; width: 100% !important; max-width: 353px; height: auto !important; aspect-ratio: 353 / 300; margin: 0 auto !important; touch-action: pan-y; -webkit-user-select: none; user-select: none; cursor: grab; }
+.acc3 .acc-sum svg.ao-svg { position: absolute; inset: 0; width: 100% !important; height: 100% !important; overflow: visible; }
+.ao-ring { transition: opacity .35s ease; }
+.ao-arc { transition: stroke-width .35s ease; }
+.ao-mid { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 46%; aspect-ratio: 1; border-radius: 50%; border: 0; background: none; padding: 0; font: inherit; color: var(--ink); display: grid; place-content: center; justify-items: center; gap: 2px; text-align: center; cursor: default; }
+.ao-mid.on { cursor: pointer; }
+.ao-mid:active { transform: translate(-50%, -50%) !important; }
+.ao-k { font-size: 0.78rem; font-weight: 600; color: var(--muted); transition: color .3s ease; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ao-v { font-family: var(--display); font-size: 1.45rem; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ao-s { font-size: 0.72rem; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1em; }
+.acc3 .acc-list { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
+.acc3 .acc-list li { border: 0 !important; }
+.acc-chip { display: inline-flex; align-items: center; gap: 7px; border: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: 0.84rem; font-weight: 600; padding: 8px 13px 8px 9px; min-height: 36px; border-radius: 999px; cursor: pointer; transition: box-shadow .25s ease, opacity .25s ease; }
+.acc-chip i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent); flex: none; }
+.acc-chip[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--c); }
+.acc-list.dim .acc-chip:not([aria-pressed="true"]) { opacity: .45; }
+@media (max-width: 340px) { .acc3 .acc-sum { display: block !important; } }
+@media (prefers-reduced-motion: reduce) { .ao-ring, .ao-arc, .acc-chip { transition: none; } }
 /* El + dibujado (no como letra) para que quede justo al centro */
 .fab { padding: 0 !important; }
 .fab .fab-ic { width: 46%; height: 46%; display: block; pointer-events: none; }
@@ -6887,24 +6907,18 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     var accs = state.accounts.filter(function (a) { return !a.ahorro && (vid === null || String(a.id) !== String(vid)); });
     accs.forEach(function (a) { var u = conv(accBalance(a), a.moneda, "USD"); if (u > 0) posUsd += u; });
     var mName = MESES[Number(state.month.slice(5, 7)) - 1];
-    list.innerHTML = accs.map(function (a) {
+    // Orbe de cuentas: un anillo por cuenta que gira; debajo, un botón por cuenta
+    var rows = accs.map(function (a) {
       var bal = accBalance(a), cv = conv(bal, a.moneda, D);
       if (cv === null) miss = true; else tot += cv;
-      var u = conv(bal, a.moneda, "USD"), share = posUsd > 0 && u > 0 ? u / posUsd * 100 : 0;
-      var alt = a.moneda !== D && cv !== null ? "≈ " + money(cv, D, Math.abs(cv) >= 10000 ? 0 : 2) : "";
-      return '<li><button type="button" class="acc-r" data-acc-open="' + a.id + '" style="--c:' + accColor(a) + '" aria-label="Ver la cuenta ' + esc(a.nombre) + '">' + accAvatar(a) +
-        '<span class="ar-n"><b>' + esc(a.nombre) + "</b></span>" +
-        '<span class="ar-v' + (bal < 0 ? " neg" : "") + '">' + (a.moneda === "USDT" ? (bal < 0 ? "-" : "") + "USDT " + num(Math.abs(bal)) : money(bal, a.moneda)) + (alt ? '<small class="ar-alt">' + alt + "</small>" : "") + "</span></button></li>";
+      var u = conv(bal, a.moneda, "USD");
+      return { a: a, bal: bal, cv: cv, u: u > 0 ? u : 0, p: posUsd > 0 && u > 0 ? u / posUsd : 0 };
+    });
+    list.innerHTML = rows.map(function (r) {
+      return '<li><button type="button" class="acc-chip" data-acc-pick="' + r.a.id + '" aria-pressed="false" style="--c:' + accColor(r.a) + '"><i aria-hidden="true"></i>' + esc(r.a.nombre) + "</button></li>";
     }).join("");
     $("acc3").hidden = !state.accounts.length;
-    var sum = $("acc-sum");
-    if (state.accounts.length) {
-      // Anillos concéntricos como en Metas: uno por cuenta, lleno según su parte del total
-      var segs = accs.map(function (a) { return { a: a, u: Math.max(0, conv(accBalance(a), a.moneda, "USD") || 0) }; })
-        .filter(function (o) { return o.u > 0; }).sort(function (x, y) { return y.u - x.u; }).slice(0, 4);
-      var sh = ringsSvg(segs.map(function (o) { return { p: posUsd > 0 ? o.u / posUsd : 0, c: accColor(o.a) }; }), 128, 11, 4);
-      if (sum._h !== sh) { sum.innerHTML = sh; sum._h = sh; }
-    }
+    if (window.__accOrb) window.__accOrb(rows, tot, miss, D);
     var ah = $("acc-head");
     if (ah) { ah.hidden = true; ah.innerHTML = "<span>La barra indica qué parte de tu dinero está en cada cuenta</span>"; }
     if (false) {
@@ -7805,17 +7819,116 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     $("sav-accs").addEventListener("click", function (e) { var b = e.target.closest("[data-acc-open]"); if (b) openAccd(b.getAttribute("data-acc-open")); });
     $("sav-tip-go").addEventListener("click", function () { openAccSheet(null, true); $("acc-nombre").placeholder = "Ej: Ahorro en dólares, Binance ahorro"; });
     $("sav-tip-no").addEventListener("click", function () { state.savTipOff = true; save(); $("sav-tip").hidden = true; showToast("Puedes crearla cuando quieras: al agregar una cuenta, activa «Cuenta de ahorro»."); });
-    $("acc-sum").addEventListener("click", function (e) {
-      var b = e.target.closest("[data-acc-open]");
-      if (b) openAccd(b.getAttribute("data-acc-open"));
-    });
-    $("acc-list").addEventListener("click", function (e) {
-      var b = e.target.closest("[data-acc-open]");
-      if (b) openAccd(b.getAttribute("data-acc-open"));
-    });
+    // Orbe de cuentas (Inicio): anillos que giran solos, se arrastran en círculo con inercia y,
+    // al tocar una cuenta, su anillo brilla y el centro cuenta hasta su saldo. Otro toque abre la cuenta.
+    (function () {
+      var box = $("acc-sum"), list = $("acc-list"); if (!box) return;
+      var NS = "http://www.w3.org/2000/svg", W = 353, H = 300, CX = 176.5, CY = 150, SW = 16;
+      var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var rings = [], rot = [], vel = [], mom = 0, sel = null, spin = 0, data = [], total = 0, cur = "USD", miss = false, raf = 0, last = 0, seen = false, sig = "";
+      box.innerHTML = '<svg class="ao-svg" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><defs><filter id="ao-gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter></defs><g class="ao-r"></g></svg>' +
+        '<button type="button" class="ao-mid" aria-live="polite"><span class="ao-k">En tus cuentas</span><span class="ao-v"></span><span class="ao-s"></span></button>';
+      var svg = box.querySelector("svg"), G = box.querySelector(".ao-r"), mid = box.querySelector(".ao-mid");
+      function radii(n) { var out = [], R0 = 136, step = n > 4 ? 24 : 28; for (var i = 0; i < n; i++) out.push(R0 - i * step); return out; }
+      function build() {
+        var withRing = data.filter(function (r) { return r.u > 0; }).sort(function (x, y) { return y.u - x.u; }).slice(0, 5), R = radii(withRing.length);
+        G.innerHTML = ""; rings = [];
+        withRing.forEach(function (r, i) {
+          var g = document.createElementNS(NS, "g"), c = accColor(r.a), L = 2 * Math.PI * R[i], len = Math.max(L * 0.045, L * r.p - SW * 0.6);
+          g.setAttribute("class", "ao-ring"); g.setAttribute("data-id", r.a.id);
+          g.innerHTML = '<circle cx="' + CX + '" cy="' + CY + '" r="' + R[i] + '" fill="none" stroke="' + c + '" stroke-opacity=".14" stroke-width="' + SW + '"></circle>' +
+            '<g class="ao-arm"><circle class="ao-arc" cx="' + CX + '" cy="' + CY + '" r="' + R[i] + '" fill="none" stroke="' + c + '" stroke-width="' + SW + '" stroke-linecap="round" stroke-dasharray="' + len.toFixed(1) + " " + L.toFixed(1) + '"></circle>' +
+            '<circle class="ao-bead" r="4.5" fill="#fff" stroke="' + c + '" stroke-width="3" cx="' + (CX + R[i] * Math.cos(len / R[i])).toFixed(1) + '" cy="' + (CY + R[i] * Math.sin(len / R[i])).toFixed(1) + '"></circle></g>';
+          G.appendChild(g);
+          rings.push({ id: String(r.a.id), r: R[i], g: g, arm: g.querySelector(".ao-arm"), arc: g.querySelector(".ao-arc") });
+          if (rot[i] == null) { rot[i] = -90 + i * 47; vel[i] = (i % 2 ? -1 : 1) * (5 + i * 3); }
+        });
+        rot.length = rings.length; vel.length = rings.length;
+        paint(); applySel(false);
+      }
+      function paint() { rings.forEach(function (o, i) { o.arm.setAttribute("transform", "rotate(" + rot[i].toFixed(2) + " " + CX + " " + CY + ")"); }); }
+      function fmt(r) { return r.a.moneda === "USDT" ? (r.bal < 0 ? "-" : "") + "USDT " + num(Math.abs(r.bal)) : money(r.bal, r.a.moneda); }
+      function countTo(el, txt) {
+        var n = parseFloat(String(txt).replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".")), pre = (String(txt).match(/^[^\d-]*/) || [""])[0];
+        cancelAnimationFrame(el._r); if (RM || !isFinite(n)) { el.textContent = txt; return; }
+        var t0 = performance.now();
+        (function step(now) { var q = Math.min(1, (now - t0) / 650), e = 1 - Math.pow(1 - q, 3);
+          el.textContent = q < 1 ? pre + num(n * (0.92 + 0.08 * e)) : txt; if (q < 1) el._r = requestAnimationFrame(step); })(t0);
+      }
+      function applySel(count) {
+        var r = sel == null ? null : data.filter(function (x) { return String(x.a.id) === sel; })[0];
+        if (sel != null && !r) sel = null;
+        rings.forEach(function (o) { var on = sel === o.id; o.g.style.opacity = sel == null || on ? 1 : 0.22; o.arc.setAttribute("stroke-width", on ? SW + 6 : SW); if (on) o.arm.setAttribute("filter", "url(#ao-gl)"); else o.arm.removeAttribute("filter"); });
+        Array.prototype.forEach.call(list.querySelectorAll("[data-acc-pick]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-acc-pick") === sel)); });
+        list.classList.toggle("dim", sel != null);
+        var k = mid.querySelector(".ao-k"), v = mid.querySelector(".ao-v"), sx = mid.querySelector(".ao-s");
+        if (r) {
+          k.textContent = r.a.nombre; k.style.color = accColor(r.a);
+          var alt = r.a.moneda !== cur && r.cv !== null ? "≈ " + money(r.cv, cur, Math.abs(r.cv) >= 10000 ? 0 : 2) : "";
+          var pp = r.p * 100; sx.textContent = (r.p > 0 ? num(pp, pp < 10 ? 1 : 0) + " %" + (alt ? " · " : "") : "") + alt + (alt || r.p > 0 ? "" : "Toca otra vez para abrirla");
+          mid.setAttribute("aria-label", r.a.nombre + ": " + fmt(r) + ". Toca para abrir la cuenta");
+          count ? countTo(v, fmt(r)) : (v.textContent = fmt(r));
+        } else {
+          k.textContent = "En tus cuentas"; k.style.color = "";
+          sx.textContent = data.length + (data.length === 1 ? " cuenta" : " cuentas");
+          mid.removeAttribute("aria-label");
+          var t = money(total, cur) + (miss ? "*" : ""); count ? countTo(v, t) : (v.textContent = t);
+        }
+        mid.classList.toggle("on", !!r);
+      }
+      function pick(id) {
+        id = id == null ? null : String(id);
+        if (id != null && id === sel) { openAccd(id); return; }   // segundo toque: abre la cuenta
+        sel = id; applySel(true);
+        if (sel != null && !RM) spin = 260;
+      }
+      window.__accOrb = function (rows, tot, ms, D) {
+        data = rows; total = tot; miss = ms; cur = D;
+        var nsig = rows.map(function (r) { return r.a.id + ":" + r.p.toFixed(4) + ":" + accColor(r.a); }).join("|");
+        if (nsig !== sig) { sig = nsig; build(); } else applySel(false);
+        start();
+      };
+      // Girar arrastrando en círculo (con inercia; los anillos de dentro van más rápido)
+      var drag = null;
+      function pt(e) { var r = svg.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; }
+      function ang(p) { return Math.atan2(p.y - CY, p.x - CX) * 180 / Math.PI; }
+      box.addEventListener("pointerdown", function (e) { if (e.target.closest(".ao-mid") && sel != null) return; var p = pt(e); drag = { a: ang(p), p: p, moved: 0, id: e.pointerId }; mom = 0; });
+      box.addEventListener("pointermove", function (e) {
+        if (!drag || e.pointerId !== drag.id) return; var p = pt(e), a = ang(p), d = a - drag.a; if (d > 180) d -= 360; if (d < -180) d += 360;
+        drag.a = a; drag.moved += Math.abs(d) * 0.15 + Math.hypot(p.x - drag.p.x, p.y - drag.p.y) * 0.04; drag.p = p;
+        if (drag.moved > 3) { try { box.setPointerCapture(e.pointerId); } catch (x) {} rot.forEach(function (_, i) { rot[i] += d * (1 + i * 0.35); }); mom = d; paint(); }
+      });
+      function up(e) {
+        if (!drag) return; var p = pt(e), moved = drag.moved; drag = null;
+        if (moved > 3) return;
+        var r = Math.hypot(p.x - CX, p.y - CY), hit = null;
+        rings.forEach(function (o) { if (Math.abs(r - o.r) < SW * 0.95) hit = o.id; });
+        if (hit != null) pick(hit);
+        else if (!e.target.closest(".ao-mid") && sel != null) { sel = null; applySel(true); }
+      }
+      box.addEventListener("pointerup", up); box.addEventListener("pointercancel", function () { drag = null; });
+      mid.addEventListener("click", function () { if (sel != null) openAccd(sel); });
+      list.addEventListener("click", function (e) { var b = e.target.closest("[data-acc-pick]"); if (b) pick(b.getAttribute("data-acc-pick")); });
+      // Animación solo cuando el orbe se ve y la app está al frente
+      function tick(now) {
+        raf = 0; var dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+        if (!drag) {
+          rot.forEach(function (_, i) { rot[i] += vel[i] * dt + mom * (1 + i * 0.35) * 0.9; });
+          mom *= 0.92; if (Math.abs(mom) < 0.01) mom = 0;
+          if (spin > 0.5 && sel != null) { var st = spin * 0.12; spin -= st; var k = rings.findIndex(function (o) { return o.id === sel; }); if (k >= 0) rot[k] += st; } else spin = 0;
+        }
+        paint();
+        if (seen && !document.hidden && !activeView()) raf = requestAnimationFrame(tick);
+      }
+      function start() { if (RM || raf || !seen || document.hidden) return; last = 0; raf = requestAnimationFrame(tick); }
+      if (window.IntersectionObserver) new IntersectionObserver(function (en) { seen = en[0].isIntersecting; if (seen) start(); }, { threshold: 0.05 }).observe(box);
+      else { seen = true; start(); }
+      document.addEventListener("visibilitychange", start);
+      new MutationObserver(function () { if (!activeView()) start(); }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+      try { renderAccounts(); } catch (e) {}
+    })();
     document.addEventListener("click", function (e) { if (!e.target.closest(".menu-wrap")) closeMenus(); });
 
-    // Ancho de la franja de cada borde desde la que se cambia de página
     // Sin gesto para cambiar de página: se cambia solo con la barra de abajo.
     // Lo único que queda de lado es deslizar sobre el mes de arriba para cambiar de mes.
     (function () {
