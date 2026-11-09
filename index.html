@@ -1443,7 +1443,7 @@ main > .panel::before, main > .panel::after, .bal-hero::before, .bal-hero::after
 /* Sin degradado arriba: la franja bajo la hora y la batería ya no aparece */
 .navbar { display: none !important; }
 /* Barra más sólida y símbolos más visibles */
-.tabbar { background: color-mix(in srgb, var(--surface) 96%, transparent) !important; -webkit-backdrop-filter: blur(10px) !important; backdrop-filter: blur(10px) !important; }
+.tabbar { background: color-mix(in srgb, var(--surface) 97%, transparent) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 .tab { color: color-mix(in srgb, var(--ink) 72%, transparent) !important; }
 .tab[aria-current="true"] { color: var(--accent) !important; }
 .tab svg { stroke-width: 2; }
@@ -1707,7 +1707,6 @@ html[data-theme="dark"] .fz-opt .bd.am { color: #f0a020; }
 .toast { bottom: calc(var(--tbb) + var(--tbh) + 12px) !important; }
 body::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--tbb) + 58px + 28px); z-index: 16; pointer-events: none;
   background: linear-gradient(to top, color-mix(in srgb, var(--bg) 88%, transparent) 30%, color-mix(in srgb, var(--bg) 0%, transparent));
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   -webkit-mask-image: linear-gradient(to top, #000 45%, transparent); mask-image: linear-gradient(to top, #000 45%, transparent); }
 html.sheet-open body::after { opacity: 0; }
 /* ===== Ideas: comparación, iconos, formulario ===== */
@@ -2105,7 +2104,7 @@ html.sheet-open, html.sheet-open body { background: var(--bg) !important; }
 html.sheet-open main, html.sheet-open .goals-view, html.sheet-open .pay-view, html.sheet-open .hist-view, html.sheet-open .bn-view, html.sheet-open .set-view, html.sheet-open .accd-view { transform: none !important; border-radius: 0 !important; filter: none !important; }
 html.bg-lock, html.bg-lock body { overflow: hidden !important; overscroll-behavior: none; }
 .sheet-backdrop, .sheet, .dial { overscroll-behavior: contain; }
-.sheet-backdrop { background: rgba(10, 8, 30, 0.38) !important; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.sheet-backdrop { background: rgba(10, 8, 30, 0.4) !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
 /* Historial: cada día en su tarjeta y más aire entre movimientos */
 #hist-list .hday, #ad-list .hday { background: var(--surface); border-radius: 20px; padding: 4px 14px 2px; margin-top: 14px; }
 #hist-list .hday:first-child, #ad-list .hday:first-child { margin-top: 6px; }
@@ -3343,10 +3342,10 @@ html.mono .w-date { background: var(--ink); }
 #pb[hidden] { display: none !important; }
 #pb-ball { transform-box: fill-box; transform-origin: center; }
 #pb svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; }
-#pb .pb-plus { position: absolute; left: 50%; top: 0; width: 48px; height: 48px; margin: -24px 0 0 -24px; display: grid; place-items: center; color: var(--accent-ink, #fff); opacity: 0; transform: scale(.4); transition: opacity .18s ease, transform .32s cubic-bezier(.34,1.56,.64,1); }
+#pb .pb-plus { position: absolute; left: 50%; top: 0; will-change: transform; width: 48px; height: 48px; margin: -24px 0 0 -24px; display: grid; place-items: center; color: var(--accent-ink, #fff); opacity: 0; transform: scale(.4); transition: opacity .18s ease, transform .32s cubic-bezier(.34,1.56,.64,1); }
 #pb .pb-plus.on { opacity: 1; transform: none; }
 #pb .pb-plus svg { position: static; width: 23px; height: 23px; }
-#pb .pb-hint { position: absolute; left: 0; right: 0; top: 0; text-align: center; font-size: 0.92rem; font-weight: 600; color: var(--muted); transition: color .2s ease; }
+#pb .pb-hint { position: absolute; left: 0; right: 0; top: 0; will-change: transform, opacity; text-align: center; font-size: 0.92rem; font-weight: 600; color: var(--muted); transition: color .2s ease; }
 #pb .pb-hint.go { color: var(--accent); }
 html.mono #pb .pb-hint.go { color: var(--ink); }
 main.pb-pull { will-change: transform; }
@@ -8587,13 +8586,18 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       var TH = 108, RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       var cand = false, pulling = false, x0 = 0, y0 = 0, p = 0, armed = false, cy0 = 29.5, raf = 0, anim = 0;
       var NO = "input, select, textarea, .sheet, .tabbar, .dial, .menu, .cat-chips, .hist-chips";
-      function safeTop() { var d = document.createElement("div"); d.style.cssText = "position:fixed;top:0;height:env(safe-area-inset-top,0px);visibility:hidden"; document.body.appendChild(d); var h = d.offsetHeight; d.remove(); return h; }
+      // Medir la isla/notch obliga al navegador a recalcular todo: se mide una vez y al girar la pantalla
+      var stC = -1; window.addEventListener("resize", function () { stC = -1; laidW = 0; });
+      function safeTop() { if (stC >= 0) return stC; var d = document.createElement("div"); d.style.cssText = "position:fixed;top:0;height:env(safe-area-inset-top,0px);visibility:hidden"; document.body.appendChild(d); var h = d.offsetHeight; d.remove(); stC = h; return h; }
       function blocked() {
         if (document.body.classList.contains("w-busy") || state.pullOff || activeView() || document.querySelector(".sheet-backdrop:not([hidden])") || !$("dial").hidden) return true;
         return ["onb", "lock", "tour", "ctry", "splash", "cal-backdrop"].some(function (id) { var el = $(id); return el && !el.hidden; });
       }
       // La «fuente» de la gota se dibuja donde está la isla o el notch (o fuera de pantalla si no hay)
+      var laidW = 0, acc = "#6a5cf2", lastHint = "", vY = 0, vT = 0, vel = 0;
       function layout() {
+        acc = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#6a5cf2";
+        if (laidW === window.innerWidth) return; laidW = window.innerWidth;
         var W = window.innerWidth, st = safeTop(), x = W / 2 - 62, y, h;
         if (st >= 51) { y = 11; h = 37; } else if (st >= 30) { y = -20; h = 50; } else { y = -40; h = 38; }
         cy0 = y + h / 2;
@@ -8620,10 +8624,11 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         var r = p < 6 ? 0 : RM ? (armed ? 24 : 0) : Math.min(24, 4 + p * 0.24);
         var cy = RM ? cy0 + TH * 0.62 : cy0 + p * 0.62;
         ball.setAttribute("r", r.toFixed(2)); ball.setAttribute("cy", cy.toFixed(1));
-        ball.setAttribute("fill", armed ? getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#6a5cf2" : "#000");
-        plus.style.top = cy + "px"; plus.classList.toggle("on", armed);
-        hint.style.top = (cy + 34) + "px"; hint.style.opacity = p < 30 ? 0 : Math.min(1, (p - 30) / 30);
-        hint.textContent = armed ? "Suelta para agregar" : "Sigue bajando para agregar"; hint.classList.toggle("go", armed);
+        ball.setAttribute("fill", armed ? acc : "#000");
+        // Posiciones con translate (no «top»): no obliga a recalcular la página en cada cuadro
+        plus.style.translate = "0 " + cy.toFixed(1) + "px"; plus.classList.toggle("on", armed);
+        hint.style.translate = "0 " + (cy + 34).toFixed(1) + "px"; hint.style.opacity = p < 30 ? 0 : Math.min(1, (p - 30) / 30);
+        var ht = armed ? "Suelta para agregar" : "Sigue bajando para agregar"; if (ht !== lastHint) { hint.textContent = ht; lastHint = ht; } hint.classList.toggle("go", armed);
         pb.hidden = p <= 0.5;
       }
       function setP(np) {
@@ -8633,7 +8638,8 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       }
       function settle(open) {
         var from = p, t0 = performance.now(), D = RM ? 1 : open ? 420 : 380, keep = armed;
-        if (open) openSheet(null);
+        // La hoja se abre un cuadro después: así la bolita empieza a volver sin tirones
+        if (open) requestAnimationFrame(function () { requestAnimationFrame(function () { openSheet(null); }); });
         cancelAnimationFrame(anim);
         (function step(now) {
           var k = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - k, 3);
@@ -8644,23 +8650,32 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       document.addEventListener("touchstart", function (e) {
         cand = pulling = false;
         if (e.touches.length !== 1 || window.scrollY > 0 || blocked() || e.target.closest(NO)) return;
-        cand = true; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+        cand = true; x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; vY = y0; vT = performance.now(); vel = 0;
+        // Se prepara la capa antes de mover el dedo (si se hace al empezar a bajar, el primer cuadro se traba)
+        main.classList.add("pb-pull");
       }, { passive: true });
       document.addEventListener("touchmove", function (e) {
         if (!cand) return;
-        var t = e.touches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+        var t = e.touches[0], dx = t.clientX - x0, dy = t.clientY - y0, now = performance.now();
+        if (now > vT) { vel = vel * 0.4 + 0.6 * (t.clientY - vY) / (now - vT); vY = t.clientY; vT = now; }
         if (!pulling) {
-          if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) { cand = false; return; }
-          if (dy < -4 || window.scrollY > 0) { cand = false; return; }
-          if (dy < 16) return;
-          pulling = true; y0 = t.clientY; layout(); main.classList.add("pb-pull");
+          if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) { cand = false; if (!p) main.classList.remove("pb-pull"); return; }
+          if (dy < -4 || window.scrollY > 0) { cand = false; if (!p) main.classList.remove("pb-pull"); return; }
+          // Bajando desde arriba: se frena el rebote nativo desde el primer movimiento (si no, iPhone mueve la
+          // página por su cuenta y el gesto se ve trabado al hacerlo rápido)
+          if (dy > 0 && Math.abs(dy) >= Math.abs(dx) && e.cancelable) e.preventDefault();
+          if (dy < 6) return;
+          pulling = true; y0 = t.clientY - 2; layout();
         }
         if (e.cancelable) e.preventDefault();
         setP(rubber(t.clientY - y0));
       }, { passive: false });
       function end() {
         if (!cand) return; cand = false;
-        if (!pulling) return; pulling = false;
+        if (!pulling) { if (!p) main.classList.remove("pb-pull"); return; }
+        pulling = false;
+        // Gesto rápido: un tirón veloz cuenta aunque no llegue del todo al punto
+        if (!armed && vel > 0.9 && p >= TH * 0.55) { armed = true; if (navigator.vibrate) haptic(); }
         // En iPhone, Safari solo deja vibrar al soltar el dedo (no mientras se mueve): se confirma aquí
         if (armed && !navigator.vibrate) haptic();
         settle(armed);
@@ -12878,7 +12893,9 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       el.addEventListener("click", function (e) { if (e.target.closest(".eye")) return; flowGo(el); });
       el.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flowGo(el); } });
     });
+    var tabNow = -1;
     function setTab(i) {
+      if (i === tabNow) return; tabNow = i;
       tabbar.style.setProperty("--i", i);
       tabBtns.forEach(function (b, k) { b.setAttribute("aria-current", k === i ? "true" : "false"); });
     }
