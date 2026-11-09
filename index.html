@@ -3112,12 +3112,25 @@ html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data
 .acc3 .acc-sum svg.ao-svg { position: absolute; inset: 0; width: 100% !important; height: 100% !important; overflow: visible; }
 .ao-ring { transition: opacity .35s ease; }
 .ao-arc { transition: stroke-width .35s ease; }
-.ao-mid { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 46%; aspect-ratio: 1; border-radius: 50%; border: 0; background: none; padding: 0; font: inherit; color: var(--ink); display: grid; place-content: center; justify-items: center; gap: 2px; text-align: center; cursor: default; }
-.ao-mid.on { cursor: pointer; }
-.ao-mid:active { transform: translate(-50%, -50%) !important; }
-.ao-k { font-size: 0.78rem; font-weight: 600; color: var(--muted); transition: color .3s ease; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ao-v { font-family: var(--display); font-size: 1.45rem; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.ao-s { font-size: 0.72rem; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1em; }
+/* Núcleo: disco sólido con sombra; al elegir una cuenta se hunde y rebota, la sombra toma su color y el texto sube */
+.ao-mid { position: absolute; left: 50%; top: 50%; width: 34%; aspect-ratio: 1; margin: 0; translate: -50% -50%; border-radius: 50%; border: 0; padding: 0; font: inherit; color: var(--ink); cursor: default; overflow: hidden;
+  background: var(--surface); box-shadow: 0 12px 28px color-mix(in srgb, var(--ink) 13%, transparent), 0 0 0 6px color-mix(in srgb, var(--surface) 55%, transparent); transition: box-shadow .5s ease; }
+.ao-mid.on { cursor: pointer; box-shadow: 0 12px 28px color-mix(in srgb, var(--sc) 30%, transparent), 0 0 0 6px color-mix(in srgb, var(--sc) 15%, transparent); }
+.ao-mid:active { transform: none !important; }
+.ao-mid.press { animation: aoPress .55s cubic-bezier(.32,.72,0,1); }
+@keyframes aoPress { 30% { scale: .92; } 70% { scale: 1.03; } 100% { scale: 1; } }
+.ao-txt { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 1px; text-align: center; padding: 0 10px; }
+.ao-txt.out { animation: aoOut .26s ease forwards; }
+.ao-txt.in { animation: aoIn .5s cubic-bezier(.32,.72,0,1) .1s backwards; }
+@keyframes aoOut { to { opacity: 0; transform: translateY(-10px); } }
+@keyframes aoIn { from { opacity: 0; transform: translateY(12px); } }
+.ao-pv { stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset .9s cubic-bezier(.32,.72,0,1), stroke .4s ease; }
+.ao-k { font-size: 0.7rem; font-weight: 600; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ao-v { font-family: var(--display); font-size: 1.22rem; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.15; }
+.ao-v.long { font-size: 1rem; }
+.ao-cur { font-size: .62em; font-weight: 600; color: var(--muted); margin-right: 2px; vertical-align: .32em; letter-spacing: 0; }
+.ao-dec { font-size: .6em; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+.ao-s { font-size: 0.64rem; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .acc3 .acc-list { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
 .acc3 .acc-list li { border: 0 !important; }
 .acc-chip { display: inline-flex; align-items: center; gap: 7px; border: 0; background: var(--surface); color: var(--ink); font: inherit; font-size: 0.84rem; font-weight: 600; padding: 8px 13px 8px 9px; min-height: 36px; border-radius: 999px; cursor: pointer; transition: box-shadow .25s ease, opacity .25s ease; }
@@ -3125,7 +3138,7 @@ html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data
 .acc-chip[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--c); }
 .acc-list.dim .acc-chip:not([aria-pressed="true"]) { opacity: .45; }
 @media (max-width: 340px) { .acc3 .acc-sum { display: block !important; } }
-@media (prefers-reduced-motion: reduce) { .ao-ring, .ao-arc, .acc-chip { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .ao-ring, .ao-arc, .acc-chip, .ao-pv, .ao-mid { transition: none; } .ao-mid.press, .ao-txt.in, .ao-txt.out { animation: none; } }
 /* El + dibujado (no como letra) para que quede justo al centro */
 .fab { padding: 0 !important; }
 .fab .fab-ic { width: 46%; height: 46%; display: block; pointer-events: none; }
@@ -7824,21 +7837,33 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     (function () {
       var box = $("acc-sum"), list = $("acc-list"); if (!box) return;
       var NS = "http://www.w3.org/2000/svg", W = 353, H = 300, CX = 176.5, CY = 150, SW = 16;
+      // Núcleo: disco sólido en el centro (radio 60) con un aro de progreso (radio 66); los anillos nunca bajan de DISC + GAP
+      var DISC = 60, PR = 66, GAP = 13, OUT = 138;
       var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       var rings = [], rot = [], vel = [], mom = 0, sel = null, spin = 0, data = [], total = 0, cur = "USD", miss = false, raf = 0, last = 0, seen = false, sig = "";
       box.innerHTML = '<svg class="ao-svg" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><defs><filter id="ao-gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter></defs><g class="ao-r"></g></svg>' +
-        '<button type="button" class="ao-mid" aria-live="polite"><span class="ao-k">En tus cuentas</span><span class="ao-v"></span><span class="ao-s"></span></button>';
+        '<button type="button" class="ao-mid" aria-live="polite"></button>';
       var svg = box.querySelector("svg"), G = box.querySelector(".ao-r"), mid = box.querySelector(".ao-mid");
-      function radii(n) { var out = [], R0 = 136, step = n > 4 ? 24 : 28; for (var i = 0; i < n; i++) out.push(R0 - i * step); return out; }
+      var PC = 2 * Math.PI * PR, pv = document.createElementNS(NS, "circle");
+      pv.setAttribute("class", "ao-pv"); pv.setAttribute("cx", CX); pv.setAttribute("cy", CY); pv.setAttribute("r", PR); pv.setAttribute("fill", "none");
+      pv.setAttribute("stroke-dasharray", PC.toFixed(1)); pv.setAttribute("stroke-dashoffset", PC.toFixed(1)); pv.setAttribute("transform", "rotate(-90 " + CX + " " + CY + ")");
+      svg.appendChild(pv);
+      // Radios de fuera hacia dentro; con muchas cuentas los anillos se afinan en vez de acercarse al núcleo
+      function radii(n) {
+        if (n <= 1) { SW = 16; return [OUT]; }
+        var step = Math.min(26, (OUT - (PR + GAP + 8)) / (n - 1)); SW = Math.max(8, Math.min(16, step - 5));
+        step = Math.min(26, (OUT - (PR + GAP + SW / 2)) / (n - 1));
+        var out = []; for (var i = 0; i < n; i++) out.push(OUT - i * step); return out;
+      }
       function build() {
         var withRing = data.filter(function (r) { return r.u > 0; }).sort(function (x, y) { return y.u - x.u; }).slice(0, 5), R = radii(withRing.length);
         G.innerHTML = ""; rings = [];
         withRing.forEach(function (r, i) {
-          var g = document.createElementNS(NS, "g"), c = accColor(r.a), L = 2 * Math.PI * R[i], len = Math.max(L * 0.045, L * r.p - SW * 0.6);
+          var g = document.createElementNS(NS, "g"), c = accColor(r.a), L = 2 * Math.PI * R[i], len = Math.max(L * 0.045, L * r.p - SW * 0.6), bead = Math.max(3, SW * 0.28);
           g.setAttribute("class", "ao-ring"); g.setAttribute("data-id", r.a.id);
           g.innerHTML = '<circle cx="' + CX + '" cy="' + CY + '" r="' + R[i] + '" fill="none" stroke="' + c + '" stroke-opacity=".14" stroke-width="' + SW + '"></circle>' +
             '<g class="ao-arm"><circle class="ao-arc" cx="' + CX + '" cy="' + CY + '" r="' + R[i] + '" fill="none" stroke="' + c + '" stroke-width="' + SW + '" stroke-linecap="round" stroke-dasharray="' + len.toFixed(1) + " " + L.toFixed(1) + '"></circle>' +
-            '<circle class="ao-bead" r="4.5" fill="#fff" stroke="' + c + '" stroke-width="3" cx="' + (CX + R[i] * Math.cos(len / R[i])).toFixed(1) + '" cy="' + (CY + R[i] * Math.sin(len / R[i])).toFixed(1) + '"></circle></g>';
+            '<circle class="ao-bead" r="' + bead.toFixed(1) + '" fill="#fff" stroke="' + c + '" stroke-width="' + (bead * 0.66).toFixed(1) + '" cx="' + (CX + R[i] * Math.cos(len / R[i])).toFixed(1) + '" cy="' + (CY + R[i] * Math.sin(len / R[i])).toFixed(1) + '"></circle></g>';
           G.appendChild(g);
           rings.push({ id: String(r.a.id), r: R[i], g: g, arm: g.querySelector(".ao-arm"), arc: g.querySelector(".ao-arc") });
           if (rot[i] == null) { rot[i] = -90 + i * 47; vel[i] = (i % 2 ? -1 : 1) * (5 + i * 3); }
@@ -7848,33 +7873,49 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
       }
       function paint() { rings.forEach(function (o, i) { o.arm.setAttribute("transform", "rotate(" + rot[i].toFixed(2) + " " + CX + " " + CY + ")"); }); }
       function fmt(r) { return r.a.moneda === "USDT" ? (r.bal < 0 ? "-" : "") + "USDT " + num(Math.abs(r.bal)) : money(r.bal, r.a.moneda); }
+      // Monto partido: moneda y céntimos más pequeños
+      function parts(txt) { var m = String(txt).match(/^([^\d−-]*?)\s?([−-]?[\d.]+)(,\d+)?(.*)$/); return m ? { cur: m[1].trim(), n: m[2], d: (m[3] || "") + (m[4] || "") } : { cur: "", n: String(txt), d: "" }; }
       function countTo(el, txt) {
-        var n = parseFloat(String(txt).replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".")), pre = (String(txt).match(/^[^\d-]*/) || [""])[0];
-        cancelAnimationFrame(el._r); if (RM || !isFinite(n)) { el.textContent = txt; return; }
+        var pz = parts(txt), target = parseFloat(pz.n.replace(/[−-]/, "-").replace(/\./g, ""));
+        el.innerHTML = (pz.cur ? '<span class="ao-cur">' + esc(pz.cur) + "</span>" : "") + '<span class="ao-n"></span>' + (pz.d ? '<span class="ao-dec">' + esc(pz.d) + "</span>" : "");
+        var nEl = el.querySelector(".ao-n"); nEl.textContent = pz.n;
+        el.classList.toggle("long", (pz.cur + pz.n + pz.d).length > 11);
+        if (RM || !isFinite(target) || !el._count) return; el._count = false;
         var t0 = performance.now();
-        (function step(now) { var q = Math.min(1, (now - t0) / 650), e = 1 - Math.pow(1 - q, 3);
-          el.textContent = q < 1 ? pre + num(n * (0.92 + 0.08 * e)) : txt; if (q < 1) el._r = requestAnimationFrame(step); })(t0);
+        (function step(now) { var q = Math.min(1, (now - t0) / 700), e = 1 - Math.pow(1 - q, 3);
+          nEl.textContent = q < 1 ? num(Math.round(target * (0.9 + 0.1 * e)), 0) : pz.n; if (q < 1) requestAnimationFrame(step); })(t0);
       }
       function applySel(count) {
         var r = sel == null ? null : data.filter(function (x) { return String(x.a.id) === sel; })[0];
         if (sel != null && !r) sel = null;
-        rings.forEach(function (o) { var on = sel === o.id; o.g.style.opacity = sel == null || on ? 1 : 0.22; o.arc.setAttribute("stroke-width", on ? SW + 6 : SW); if (on) o.arm.setAttribute("filter", "url(#ao-gl)"); else o.arm.removeAttribute("filter"); });
+        rings.forEach(function (o) { var on = sel === o.id; o.g.style.opacity = sel == null || on ? 1 : 0.22; o.arc.setAttribute("stroke-width", on ? SW + 5 : SW); if (on) o.arm.setAttribute("filter", "url(#ao-gl)"); else o.arm.removeAttribute("filter"); });
         Array.prototype.forEach.call(list.querySelectorAll("[data-acc-pick]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-acc-pick") === sel)); });
         list.classList.toggle("dim", sel != null);
-        var k = mid.querySelector(".ao-k"), v = mid.querySelector(".ao-v"), sx = mid.querySelector(".ao-s");
+        // Aro de progreso: la parte de esta cuenta, en su color
+        var col = r ? accColor(r.a) : "";
+        pv.style.stroke = col || "transparent"; pv.style.strokeDashoffset = (r ? PC * (1 - Math.max(0.03, r.p)) : PC).toFixed(1);
+        mid.style.setProperty("--sc", col || "transparent");
+        var old = mid.querySelector(".ao-txt"), nw = document.createElement("span"); nw.className = "ao-txt";
+        nw.innerHTML = '<span class="ao-k"></span><span class="ao-v"></span><span class="ao-s"></span>';
+        var k = nw.querySelector(".ao-k"), v = nw.querySelector(".ao-v"), sx = nw.querySelector(".ao-s");
+        v._count = !!count;
         if (r) {
-          k.textContent = r.a.nombre; k.style.color = accColor(r.a);
+          k.textContent = r.a.nombre; k.style.color = col;
           var alt = r.a.moneda !== cur && r.cv !== null ? "≈ " + money(r.cv, cur, Math.abs(r.cv) >= 10000 ? 0 : 2) : "";
-          var pp = r.p * 100; sx.textContent = (r.p > 0 ? num(pp, pp < 10 ? 1 : 0) + " %" + (alt ? " · " : "") : "") + alt + (alt || r.p > 0 ? "" : "Toca otra vez para abrirla");
+          var pp = r.p * 100; sx.textContent = r.p > 0 ? num(pp, pp < 10 ? 1 : 0) + " %" + (alt ? " · " + alt : "") : alt;
           mid.setAttribute("aria-label", r.a.nombre + ": " + fmt(r) + ". Toca para abrir la cuenta");
-          count ? countTo(v, fmt(r)) : (v.textContent = fmt(r));
+          countTo(v, fmt(r));
         } else {
-          k.textContent = "En tus cuentas"; k.style.color = "";
+          k.textContent = "En tus cuentas";
           sx.textContent = data.length + (data.length === 1 ? " cuenta" : " cuentas");
           mid.removeAttribute("aria-label");
-          var t = money(total, cur) + (miss ? "*" : ""); count ? countTo(v, t) : (v.textContent = t);
+          countTo(v, money(total, cur) + (miss ? "*" : ""));
         }
+        if (old && count && !RM) { old.classList.add("out"); nw.classList.add("in"); setTimeout(function () { if (old.parentNode) old.remove(); }, 300); }
+        else if (old) old.remove();
+        mid.appendChild(nw);
         mid.classList.toggle("on", !!r);
+        if (count && !RM) { mid.classList.remove("press"); void mid.offsetWidth; mid.classList.add("press"); }
       }
       function pick(id) {
         id = id == null ? null : String(id);
@@ -7902,7 +7943,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
         if (!drag) return; var p = pt(e), moved = drag.moved; drag = null;
         if (moved > 3) return;
         var r = Math.hypot(p.x - CX, p.y - CY), hit = null;
-        rings.forEach(function (o) { if (Math.abs(r - o.r) < SW * 0.95) hit = o.id; });
+        rings.forEach(function (o) { if (Math.abs(r - o.r) < Math.max(12, SW * 0.95)) hit = o.id; });
         if (hit != null) pick(hit);
         else if (!e.target.closest(".ao-mid") && sel != null) { sel = null; applySel(true); }
       }
