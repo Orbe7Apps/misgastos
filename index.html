@@ -3625,7 +3625,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     <div class="set-group">
       <button type="button" class="set-row danger" id="data-del"><span class="tx"><b>Borrar todos los datos</b><small>Elimina todo lo guardado en este teléfono. No se puede deshacer.</small></span><svg class="chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
     </div>
-    <p class="set-foot">Orbe · versión 1.0 · actualizada el 8 nov 2026<br>Orbe no es un banco ni una casa de cambio, y no da asesoría financiera.</p>
+    <p class="set-foot">Orbe · versión 1.0 · actualizada el 9 nov 2026<br>Orbe no es un banco ni una casa de cambio, y no da asesoría financiera.</p>
   </div>
   <div class="sheet-backdrop" id="rh-sheet" hidden>
     <section class="panel sheet" role="dialog" aria-modal="true" aria-labelledby="h-rh">
@@ -10405,6 +10405,9 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     // «atrás» del sistema cierra lo de encima y nunca se acumulan entradas (antes podía repetirse Inicio).
     (function () {
       if (!window.history || !history.pushState) return;
+      // En iPhone no se guarda nada en el historial: así deslizar desde el borde no muestra otra pantalla.
+      // Solo Android lo usa, para su botón «atrás».
+      if (window.ORBE_OS !== "android") { window.__navNoBack = function () {}; return; }
       var armed = false, ignoreUntil = 0;
       function openSheets() { return Array.prototype.filter.call(document.querySelectorAll(".sheet-backdrop"), function (el) { return !el.hidden; }); }
       function layers() { return openSheets().length + (activeView() ? 1 : 0) + ($("dial").hidden ? 0 : 1); }
