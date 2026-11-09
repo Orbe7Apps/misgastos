@@ -3287,6 +3287,10 @@ html.mono .w-sgc button:not(.t):not(.s) b { opacity: .35; }
 html.mono .w-sgc button.f b { background: var(--fill); opacity: 1; }
 .w-two div { align-content: start; }
 @keyframes wBar { from { transform: scaleY(0); } }
+.ph-lim { display: inline-flex; align-items: center; gap: 5px; border: 0; background: var(--fill); color: var(--muted); font: inherit; font-size: 0.8rem; font-weight: 700; padding: 7px 12px 7px 10px; min-height: 32px; border-radius: 999px; cursor: pointer; transition: transform .15s ease, color .2s; -webkit-tap-highlight-color: transparent; }
+.ph-lim svg { width: 15px; height: 15px; }
+.ph-lim:active { transform: scale(.94); color: var(--ink); }
+[data-panel="cat"] .phead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .w-dif { font-weight: 700; } .w-dif.ok { color: var(--in); } .w-dif.hot { color: var(--out); }
 html.mono .w-dif { color: var(--ink); }
 .w-quiet .w-sgc b { animation: none; }
@@ -3486,6 +3490,11 @@ html.mono .orbe-mk circle:nth-child(1) { stroke: var(--ink) !important; } html.m
 html.mono .rings circle, html.mono .ring circle, html.mono svg.donut circle { stroke: var(--ink) !important; }
 html.mono svg [stroke]:not([stroke="none"]):not([stroke="currentColor"]):not([stroke^="var("]) { stroke: var(--ink) !important; }
 html.mono svg [fill^="#"] { fill: var(--ink) !important; }
+/* Colores puestos desde el código (nombre de la cuenta en el núcleo, avatares, barras de los widgets) */
+html.mono [style^="color:"], html.mono [style*="; color:"], html.mono [style*=";color:"] { color: var(--ink) !important; }
+html.mono .ao-k { color: var(--ink) !important; }
+html.mono .w-lim b, html.mono .w-track i { background: var(--ink) !important; }
+html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !important; }
 </style>
 </head>
 <body>
@@ -3582,7 +3591,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
 
   <div class="wz" data-z="b"><button type="button" class="wz-lab" tabindex="-1">Widgets</button></div>
   <section class="panel" data-panel="cat" aria-labelledby="h-cat">
-    <div class="phead"><h2 id="h-cat">Tus gastos</h2></div>
+    <div class="phead"><h2 id="h-cat">Tus gastos</h2><button type="button" class="ph-lim" id="cat-lim" aria-label="Límites por categoría"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18a8 8 0 1 1 16 0"></path><path d="M12 18l4-5"></path></svg>Límites</button></div>
     <div class="cbody" id="b-cat"><div class="cbody-in">
     <div id="cv"></div>
     <div class="donuts" hidden>
@@ -9874,6 +9883,7 @@ html.mono svg [fill^="#"] { fill: var(--ink) !important; }
     });
     $("cvl-amt").addEventListener("input", cvlDraw);
     $("cvl-all").addEventListener("click", function () { closeCvl(); closeCvd(); openLim(); });
+    $("cat-lim").addEventListener("click", function () { openLim(); });
     $("cvl-save").addEventListener("click", function () {
       var c = cvdCat, D = state.disp, v = amtVal($("cvl-amt").value);
       if (!(v > 0)) { $("cvl-err").textContent = "Escribe un monto mayor que cero."; return; }
