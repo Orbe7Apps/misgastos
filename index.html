@@ -3888,7 +3888,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     <div class="set-group">
       <button type="button" class="set-row " id="bk-save"><span class="tx"><b>Guardar una copia</b><small><span id="bk-sub">Descarga un archivo con todos tus movimientos.</span></small></span><svg class="chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
       <button type="button" class="set-row " id="bk-load"><span class="tx"><b>Restaurar una copia</b><small>Carga un archivo guardado antes. Reemplaza lo que tienes ahora.</small></span><svg class="chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
-      <button type="button" class="set-row " id="siri-open" hidden><span class="tx"><b>Atajo de Siri «Agregar gasto»</b><small>Di «Oye Siri, agregar gasto» y Orbe se abre con el monto listo.</small></span><svg class="chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+      <button type="button" class="set-row " id="siri-open"><span class="tx"><b>Atajo de Siri «Agregar gasto»</b><small>Di «Oye Siri, agregar gasto» y Orbe se abre con el monto listo.</small></span><svg class="chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
       <button type="button" class="set-row " id="snap-open"><span class="tx"><b>Copias automáticas</b><small id="snap-sub">Orbe guarda sola una copia cada día en este teléfono, por si necesitas volver atrás.</small></span><svg class="chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
       <button type="button" class="set-row " id="ex-all"><span class="tx"><b>Exportar movimientos a Excel</b><small>Un archivo con todos tus movimientos para abrir en Excel o Numbers.</small></span><svg class="chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
       <input type="file" id="bk-file" accept=".json,application/json" hidden>
@@ -3925,7 +3925,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     <div class="set-group">
       <button type="button" class="set-row danger" id="data-del"><span class="tx"><b>Borrar todos los datos</b><small>Elimina todo lo guardado en este teléfono. No se puede deshacer.</small></span><svg class="chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
     </div>
-    <p class="set-foot">Orbe · versión 1.0 · actualizada el 9 nov 2026<br>Orbe no es un banco ni una casa de cambio, y no da asesoría financiera.</p>
+    <p class="set-foot">Orbe · versión 1.0 · actualizada el <span id="ver-date">10 nov 2026</span><br>Orbe no es un banco ni una casa de cambio, y no da asesoría financiera.</p>
   </div>
   <div class="sheet-backdrop" id="rh-sheet" hidden>
     <section class="panel sheet" role="dialog" aria-modal="true" aria-labelledby="h-rh">
@@ -5149,6 +5149,19 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     if (cur === "USDT") return sign + v + " USDT";
     return (cur === "USD" ? sign + "$" : cur === "EUR" ? sign + "€" : sign + LOC.sym + " ") + v;
   }
+  // Formato corto para los montos de Ingresos, Gastos y Ahorrado: 785.322 → 785 mil; 781.998.390 → 782,00 M; 25.600.000.000 → 25,60 mil M
+  function moneyC(n, cur) {
+    var a = Math.abs(n);
+    if (a >= 1e9) return money(n / 1e9, cur, 2) + " mil M";
+    if (a >= 1e6) return money(n / 1e6, cur, 2) + " M";
+    if (a >= 1e5) return money(n / 1e3, cur, 0) + " mil";
+    return money(n, cur);
+  }
+  function moneyHC(n, cur) {
+    var s = moneyC(n, cur);
+    if (cur === "VES" || cur === "EUR" || cur === "USDT") { var u = conv(n, cur, "USD"); if (u !== null) s += ' <small class="usd">≈ ' + moneyC(u, "USD") + "</small>"; }
+    return s;
+  }
   function moneyH(n, cur, d) {
     var s = money(n, cur, d);
     if (cur === "VES" || cur === "EUR" || cur === "USDT") {
@@ -6022,6 +6035,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     return ym + "-" + pad2(Math.min(s.dia, nd));
   }
   function nextYm(ym) { var q = ym.split("-"), y = Number(q[0]), m = Number(q[1]) + 1; if (m > 12) { m = 1; y++; } return y + "-" + pad2(m); }
+  function prevYm(ym) { var q = ym.split("-"), y = Number(q[0]), m = Number(q[1]) - 1; if (m < 1) { m = 12; y--; } return y + "-" + pad2(m); }
   // Crea los pagos de cada mes para los pagos que se repiten, hasta el mes indicado.
   function ensureSeries(upto) {
     var added = false;
@@ -6062,8 +6076,12 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
   function renderPay() {
     var t = today(), curM = t.slice(0, 7), D = state.disp;
     var vm = pay.y + "-" + pad2(pay.m + 1);
-    if (vm < curM) { pay.y = Number(curM.slice(0, 4)); pay.m = Number(curM.slice(5, 7)) - 1; vm = curM; }
-    ensureSeries(vm);
+    // Se puede volver a meses pasados: hasta el primer mes con pagos (o un año atrás)
+    var minM = curM; for (var k0 = 0; k0 < 12; k0++) minM = prevYm(minM);
+    state.payments.forEach(function (p) { if (p.fecha && p.fecha.slice(0, 7) < minM) minM = p.fecha.slice(0, 7); });
+    if (vm < minM) { pay.y = Number(minM.slice(0, 4)); pay.m = Number(minM.slice(5, 7)) - 1; vm = minM; }
+    var past = vm < curM;
+    ensureSeries(vm > curM ? vm : curM);
     var isC = pay.tab === "cobro", PL = state.payments.filter(function (p) { return !!p.cobro === isC; });
     document.querySelectorAll("[data-pay-tab]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.getAttribute("data-pay-tab") === pay.tab)); });
     var inMonth = PL.filter(function (p) { return p.fecha.slice(0, 7) === vm; });
@@ -6083,7 +6101,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       overdue.forEach(function (p) { var v = conv(p.monto, p.moneda, D); if (v !== null) overTot += v; });
       var paidTot = 0, allTot = 0;
       inMonth.forEach(function (p) { var v = conv(p.monto, p.moneda, D); if (v === null) return; allTot += v; if (p.paid) paidTot += v; });
-      var hh = ringsSvg([{ p: allTot > 0 ? paidTot / allTot : 0, c: "var(--in)" }], 92, 11, 0) + '<div class="ph-main"><div class="ph-l">' + (isC ? "Por cobrar en " : "Por pagar en ") + mName + '</div><div class="ph-v fit">' + money(tot, D) + "</div>" +
+      var hh = ringsSvg([{ p: allTot > 0 ? paidTot / allTot : 0, c: "var(--in)" }], 92, 11, 0) + '<div class="ph-main"><div class="ph-l">' + (past ? (isC ? "Cobrado en " : "Pagado en ") : (isC ? "Por cobrar en " : "Por pagar en ")) + mName + (pay.y !== Number(curM.slice(0, 4)) ? " " + pay.y : "") + '</div><div class="ph-v fit">' + money(past ? paidTot : tot, D) + "</div>" +
         '<div class="ph-line">' + (overdue.length ? '<span class="neg">' + overdue.length + (overdue.length === 1 ? (isC ? " atrasado" : " vencido") : (isC ? " atrasados" : " vencidos")) + "</span> · " : "") +
         pend.length + (pend.length === 1 ? " pendiente" : " pendientes") + " · " + paidN + (isC ? (paidN === 1 ? " cobrado" : " cobrados") : (paidN === 1 ? " pagado" : " pagados")) + "</div></div>";
       if (hero._h !== hh) { hero.innerHTML = hh; hero._h = hh; }
@@ -6095,7 +6113,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       var o = by[p.fecha] || (by[p.fecha] = { pend: 0, paid: 0 });
       if (p.paid) o.paid++; else o.pend++;
     });
-    var h = '<div class="cal-head"><button type="button" class="cal-nav" id="pay-prev" aria-label="Mes anterior"' + (vm <= curM ? " disabled" : "") + '>‹</button>' +
+    var h = '<div class="cal-head"><button type="button" class="cal-nav" id="pay-prev" aria-label="Mes anterior"' + (vm <= minM ? " disabled" : "") + '>‹</button>' +
       '<div class="pay-month">' + MESES[pay.m] + " " + pay.y + '</div><button type="button" class="cal-nav" id="pay-next" aria-label="Mes siguiente">›</button></div>' +
       '<div class="cal-week">' + ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"].map(function (d) { return "<span>" + d + "</span>"; }).join("") + '</div><div class="cal-grid">';
     // Plegado: solo la semana de hoy (o del día elegido); «Ver todo el mes» abre el resto
@@ -6116,8 +6134,8 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     // listas
     var list;
     if (pay.sel) list = PL.filter(function (p) { return p.fecha === pay.sel; }).sort(payCmp);
-    else list = inMonth.filter(function (p) { return p.paid || p.fecha >= t; }).sort(payCmp);
-    var showOver = !pay.sel && overdue.length > 0;
+    else list = past ? inMonth.slice().sort(payCmp) : inMonth.filter(function (p) { return p.paid || p.fecha >= t; }).sort(payCmp);
+    var showOver = !pay.sel && !past && overdue.length > 0;
     $("pay-over-wrap").style.display = showOver ? "" : "none";
     var oh = overdue.map(payRow).join("");
     var oEl = $("pay-over");
@@ -6807,9 +6825,9 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     setMoney(b, bal, function (v) { return moneyH(v, D); }, D);
     b.className = "balance-amount fit" + (bal < 0 ? " neg" : "");
     var bh = b.closest(".bal-hero"); if (bh) bh.classList.toggle("is-neg", bal < 0);
-    setMoney($("tin"), tin, function (v) { return moneyH(v, D); }, D);
-    setMoney($("tout"), tout, function (v) { return moneyH(v, D); }, D);
-    setMoney($("tsv"), tsv, function (v) { return mask(moneyH(v, D)); }, D);
+    setMoney($("tin"), tin, function (v) { return moneyHC(v, D); }, D);
+    setMoney($("tout"), tout, function (v) { return moneyHC(v, D); }, D);
+    setMoney($("tsv"), tsv, function (v) { return mask(moneyHC(v, D)); }, D);
 
     drawDonut({ key: "out", data: byCat, total: tout, colorFn: colorFor, label: "Gastos", selKey: "sel", D: D });
     drawDonut({ key: "in", data: byIn, total: tin, colorFn: colorForIn, label: "Ingresos", selKey: "selIn", D: D });
@@ -8717,6 +8735,18 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
         if (z.classList.contains("hist-month")) { var hb = $(dx < 0 ? "hist-next" : "hist-prev"); if (!hb.disabled) hb.click(); }
         else { var n2 = shiftM(state.month, dx < 0 ? 1 : -1); if (n2 <= today().slice(0, 7)) setMonth(n2); }
       }, { passive: true });
+    })();
+    // Fecha de la versión: la que el servidor da para este archivo (se actualiza sola con cada publicación)
+    (function () {
+      var el = $("ver-date"); if (!el) return;
+      try {
+        var lm = new Date(document.lastModified), now = Date.now();
+        // Sin dato del servidor el navegador da «ahora»: en ese caso se deja la fecha escrita
+        if (isNaN(lm) || Math.abs(now - lm.getTime()) < 10000 || lm.getFullYear() < 2026) return;
+        var base = el.textContent.split(" "), bi = MESES_C.indexOf(base[1]), bd = bi >= 0 ? new Date(Number(base[2]), bi, Number(base[0])) : null;
+        if (bd && lm < bd) return;
+        el.textContent = lm.getDate() + " " + MESES_C[lm.getMonth()] + " " + lm.getFullYear();
+      } catch (e) {}
     })();
     // Bajar para agregar: en Inicio, arriba del todo, bajar la pantalla saca una bolita del notch.
     // Al pasar el punto toma el color de la app; al soltar se abre «Nuevo movimiento».
