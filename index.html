@@ -1813,6 +1813,11 @@ html.sheet-open body::after { opacity: 0; }
 .tpl-ic .ci { width: 18px; height: 18px; }
 .tpl-tabs { margin: 0 0 10px; }
 .te-cats { margin-top: 0 !important; max-height: 190px; overflow-y: auto; }
+/* Calculadora: sin líneas finas; las monedas separadas por espacio */
+#calc-sheet #cx-in { border-bottom: 0 !important; padding-bottom: 6px; }
+#calc-sheet .cx-row { border-top: 0 !important; border-bottom: 0 !important; }
+#calc-sheet .cx-row + .cx-row { margin-top: 2px; }
+html.mono .cc-ic { --cc: var(--ink) !important; }
 /* Plantillas: tarjetas suaves como el resto de la app, sin líneas finas */
 #tpl-sheet .sheet-foot, #te-sheet .sheet-foot, #tu-sheet .sheet-foot { border-top: 0 !important; box-shadow: none !important; }
 #tpl-sheet .tpl-tabs { margin: 0 0 14px; }
