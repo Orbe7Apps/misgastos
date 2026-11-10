@@ -1813,6 +1813,24 @@ html.sheet-open body::after { opacity: 0; }
 .tpl-ic .ci { width: 18px; height: 18px; }
 .tpl-tabs { margin: 0 0 10px; }
 .te-cats { margin-top: 0 !important; max-height: 190px; overflow-y: auto; }
+/* Plantillas: tarjetas suaves como el resto de la app, sin líneas finas */
+#tpl-sheet .sheet-foot, #te-sheet .sheet-foot, #tu-sheet .sheet-foot { border-top: 0 !important; box-shadow: none !important; }
+#tpl-sheet .tpl-tabs { margin: 0 0 14px; }
+#tpl-sheet .tpl-list { display: grid; gap: 8px; margin: 0 0 14px; }
+#tpl-sheet .tpl { border: 0 !important; background: var(--fill); border-radius: 20px; padding: 10px 8px 10px 12px; gap: 12px; }
+#tpl-sheet .tpl-ic { width: 42px; height: 42px; box-shadow: none; background: color-mix(in srgb, var(--c) 16%, var(--surface)); }
+#tpl-sheet .tpl-ic .ci { width: 20px; height: 20px; }
+#tpl-sheet .tpl-main { padding: 4px 0; }
+#tpl-sheet .tpl-name { font-weight: 700; font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#tpl-sheet .tpl-meta { font-size: 0.8rem; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#tpl-sheet .tpl .dots { background: none !important; border: 0 !important; color: var(--muted); }
+#tpl-sheet #tpl-empty { text-align: center; padding: 26px 0 30px; margin: 0; color: var(--muted); }
+#te-sheet .te-cats { border: 0 !important; background: none !important; padding: 0 !important; border-radius: 0; max-height: none; overflow: visible; gap: 8px; }
+#te-sheet .te-cats .cat-chip { border: 0 !important; background: var(--fill) !important; box-shadow: none !important; }
+#te-sheet .te-cats .cat-chip[aria-checked="true"] { background: color-mix(in srgb, var(--c) 18%, var(--surface)) !important; box-shadow: inset 0 0 0 2px var(--c) !important; }
+#te-sheet select, #te-sheet input[type="text"] { border: 0 !important; }
+#te-sheet .grid { row-gap: 16px; }
+html.mono #tpl-sheet .tpl-ic { background: var(--surface); color: var(--ink); }
 #te-colors { display: flex !important; flex-wrap: wrap; gap: 8px; }
 #te-colors button { width: 30px; height: 30px; }
 .ms-pill { display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; border: 0; border-radius: 99px; padding: 8px 12px 8px 12px; font: inherit; font-size: 0.84rem; font-weight: 600; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); cursor: pointer; }
@@ -4653,9 +4671,9 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     <section class="panel sheet" role="dialog" aria-modal="true" aria-labelledby="h-tpl">
       <div class="sheet-head"><h2 id="h-tpl">Plantillas</h2><button type="button" class="del" id="tpl-close" aria-label="Cerrar">✕</button></div>
       <div class="seg tpl-tabs" role="group" aria-label="Tipo de plantilla"><button type="button" data-tpl-tab="gasto" aria-pressed="true">Gastos</button><button type="button" data-tpl-tab="ingreso" aria-pressed="false">Ingresos</button></div>
-      <p class="hint" id="tpl-hint" style="margin-bottom:8px">Toca una plantilla para agregar el movimiento escribiendo solo el monto.</p>
+      <p class="hint" id="tpl-hint" hidden></p>
       <ul class="tpl-list" id="tpl-list"></ul>
-      <p class="empty" id="tpl-empty">Aún no tienes plantillas. Crea una para algo que se repite, como el almuerzo o tu sueldo.</p>
+      <p class="empty" id="tpl-empty">Aún no tienes plantillas.</p>
       <div class="sheet-foot"><button type="button" class="primary" id="tpl-new">Crear plantilla</button></div>
     </section>
   </div>
@@ -4664,7 +4682,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       <div class="sheet-head"><h2 id="h-te">Nueva plantilla</h2><button type="button" class="del" id="te-close" aria-label="Cerrar">✕</button></div>
       <div class="grid">
         <div class="wide">
-          <label for="te-nombre">Nombre de la plantilla</label>
+          <label for="te-nombre">Nombre</label>
           <input type="text" id="te-nombre" maxlength="30" placeholder="Ej: Almuerzo, Sueldo, Alquiler">
         </div>
         <div class="wide">
@@ -9148,14 +9166,14 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     function tplById(id) { return state.templates.filter(function (t) { return String(t.id) === String(id); })[0] || null; }
     function tplMeta(t) {
       var a = accById(t.cuenta);
-      return (t.tipo === "ingreso" ? "Ingreso" : "Gasto") + " · " + t.cat + " · " + (a ? a.nombre + " (" + curLabel(a.moneda) + ")" : "cuenta eliminada");
+      return t.cat + " · " + (a ? a.nombre : "cuenta eliminada");
     }
     function drawTplList() {
       var L = state.templates.filter(function (t) { return (t.tipo === "ingreso" ? "ingreso" : "gasto") === tplTab; });
       setPressed("[data-tpl-tab]", "data-tpl-tab", tplTab);
-      $("tpl-empty").textContent = state.templates.length ? (tplTab === "ingreso" ? "No tienes plantillas de ingreso." : "No tienes plantillas de gasto.") : "Aún no tienes plantillas. Crea una para algo que se repite, como el almuerzo o tu sueldo.";
+      $("tpl-empty").textContent = state.templates.length ? (tplTab === "ingreso" ? "No tienes plantillas de ingreso." : "No tienes plantillas de gasto.") : "Aún no tienes plantillas.";
       $("tpl-empty").style.display = L.length ? "none" : "";
-      $("tpl-hint").style.display = L.length ? "" : "none";
+      $("tpl-hint").style.display = "none";
       $("tpl-list").innerHTML = L.map(function (t) {
         return '<li class="tpl"><span class="tpl-ic" style="--c:' + tplColor(t) + '">' + catSvg(t.cat) + '</span><button type="button" class="tpl-main" data-use="' + t.id + '"><span class="tpl-name">' + esc(t.nombre) +
           '</span><span class="tpl-meta">' + esc(tplMeta(t)) + '</span></button>' +
