@@ -2,14 +2,9 @@
 
 Cosas preparadas o decididas para más adelante.
 
-## Atajo de Siri «Agregar gasto» (listo, escondido)
+## Atajo de Siri «Agregar gasto» (visible)
 
-- **Qué es:** di «Oye Siri, agregar gasto», dile el monto y Orbe se abre con el gasto listo para guardar.
-- **Está hecho y probado:**
-  - Paso a paso con imágenes de la app Atajos, versión para gasto o ingreso.
-  - Botón «Probar».
-  - Enlace `?gasto=` / `?ingreso=` con `cat`, `cuenta` y `nota` opcionales.
-- **Para mostrarlo:** en `index.html`, quitar `hidden` del botón `id="siri-open"` (Ajustes → Tus datos).
+- Ya se muestra en Ajustes → Tus datos.
 - **Ojo:** el iPhone abre el enlace en Safari, que guarda los datos aparte. Para que el gasto llegue a la app instalada, la persona debe iniciar sesión con su cuenta en los dos.
 
 ## Correos propios con Resend (requiere dominio)
@@ -37,7 +32,6 @@ En a-fuego, **Authentication → URL Configuration**: poner la dirección públi
 ## Funciones
 
 - **Comisiones bancarias automáticas:** ver la sección «Comisiones automáticas» más abajo.
-- **Pagos:** el calendario no deja ir a meses pasados.
 - **Avisos con la app cerrada:** necesitan un servidor de notificaciones.
 
 ## Inicio más limpio
