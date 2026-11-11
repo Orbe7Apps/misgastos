@@ -5489,6 +5489,43 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     }
     return out + '<path class="ln bal ' + cur + '" d="' + d + '"></path>';
   }
+  // Ingresos que se repiten: si en 2 de los últimos 3 meses entró un ingreso de la misma categoría,
+  // con monto parecido (±15 %) y por la misma fecha (±3 días), se espera también este mes.
+  // Devuelve [{ day, v, cat }] con el día del mes (desde mañana) en que se suma a la proyección.
+  function expectedIncomes(m, last, nd, D, pays) {
+    var months = [], ym = m;
+    for (var k = 0; k < 3; k++) { ym = prevYm(ym); months.push(ym); }
+    var byCat = {};
+    state.items.forEach(function (it) {
+      if (it.tipo !== "ingreso" || it.auto || !it.fecha || it.cat === "Ajustes de saldo") return;
+      var mo = it.fecha.slice(0, 7); if (months.indexOf(mo) < 0) return;
+      var v = conv(it.monto, it.moneda, D); if (v === null || v <= 0) return;
+      (byCat[it.cat] = byCat[it.cat] || []).push({ day: Number(it.fecha.slice(8, 10)), v: v, mo: mo });
+    });
+    var out = [];
+    Object.keys(byCat).forEach(function (cat) {
+      var cl = [];
+      byCat[cat].sort(function (a, b) { return a.day - b.day; }).forEach(function (x) {
+        var c = cl.filter(function (c) { return Math.abs(x.day - c.day) <= 3 && Math.abs(x.v - c.v) <= c.v * 0.15 && c.mos.indexOf(x.mo) < 0; })[0];
+        if (c) { c.n++; c.sumD += x.day; c.sumV += x.v; c.day = c.sumD / c.n; c.v = c.sumV / c.n; c.mos.push(x.mo); }
+        else cl.push({ n: 1, sumD: x.day, sumV: x.v, day: x.day, v: x.v, mos: [x.mo] });
+      });
+      cl.forEach(function (c) {
+        if (c.mos.length < 2) return;
+        var day = Math.min(nd, Math.round(c.day));
+        // Ya llegó este mes (misma categoría, por esa fecha): no se espera otra vez
+        var got = state.items.some(function (it) { return it.tipo === "ingreso" && it.cat === cat && it.fecha && it.fecha.slice(0, 7) === m && Math.abs(Number(it.fecha.slice(8, 10)) - day) <= 3; });
+        if (got) return;
+        // Ya está anotado como cobro en Pagos: se cuenta una sola vez
+        var dup = (pays || []).some(function (x) { if (!x.cobro || x.fecha.slice(0, 7) !== m) return false; var v = conv(x.monto, x.moneda, D); return v !== null && Math.abs(Number(x.fecha.slice(8, 10)) - day) <= 3 && Math.abs(v - c.v) <= c.v * 0.15; });
+        if (dup) return;
+        // Si la fecha ya pasó y no llegó: se espera hasta 3 días después; luego deja de contarse
+        if (day <= last) { if (last - day > 3 || last >= nd) return; day = last + 1; }
+        out.push({ day: day, v: c.v, cat: cat });
+      });
+    });
+    return out;
+  }
   // Gráfico del Inicio: solo la línea de tu saldo real (termina en el saldo total de arriba).
   // Manteniendo presionado aparece cómo terminarías el mes, y el número grande cambia mientras mantienes.
   function drawTrend() {
@@ -5525,8 +5562,15 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       var spent = 0; state.items.forEach(function (it) { if (it.tipo === "gasto" && it.fecha && it.fecha.slice(0, 7) === m && it.fecha <= t) { var v = conv(it.monto, it.moneda, D); if (v !== null) spent += v; } });
       var rate = spent / Math.max(1, last), p = bal[bal.length - 1], pays = (state.payments || []).filter(function (x) { return !x.paid && x.fecha && x.fecha.slice(0, 7) <= m; });
       pays.forEach(function (x) { if (x.fecha <= t) { var v = conv(x.monto, x.moneda, D); if (v !== null) p += x.cobro ? v : -v; } });
+      var expInc = expectedIncomes(m, last, nd, D, pays);
       for (var d2 = last; d2 <= nd; d2++) {
-        if (d2 > last) { p -= rate; var iso2 = m + "-" + pad2(d2); pays.forEach(function (x) { if (x.fecha === iso2) { var v = conv(x.monto, x.moneda, D); if (v !== null) p += x.cobro ? v : -v; } }); }
+        if (d2 > last) {
+          p -= rate; var iso2 = m + "-" + pad2(d2);
+          pays.forEach(function (x) { if (x.fecha === iso2) { var v = conv(x.monto, x.moneda, D); if (v !== null) p += x.cobro ? v : -v; } });
+          expInc.forEach(function (e) { if (e.day === d2) p += e.v; });
+          // Movimientos ya anotados con fecha futura de este mes: entran el día que corresponden
+          if (hasAcc) ev.forEach(function (e) { if (e[0] === iso2) p += e[1]; });
+        }
         proj.push(p);
       }
     }
