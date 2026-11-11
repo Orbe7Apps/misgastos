@@ -3533,7 +3533,9 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
 /* Gráfico del Inicio: solo la línea del saldo; al mantener presionado, cómo terminarías el mes */
 .trend-cap { display: none !important; }
 .trend-chart { touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; cursor: pointer; }
-.trend-chart .ln.proj.neg { stroke: var(--out) !important; opacity: .9; }
+.trend .ln.proj { opacity: .4 !important; transition: opacity .2s ease; }
+.trend .ln.proj.on { opacity: .9 !important; }
+.trend-chart .ln.proj.neg { stroke: var(--out) !important; }
 .trend-chart .pend { fill: var(--muted); }
 .trend-chart .now { fill: var(--tc); stroke: var(--surface); stroke-width: 2.5; }
 .hold-h { opacity: .8; }
@@ -5529,7 +5531,6 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       }
     }
     var W = Math.max(wrap.clientWidth || 300, 160), H = 112, top = 16, bot = H - 6;
-    var vals = bal.concat(hold ? proj : []); if (!vals.length) vals = [0];
     var all = bal.concat(proj).length ? bal.concat(proj) : [0];
     var mx = Math.max.apply(null, all), mn = Math.min.apply(null, all);
     if (mn < 0) { mn = Math.min(0, mn); mx = Math.max(0, mx); } else { mn -= Math.max(1, mx - mn) * 0.15; }
@@ -5540,14 +5541,20 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     var y0 = mn <= 0 ? Y(0) : bot, tdir = trendDir(bal);
     wrap.parentNode.classList.toggle("t-down", tdir === "down");
     var svg = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Tu saldo día a día">' +
-      '<defs><linearGradient id="trg-bal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--tc);stop-opacity:0.22"></stop><stop offset="1" style="stop-color:var(--tc);stop-opacity:0"></stop></linearGradient></defs>';
+      '<defs><linearGradient id="trg-bal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--tc);stop-opacity:0.22"></stop><stop offset="1" style="stop-color:var(--tc);stop-opacity:0"></stop></linearGradient></defs>' +
+      [0.33, 0.66].map(function (f) { var gy = (top + f * (bot - top)).toFixed(1); return '<line class="grid" x1="0" x2="' + W + '" y1="' + gy + '" y2="' + gy + '"></line>'; }).join("") +
+      (mn < 0 ? '<line class="zero" x1="0" x2="' + W + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"></line>' : '<line class="base" x1="0" x2="' + W + '" y1="' + bot + '" y2="' + bot + '"></line>');
     if (bal.length) svg += '<path class="area" d="' + line + " L" + X(bal.length).toFixed(1) + " " + y0.toFixed(1) + " L" + X(1).toFixed(1) + " " + y0.toFixed(1) + ' Z" fill="url(#trg-bal)"></path><path class="ln bal ' + tdir + '" d="' + line + '" pathLength="1"></path>';
-    if (hold) {
+    if (proj.length) {
       var neg = proj[proj.length - 1] < 0;
-      svg += '<path class="ln proj' + (neg ? " neg" : "") + '" d="' + proj.map(function (v, i) { return (i ? "L" : "M") + X(last + i).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ") + '"></path>' +
-        '<circle class="pend" cx="' + X(nd).toFixed(1) + '" cy="' + Y(proj[proj.length - 1]).toFixed(1) + '" r="4"></circle>';
+      svg += '<path class="ln proj' + (neg ? " neg" : "") + (hold ? " on" : "") + '" d="' + proj.map(function (v, i) { return (i ? "L" : "M") + X(last + i).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ") + '"></path>';
+      if (hold) svg += '<circle class="pend" cx="' + X(nd).toFixed(1) + '" cy="' + Y(proj[proj.length - 1]).toFixed(1) + '" r="4"></circle>';
     }
-    if (bal.length) svg += '<circle class="now" cx="' + X(bal.length).toFixed(1) + '" cy="' + Y(bal[bal.length - 1]).toFixed(1) + '" r="4.5"></circle>';
+    if (bal.length) {
+      var lx = X(bal.length), ly = Y(bal[bal.length - 1]), right = lx > W - 90;
+      svg += '<circle class="now" cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="4.5"></circle>' +
+        (isCur && !hold ? '<text class="now-l" x="' + (right ? lx - 8 : lx + 8).toFixed(1) + '" y="' + Math.max(11, ly - 9).toFixed(1) + '" text-anchor="' + (right ? "end" : "start") + '">Hoy</text>' : "");
+    }
     svg += "</svg>";
     var sig = W + "|" + svg;
     // Al mantener o soltar, el gráfico cambia al instante (sin la animación de entrada)
