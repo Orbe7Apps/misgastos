@@ -1818,6 +1818,7 @@ html.sheet-open body::after { opacity: 0; }
 #calc-sheet .cx-row { border-top: 0 !important; border-bottom: 0 !important; }
 #calc-sheet .cx-row + .cx-row { margin-top: 2px; }
 html.mono .cc-ic { --cc: var(--ink) !important; }
+html.mono .rate-card { --rc: var(--ink) !important; }
 /* Plantillas: tarjetas suaves como el resto de la app, sin líneas finas */
 #tpl-sheet .sheet-foot, #te-sheet .sheet-foot, #tu-sheet .sheet-foot { border-top: 0 !important; box-shadow: none !important; }
 #tpl-sheet .tpl-tabs { margin: 0 0 14px; }
@@ -3529,6 +3530,17 @@ html.mono [style^="color:"], html.mono [style*="; color:"], html.mono [style*=";
 html.mono .ao-k { color: var(--ink) !important; }
 html.mono .w-lim b, html.mono .w-track i { background: var(--ink) !important; }
 html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !important; }
+/* Gráfico del Inicio: solo la línea del saldo; al mantener presionado, cómo terminarías el mes */
+.trend-cap { display: none !important; }
+.trend-chart { touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; cursor: pointer; }
+.trend-chart .ln.proj.neg { stroke: var(--out) !important; opacity: .9; }
+.trend-chart .pend { fill: var(--muted); }
+.trend-chart .now { fill: var(--tc); stroke: var(--surface); stroke-width: 2.5; }
+.hold-h { opacity: .8; }
+.balance-amount.is-proj { color: var(--muted); transition: color .2s; }
+.trend-chart.quiet .ln, .trend-chart.quiet .area, .trend-chart.quiet .now { animation: none !important; }
+.trend-chart.quiet .ln.bal { stroke-dasharray: none !important; }
+.trend-chart.quiet .ln.proj { animation: lnFade .25s ease both !important; }
 </style>
 </head>
 <body>
@@ -5475,101 +5487,104 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     }
     return out + '<path class="ln bal ' + cur + '" d="' + d + '"></path>';
   }
+  // Gráfico del Inicio: solo la línea de tu saldo real (termina en el saldo total de arriba).
+  // Manteniendo presionado aparece cómo terminarías el mes, y el número grande cambia mientras mantienes.
   function drawTrend() {
-    var wrap = $("trend-chart");
-    if (!wrap) return;
-    var D = state.disp, m = state.month, q = m.split("-"), y = Number(q[0]), mo = Number(q[1]);
-    var nd = new Date(y, mo, 0).getDate(), t = today(), curM = t.slice(0, 7);
-    var isCur = m === curM, isPast = m < curM, lastDay = isCur ? Number(t.slice(8, 10)) : isPast ? nd : 0;
-    var delta = []; for (var i = 0; i <= nd; i++) delta.push(0);
-    var spent = 0;
+    var wrap = $("trend-chart"); if (!wrap) return;
+    var D = state.disp, m = state.month, q = m.split("-"), nd = new Date(Number(q[0]), Number(q[1]), 0).getDate(), t = today(), curM = t.slice(0, 7);
+    var isCur = m === curM, last = isCur ? Number(t.slice(8, 10)) : m < curM ? nd : 0, mN = MESES_C[Number(q[1]) - 1];
+    // Saldo de hoy en tus cuentas (sin las de ahorro), igual que el número de arriba
+    var now = 0; state.accounts.forEach(function (a) { if (a.ahorro) return; var v = conv(accBalance(a), a.moneda, D); if (v !== null) now += v; });
+    // Cada movimiento y cada cuenta nueva cambia el saldo en su fecha
+    var ev = [];
     state.items.forEach(function (it) {
-      if (!it.fecha || it.fecha.slice(0, 7) !== m) return;
-      var d = Number(it.fecha.slice(8, 10)), v;
+      if (!it.fecha) return; var v = 0, x;
       if (it.tipo === "traspaso") {
-        if (savEnd(it.desde)) { v = conv(it.desde.monto, it.desde.moneda, D); if (v !== null) delta[d] += v; }
-        if (savEnd(it.hacia)) { v = conv(it.hacia.monto, it.hacia.moneda, D); if (v !== null) delta[d] -= v; }
-        return;
+        if (it.desde && it.desde.k === "cuenta" && !isSavAcc(it.desde.id)) { x = conv(it.desde.monto, it.desde.moneda, D); if (x !== null) v -= x; }
+        if (it.hacia && it.hacia.k === "cuenta" && !isSavAcc(it.hacia.id)) { x = conv(it.hacia.monto, it.hacia.moneda, D); if (x !== null) v += x; }
+      } else {
+        var a = accById(it.cuenta); if (!a || a.ahorro) return; x = conv(it.monto, it.moneda, D); if (x === null) return;
+        v = it.tipo === "ingreso" || it.tipo === "retiro" ? x : it.tipo === "gasto" || it.tipo === "ahorro" ? -x : 0;
       }
-      v = conv(it.monto, it.moneda, D);
-      if (v === null) return;
-      if (it.tipo === "ingreso" || it.tipo === "retiro") delta[d] += v;
-      else if (it.tipo === "gasto" || (it.tipo === "ahorro" && !it.pre)) { delta[d] -= v; if (it.tipo === "gasto") spent += v; }
+      if (v) ev.push([it.fecha, v]);
     });
-    var op = accOpening(m);
-    Object.keys(op.byDay).forEach(function (k) { if (Number(k) >= 1 && Number(k) <= nd) delta[Number(k)] += op.byDay[k]; });
-    var bal = [], run = 0;
-    for (var d1 = 1; d1 <= lastDay; d1++) { run += delta[d1]; bal.push(run); }
-    var proj = [];
-    var cobros = [], cobT = 0;
-    if (isCur) (state.payments || []).forEach(function (p) {
-      if (!p.cobro || p.paid || p.fecha.slice(0, 7) !== m) return;
-      var dd = Number(p.fecha.slice(8, 10)), cv = conv(p.monto, p.moneda, D);
-      if (dd > lastDay && cv !== null) { cobros.push([dd, cv]); cobT += cv; }
-    });
-    if (isCur && lastDay < nd) { var rate = spent / Math.max(1, lastDay); for (var d2 = lastDay; d2 <= nd; d2++) { var extra = 0; cobros.forEach(function (c) { if (d2 >= c[0]) extra += c[1]; }); proj.push(run - rate * (d2 - lastDay) + extra); } }
-    var has = bal.some(function (v) { return Math.abs(v) > 0.004; }) || spent > 0;
-    var mN = MESES_C[mo - 1];
-    $("trend-days").innerHTML = "<span>1 " + mN + "</span><span>" + nd + " " + mN + "</span>";
-    var tt = $("trend-title"), pj = $("trend-proj");
-    var tcap = tt.closest(".trend-cap"); if (tcap) tcap.classList.toggle("cap-off", !!has);
-    if (!has) { tt.textContent = isCur ? "Sin movimientos este mes" : "Sin movimientos en " + MESES[mo - 1]; pj.classList.add("none"); }
-    else if (proj.length) { var ev = proj[proj.length - 1]; tt.innerHTML = "Si sigues así: <b>" + (ev < 0 ? "−" : "") + money(Math.abs(ev), D) + "</b> el " + nd + (cobT > 0 ? ' <span class="tp-c">(con ' + money(cobT, D) + " por cobrar)</span>" : ""); pj.classList.remove("none"); pj.classList.toggle("neg", ev < 0); }
-    else { tt.innerHTML = (isPast ? "Cerraste el mes con " : "") + "<b>" + (run < 0 ? "−" : "") + money(Math.abs(run), D) + "</b>"; pj.classList.add("none"); }
+    state.accounts.forEach(function (a) { if (a.ahorro) return; var s0 = Number(a.saldo) || 0; if (!s0) return; var v = conv(s0, a.moneda, D); if (v !== null) ev.push([accCreated(a), v]); });
+    var bal = [], hasAcc = state.accounts.some(function (a) { return !a.ahorro; });
+    if (hasAcc) {
+      for (var d = 1; d <= last; d++) { var iso = m + "-" + pad2(d), after = 0; ev.forEach(function (e) { if (e[0] > iso) after += e[1]; }); bal.push(now - after); }
+    } else {
+      // Sin cuentas: arriba se ve «Te queda este mes», así que la línea suma y resta lo del mes desde 0
+      var byD = {}; state.items.forEach(function (it) { if (!it.fecha || it.fecha.slice(0, 7) !== m || it.tipo === "traspaso") return; var x = conv(it.monto, it.moneda, D); if (x === null) return; var dd0 = Number(it.fecha.slice(8, 10)); byD[dd0] = (byD[dd0] || 0) + (it.tipo === "ingreso" || it.tipo === "retiro" ? x : it.tipo === "gasto" || (it.tipo === "ahorro" && !it.pre) ? -x : 0); });
+      var run0 = 0; for (var d0 = 1; d0 <= last; d0++) { run0 += byD[d0] || 0; bal.push(run0); }
+    }
+    // Cómo terminarías el mes: tu ritmo de gasto, los pagos pendientes el día que vencen y lo que te deben
+    var proj = [], hold = !!wrap._hold && isCur && last < nd;
+    if (isCur && last < nd && bal.length) {
+      var spent = 0; state.items.forEach(function (it) { if (it.tipo === "gasto" && it.fecha && it.fecha.slice(0, 7) === m && it.fecha <= t) { var v = conv(it.monto, it.moneda, D); if (v !== null) spent += v; } });
+      var rate = spent / Math.max(1, last), p = bal[bal.length - 1], pays = (state.payments || []).filter(function (x) { return !x.paid && x.fecha && x.fecha.slice(0, 7) <= m; });
+      pays.forEach(function (x) { if (x.fecha <= t) { var v = conv(x.monto, x.moneda, D); if (v !== null) p += x.cobro ? v : -v; } });
+      for (var d2 = last; d2 <= nd; d2++) {
+        if (d2 > last) { p -= rate; var iso2 = m + "-" + pad2(d2); pays.forEach(function (x) { if (x.fecha === iso2) { var v = conv(x.monto, x.moneda, D); if (v !== null) p += x.cobro ? v : -v; } }); }
+        proj.push(p);
+      }
+    }
     var W = Math.max(wrap.clientWidth || 300, 160), H = 112, top = 16, bot = H - 6;
-    var vals = bal.concat(proj);
-    if (!vals.length) vals = [0];
-    var mx = Math.max(0, Math.max.apply(null, vals)), mn = Math.min(0, Math.min.apply(null, vals));
-    if (mx - mn < 0.01) mx = mn + 1;
-    var span = mx - mn; mx += span * 0.08;
-    function X(d) { return (d - 1) / Math.max(1, nd - 1) * W; }
+    var vals = bal.concat(hold ? proj : []); if (!vals.length) vals = [0];
+    var all = bal.concat(proj).length ? bal.concat(proj) : [0];
+    var mx = Math.max.apply(null, all), mn = Math.min.apply(null, all);
+    if (mn < 0) { mn = Math.min(0, mn); mx = Math.max(0, mx); } else { mn -= Math.max(1, mx - mn) * 0.15; }
+    mx += (mx - mn) * 0.1;
+    function X(dd) { return (dd - 1) / Math.max(1, nd - 1) * W; }
     function Y(v) { return top + (1 - (v - mn) / (mx - mn)) * (bot - top); }
     var line = bal.map(function (v, i) { return (i ? "L" : "M") + X(i + 1).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ");
-    var y0 = Y(0), tdir = trendDir(bal);
+    var y0 = mn <= 0 ? Y(0) : bot, tdir = trendDir(bal);
     wrap.parentNode.classList.toggle("t-down", tdir === "down");
-    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Lo que te queda día a día">' +
-      '<defs><linearGradient id="trg-bal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--tc);stop-opacity:0.22"></stop><stop offset="1" style="stop-color:var(--tc);stop-opacity:0"></stop></linearGradient></defs>' +
-      [0.33, 0.66].map(function (f) { var gy = (top + f * (bot - top)).toFixed(1); return '<line class="grid" x1="0" x2="' + W + '" y1="' + gy + '" y2="' + gy + '"></line>'; }).join("") +
-      (mn < 0 ? '<line class="zero" x1="0" x2="' + W + '" y1="' + y0.toFixed(1) + '" y2="' + y0.toFixed(1) + '"></line>' : '<line class="base" x1="0" x2="' + W + '" y1="' + bot + '" y2="' + bot + '"></line>');
-    if (bal.length) {
-      svg += '<path class="area" d="' + line + " L" + X(bal.length).toFixed(1) + " " + y0.toFixed(1) + " L" + X(1).toFixed(1) + " " + y0.toFixed(1) + ' Z" fill="url(#trg-bal)"></path>' +
-        '<path class="ln bal ' + tdir + '" d="' + line + '" pathLength="1"></path>';
+    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Tu saldo día a día">' +
+      '<defs><linearGradient id="trg-bal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--tc);stop-opacity:0.22"></stop><stop offset="1" style="stop-color:var(--tc);stop-opacity:0"></stop></linearGradient></defs>';
+    if (bal.length) svg += '<path class="area" d="' + line + " L" + X(bal.length).toFixed(1) + " " + y0.toFixed(1) + " L" + X(1).toFixed(1) + " " + y0.toFixed(1) + ' Z" fill="url(#trg-bal)"></path><path class="ln bal ' + tdir + '" d="' + line + '" pathLength="1"></path>';
+    if (hold) {
+      var neg = proj[proj.length - 1] < 0;
+      svg += '<path class="ln proj' + (neg ? " neg" : "") + '" d="' + proj.map(function (v, i) { return (i ? "L" : "M") + X(last + i).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ") + '"></path>' +
+        '<circle class="pend" cx="' + X(nd).toFixed(1) + '" cy="' + Y(proj[proj.length - 1]).toFixed(1) + '" r="4"></circle>';
     }
-    if (proj.length) svg += '<path class="ln proj" d="' + proj.map(function (v, i) { return (i ? "L" : "M") + X(lastDay + i).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ") + '"></path>';
-    if (bal.length) {
-      var lx = X(bal.length), ly = Y(run), right = lx > W - 90;
-      svg += '<circle class="now" cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="4.5"></circle>' +
-        (isCur ? '<text class="now-l" x="' + (right ? lx - 8 : lx + 8).toFixed(1) + '" y="' + Math.max(11, ly - 9).toFixed(1) + '" text-anchor="' + (right ? "end" : "start") + '">Hoy</text>' : "");
-    }
-    svg += '<line class="cross" x1="0" x2="0" y1="' + top + '" y2="' + bot + '" visibility="hidden"></line><circle class="cdot" r="4" visibility="hidden"></circle></svg><div class="trend-tip" hidden></div>';
+    if (bal.length) svg += '<circle class="now" cx="' + X(bal.length).toFixed(1) + '" cy="' + Y(bal[bal.length - 1]).toFixed(1) + '" r="4.5"></circle>';
+    svg += "</svg>";
     var sig = W + "|" + svg;
+    // Al mantener o soltar, el gráfico cambia al instante (sin la animación de entrada)
+    wrap.classList.toggle("quiet", !!wrap._q); wrap._q = false;
     if (wrap._sig !== sig) { wrap.innerHTML = svg; wrap._sig = sig; }
-    wrap._pts = { bal: bal, proj: proj, lastDay: lastDay, nd: nd, X: X, Y: Y, W: W, mN: mN, D: D };
-    if (!wrap._bound) {
-      wrap._bound = true;
-      var pick = function (clientX) {
-        var P = wrap._pts, sv = wrap.querySelector("svg");
-        if (!P || !sv || !P.bal.length) return;
-        var r = sv.getBoundingClientRect(), x = (clientX - r.left) / r.width * P.W;
-        // Solo los días que ya pasaron: más allá de hoy se queda en el último día con datos
-        var day = Math.max(1, Math.min(P.bal.length, Math.round(x / P.W * (P.nd - 1)) + 1)), v = P.bal[day - 1], pr = false;
-        var cx = P.X(day), cy = P.Y(v), cl = sv.querySelector(".cross"), cd = sv.querySelector(".cdot"), tip = wrap.querySelector(".trend-tip");
-        cl.setAttribute("x1", cx); cl.setAttribute("x2", cx); cl.setAttribute("visibility", "visible");
-        cd.setAttribute("cx", cx); cd.setAttribute("cy", cy); cd.setAttribute("visibility", "visible"); cd.classList.toggle("proj", pr);
-        tip.hidden = false;
-        tip.textContent = day + " " + P.mN + " · Disponible " + (v < 0 ? "−" : "") + money(Math.abs(v), P.D);
-        tip.style.left = Math.max(70, Math.min(r.width - 70, cx / P.W * r.width)) + "px";
+    wrap._end = proj.length ? proj[proj.length - 1] : null;
+    var seen = false; try { seen = !!localStorage.getItem("orbe-hold-seen"); } catch (e) {}
+    $("trend-days").innerHTML = hold
+      ? "<span></span><span>" + nd + " " + mN + ", si sigues así</span><span></span>"
+      : "<span>1 " + mN + "</span>" + (isCur && last < nd && !seen ? '<span class="hold-h">Mantén presionado</span>' : "<span></span>") + "<span>" + nd + " " + mN + "</span>";
+    if (!wrap._bC) {
+      wrap._bC = true;
+      var tm = 0, b = $("balance"), sx = 0, sy = 0;
+      var on = function (e) {
+        clearTimeout(tm); sx = e.clientX; sy = e.clientY;
+        tm = setTimeout(function () {
+          if (wrap._end === null) return;
+          wrap._hold = true; wrap._q = true; drawTrend();
+          b.innerHTML = moneyH(wrap._end, state.disp); b.classList.add("is-proj"); scheduleFit();
+          try { localStorage.setItem("orbe-hold-seen", "1"); } catch (e) {}
+          try { navigator.vibrate && navigator.vibrate(8); } catch (e) {}
+        }, 260);
       };
-      var end = function () { var sv = wrap.querySelector("svg"), tip = wrap.querySelector(".trend-tip"); if (tip) tip.hidden = true; if (sv) { sv.querySelector(".cross").setAttribute("visibility", "hidden"); sv.querySelector(".cdot").setAttribute("visibility", "hidden"); } };
-      wrap.addEventListener("pointermove", function (e) { pick(e.clientX); });
-      wrap.addEventListener("pointerdown", function (e) { pick(e.clientX); });
-      wrap.addEventListener("pointerleave", end);
-      wrap.addEventListener("pointerup", function (e) { if (e.pointerType !== "mouse") setTimeout(end, 250); });
-      wrap.addEventListener("pointercancel", end);
-      wrap.addEventListener("touchend", function () { setTimeout(end, 250); }, { passive: true });
-      window.addEventListener("scroll", end, { passive: true });
+      var off = function () {
+        clearTimeout(tm); if (!wrap._hold) return;
+        wrap._hold = false; wrap._q = true; b.classList.remove("is-proj");
+        var cur = window.__bal; if (cur) b.innerHTML = moneyH(cur.v, cur.D);
+        scheduleFit(); drawTrend();
+      };
+      wrap.addEventListener("pointerdown", on);
+      wrap.addEventListener("pointermove", function (e) { if (!wrap._hold && Math.hypot(e.clientX - sx, e.clientY - sy) > 8) clearTimeout(tm); });
+      wrap.addEventListener("pointerup", off); wrap.addEventListener("pointerleave", off); wrap.addEventListener("pointercancel", off);
+      wrap.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+      window.addEventListener("scroll", off, { passive: true });
     }
   }
+
   var CAT_TIPS = {
     "Alimentación": "Planifica un menú semanal y compra con lista: cocinar en casa suele recortar bastante.",
     "Vivienda": "Revisa si puedes renegociar o repartir algún gasto fijo.",
