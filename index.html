@@ -3541,6 +3541,9 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
 .hold-h { opacity: .8; }
 .balance-amount.is-proj { color: var(--muted); transition: color .2s; }
 .trend-chart .cross30 { stroke: var(--muted); stroke-width: 1; opacity: .7; }
+#trend-days { position: relative; }
+#trend-days .tday { position: absolute; top: 0; translate: -50% 0; white-space: nowrap; color: var(--ink); font-weight: 700; }
+#trend-days .tday i { font-style: normal; font-weight: 500; color: var(--muted); }
 .trend-chart.quiet .ln, .trend-chart.quiet .area, .trend-chart.quiet .now { animation: none !important; }
 .trend-chart.quiet .ln.bal { stroke-dasharray: none !important; }
 .trend-chart.quiet .ln.proj { animation: lnFade .25s ease both !important; }
@@ -5552,7 +5555,6 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       }
       if (v) ev.push([it.fecha, v]);
     });
-    state.accounts.forEach(function (a) { if (a.ahorro) return; var s0 = Number(a.saldo) || 0; if (!s0) return; var v = conv(s0, a.moneda, D); if (v !== null) ev.push([accCreated(a), v]); });
     return { now: now, ev: ev, has: state.accounts.some(function (a) { return !a.ahorro; }) };
   }
   // Gráfico de los últimos 30 días: tu saldo de cada día hasta hoy. Manteniendo presionado y deslizando,
@@ -5584,7 +5586,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       '<path class="area" d="' + line + " L" + W + " " + y0.toFixed(1) + " L0 " + y0.toFixed(1) + ' Z" fill="url(#trg-bal)"></path><path class="ln bal ' + tdir + '" d="' + line + '" pathLength="1"></path>';
     var ex = X(29), ey = Y(bal[29]);
     if (sel !== null) svg += '<line class="cross30" x1="' + X(sel).toFixed(1) + '" x2="' + X(sel).toFixed(1) + '" y1="' + top + '" y2="' + bot + '"></line><circle class="now" cx="' + X(sel).toFixed(1) + '" cy="' + Y(bal[sel]).toFixed(1) + '" r="4.5"></circle>';
-    else svg += '<circle class="now" cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="4.5"></circle>' + (endIso === t ? '<text class="now-l" x="' + (ex - 8).toFixed(1) + '" y="' + Math.max(11, ey - 9).toFixed(1) + '" text-anchor="end">Hoy</text>' : "");
+    else svg += '<circle class="now" cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="4.5"></circle>';
     svg += "</svg>";
     wrap.classList.toggle("quiet", !!wrap._q); wrap._q = false;
     var sig = "30|" + W + "|" + svg;
@@ -5650,7 +5652,6 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       }
       if (v) ev.push([it.fecha, v]);
     });
-    state.accounts.forEach(function (a) { if (a.ahorro) return; var s0 = Number(a.saldo) || 0; if (!s0) return; var v = conv(s0, a.moneda, D); if (v !== null) ev.push([accCreated(a), v]); });
     var bal = [], hasAcc = state.accounts.some(function (a) { return !a.ahorro; });
     if (hasAcc) {
       for (var d = 1; d <= last; d++) { var iso = m + "-" + pad2(d), after = 0; ev.forEach(function (e) { if (e[0] > iso) after += e[1]; }); bal.push(now - after); }
@@ -5678,7 +5679,13 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       }
     }
     var W = Math.max(wrap.clientWidth || 300, 160), H = 112, top = 16, bot = H - 6;
+    // Escala: en reposo se ajusta a tu saldo real (la proyección puede salir por abajo);
+    // al mantener presionado, a todo lo que muestra la proyección
     var all = bal.concat(proj).length ? bal.concat(proj) : [0];
+    if (!hold && bal.length > 1) {
+      var lo = Math.min.apply(null, bal), hi = Math.max.apply(null, bal), sp = Math.max(hi - lo, Math.abs(hi) * 0.02, 1);
+      all = bal.concat(proj.map(function (v) { return Math.max(lo - sp * 0.8, Math.min(hi + sp * 0.8, v)); }));
+    }
     var mx = Math.max.apply(null, all), mn = Math.min.apply(null, all);
     if (mn < 0) { mn = Math.min(0, mn); mx = Math.max(0, mx); } else { mn -= Math.max(1, mx - mn) * 0.15; }
     mx += (mx - mn) * 0.1;
@@ -5694,13 +5701,14 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     if (bal.length) svg += '<path class="area" d="' + line + " L" + X(bal.length).toFixed(1) + " " + y0.toFixed(1) + " L" + X(1).toFixed(1) + " " + y0.toFixed(1) + ' Z" fill="url(#trg-bal)"></path><path class="ln bal ' + tdir + '" d="' + line + '" pathLength="1"></path>';
     if (proj.length) {
       var neg = proj[proj.length - 1] < 0;
-      svg += '<path class="ln proj' + (neg ? " neg" : "") + (hold ? " on" : "") + '" d="' + proj.map(function (v, i) { return (i ? "L" : "M") + X(last + i).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ") + '"></path>';
+      svg += '<clipPath id="trg-clip"><rect x="-6" y="0" width="' + (W + 12) + '" height="' + (bot + 1) + '"></rect></clipPath>';
+      svg += '<path clip-path="url(#trg-clip)" class="ln proj' + (neg ? " neg" : "") + (hold ? " on" : "") + '" d="' + proj.map(function (v, i) { return (i ? "L" : "M") + X(last + i).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ") + '"></path>';
       if (hold) svg += '<circle class="pend" cx="' + X(nd).toFixed(1) + '" cy="' + Y(proj[proj.length - 1]).toFixed(1) + '" r="4"></circle>';
     }
     if (bal.length) {
       var lx = X(bal.length), ly = Y(bal[bal.length - 1]), right = lx > W - 90;
       svg += '<circle class="now" cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="4.5"></circle>' +
-        (isCur && !hold ? '<text class="now-l" x="' + (right ? lx - 8 : lx + 8).toFixed(1) + '" y="' + Math.max(11, ly - 9).toFixed(1) + '" text-anchor="' + (right ? "end" : "start") + '">Hoy</text>' : "");
+""; void right;
     }
     svg += "</svg>";
     var sig = W + "|" + svg;
@@ -5709,9 +5717,12 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     if (wrap._sig !== sig) { wrap.innerHTML = svg; wrap._sig = sig; }
     wrap._end = proj.length ? proj[proj.length - 1] : null;
     var seen = false; try { seen = !!localStorage.getItem("orbe-hold-seen"); } catch (e) {}
+    // Eje: 1 y fin de mes en los extremos; «Hoy» justo debajo del punto (la primera vez, con la pista del gesto)
+    var px = bal.length ? X(bal.length) / W * 100 : -1, tick = "";
+    if (isCur && !hold && px > 14 && px < 86) tick = '<span class="tday" style="left:' + px.toFixed(1) + '%">Hoy' + (last < nd && !seen ? '<i> · mantén presionado</i>' : "") + "</span>";
     $("trend-days").innerHTML = hold
       ? "<span></span><span>" + nd + " " + mN + ", si sigues así</span><span></span>"
-      : "<span>1 " + mN + "</span>" + (isCur && last < nd && !seen ? '<span class="hold-h">Mantén presionado</span>' : "<span></span>") + "<span>" + nd + " " + mN + "</span>";
+      : "<span>1 " + mN + "</span>" + tick + "<span>" + nd + " " + mN + "</span>";
     if (!wrap._bC) {
       wrap._bC = true;
       var tm = 0, b = $("balance"), sx = 0, sy = 0;
