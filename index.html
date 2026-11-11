@@ -5596,7 +5596,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     var seen = false; try { seen = !!localStorage.getItem("orbe-hold-seen"); } catch (e) {}
     $("trend-days").innerHTML = sel !== null
       ? "<span></span><span>" + (days[sel] === t ? "Hoy" : lbl(days[sel])) + "</span><span></span>"
-      : "<span>" + lbl(days[0]) + "</span>" + (!seen ? '<span class="hold-h">Mantén presionado</span>' : "<span></span>") + "<span>" + (endIso === t ? "Hoy" : lbl(endIso)) + "</span>";
+      : "<span>" + lbl(days[0]) + "</span><span></span><span>" + (endIso === t ? "Hoy" : lbl(endIso)) + "</span>";
     if (!wrap._b30) {
       wrap._b30 = true;
       var tm = 0, b = $("balance"), sx = 0, sy = 0;
@@ -5679,13 +5679,8 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       }
     }
     var W = Math.max(wrap.clientWidth || 300, 160), H = 112, top = 16, bot = H - 6;
-    // Escala: en reposo se ajusta a tu saldo real (la proyección puede salir por abajo);
-    // al mantener presionado, a todo lo que muestra la proyección
+    // Escala: incluye tu saldo y toda la proyección (igual en reposo que al mantener presionado)
     var all = bal.concat(proj).length ? bal.concat(proj) : [0];
-    if (!hold && bal.length > 1) {
-      var lo = Math.min.apply(null, bal), hi = Math.max.apply(null, bal), sp = Math.max(hi - lo, Math.abs(hi) * 0.02, 1);
-      all = bal.concat(proj.map(function (v) { return Math.max(lo - sp * 0.8, Math.min(hi + sp * 0.8, v)); }));
-    }
     var mx = Math.max.apply(null, all), mn = Math.min.apply(null, all);
     if (mn < 0) { mn = Math.min(0, mn); mx = Math.max(0, mx); } else { mn -= Math.max(1, mx - mn) * 0.15; }
     mx += (mx - mn) * 0.1;
@@ -5719,7 +5714,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     var seen = false; try { seen = !!localStorage.getItem("orbe-hold-seen"); } catch (e) {}
     // Eje: 1 y fin de mes en los extremos; «Hoy» justo debajo del punto (la primera vez, con la pista del gesto)
     var px = bal.length ? X(bal.length) / W * 100 : -1, tick = "";
-    if (isCur && !hold && px > 14 && px < 86) tick = '<span class="tday" style="left:' + px.toFixed(1) + '%">Hoy' + (last < nd && !seen ? '<i> · mantén presionado</i>' : "") + "</span>";
+    if (isCur && !hold && px > 14 && px < 86) tick = '<span class="tday" style="left:' + px.toFixed(1) + '%">Hoy</span>';
     $("trend-days").innerHTML = hold
       ? "<span></span><span>" + nd + " " + mN + ", si sigues así</span><span></span>"
       : "<span>1 " + mN + "</span>" + tick + "<span>" + nd + " " + mN + "</span>";
@@ -13103,7 +13098,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     function tourFill(st, i) {
       var L = tourList(), n = L.indexOf(i) + 1, tot = L.length;
       $("tour-n").textContent = n + " de " + tot;
-      $("tour-t").textContent = st.t; $("tour-p").textContent = st.p;
+      $("tour-t").textContent = st.t; $("tour-p").textContent = typeof st.p === "function" ? st.p() : st.p;
       $("tour-prev").hidden = n <= 1;
       $("tour-next").textContent = n === tot ? "Listo" : "Siguiente";
       $("tour-bar").style.width = (n / tot * 100) + "%";
@@ -13164,7 +13159,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     }
     function startTour() {
       TOUR[0].p = (LOC.none ? "Euro" : "Dólar" + (LOC.src ? " " + LOC.src : "") + ", euro") + " y USDT. Se actualizan solas y te muestran si subieron ▲ o bajaron ▼." + (document.querySelector(".top.rates-off") ? " Toca la flecha de arriba para verlas." : "");
-      TOUR[1].p = "Todo el dinero que tienes hoy en tus cuentas. Toca la moneda junto al título para verlo en otra.";
+      TOUR[1].p = function () { return "Todo el dinero que tienes hoy en tus cuentas. Toca la moneda junto al título para verlo en otra. " + (state.trendMode === "30d" ? "En el gráfico, mantén presionado y desliza el dedo para ver el saldo de cada día." : "Mantén presionado el gráfico para ver cómo terminarías el mes."); };
       closeDial();
       document.querySelectorAll(".sheet-backdrop").forEach(function (x) { x.hidden = true; });
       var t = $("tour"), hole = $("tour-hole"); tour.back = false; tour.i = -1;
