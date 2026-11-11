@@ -3540,6 +3540,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
 .trend-chart .now { fill: var(--tc); stroke: var(--surface); stroke-width: 2.5; }
 .hold-h { opacity: .8; }
 .balance-amount.is-proj { color: var(--muted); transition: color .2s; }
+.trend-chart .cross30 { stroke: var(--muted); stroke-width: 1; opacity: .7; }
 .trend-chart.quiet .ln, .trend-chart.quiet .area, .trend-chart.quiet .now { animation: none !important; }
 .trend-chart.quiet .ln.bal { stroke-dasharray: none !important; }
 .trend-chart.quiet .ln.proj { animation: lnFade .25s ease both !important; }
@@ -3841,6 +3842,13 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
           <button type="button" role="radio" data-accent-set="rosa" aria-label="Rosa" style="--sw:#e8508f"></button>
           <button type="button" role="radio" data-accent-set="naranja" aria-label="Naranja" style="--sw:#ee7d16"></button>
           <button type="button" role="radio" data-accent-set="bn" aria-label="Blanco y negro" class="sw-bn"></button>
+        </div>
+      </div>
+      <div class="set-row set-stack" id="trend-row">
+        <div class="tx"><b>Gráfico del Inicio</b><small>Hasta fin de mes, o tu saldo de los últimos 30 días.</small></div>
+        <div class="seg" role="group" aria-label="Gráfico del Inicio">
+          <button type="button" data-trend-set="mes" aria-pressed="true">Este mes</button>
+          <button type="button" data-trend-set="30d" aria-pressed="false">Últimos 30 días</button>
         </div>
       </div>
     </div>
@@ -5060,6 +5068,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
         else if (d && d.onb) { var bnUsed = (d.earn && d.earn.length) || (d.bn && ((d.bn.done && Object.keys(d.bn.done).length) || (d.bn.opened && Object.keys(d.bn.opened).length))); var sgUsed = false; try { sgUsed = !!localStorage.getItem("orbe-sesion"); } catch (e) {} state.fx = { bn: !!bnUsed, sg: sgUsed }; }
         if (d && typeof d.cqOff === "boolean") state.cqOff = d.cqOff;
         if (d && typeof d.pullOff === "boolean") state.pullOff = d.pullOff;
+        if (d && d.trendMode === "30d") state.trendMode = "30d";
         if (d && d.wCalc && /^(USD|EUR|USDT|VES)$/.test(d.wCalc.a) && /^(USD|EUR|USDT|VES)$/.test(d.wCalc.b)) state.wCalc = { a: d.wCalc.a, b: d.wCalc.b };
         if (d && Array.isArray(d.widgets)) state.widgets = d.widgets.filter(function (w) { return w && typeof w.k === "string" && /^[abc]$/.test(w.z); }).slice(0, 4);
         if (d && typeof d.sgName === "string") state.sgName = d.sgName.slice(0, 30);
@@ -5094,7 +5103,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
   }
   function save() {
     try {
-      localStorage.setItem(KEY, JSON.stringify({ items: state.items, rate: state.rate, rateDate: state.rateDate, hideSav: state.hideSav, rateManual: state.rateManual, rateAutoAt: state.rateAutoAt, accounts: state.accounts, templates: state.templates, goals: state.goals, payments: state.payments, paySeries: state.paySeries, earn: state.earn, limits: state.limits, rateHist: state.rateHist, rateHistAt: state.rateHistAt, theme: state.theme, mono: !!state.mono, accent: state.accent || "orbe", pin: state.pin, backupAt: state.backupAt, onb: state.onb, msumSeen: state.msumSeen, country: state.country, ratesOn: !!state.ratesOn, aiHide: !!state.aiHide, fx: state.fx || { bn: false, sg: false }, cqOff: !!state.cqOff, pullOff: !!state.pullOff, widgets: state.widgets || [], wCalc: state.wCalc || null, sgName: state.sgName || "", instSeen: state.instSeen, notif: state.notif, subs: state.subs, limCur: state.limCur, savTipOff: !!state.savTipOff, limPer: state.limPer, lastAcc: state.lastAcc, bn: state.bn, btcUsd: state.btcUsd, btcAt: state.btcAt, rateEur: state.rateEur, rateEurDate: state.rateEurDate, rateEurManual: state.rateEurManual, rateUsdt: state.rateUsdt, rateUsdtDate: state.rateUsdtDate, rateUsdtManual: state.rateUsdtManual, rateUsdtSrc: state.rateUsdtSrc, collapsed: state.collapsed, disp: state.disp, sav: state.sav, forz: state.forz, dayOn: !!state.dayOn, roundOn: !!state.roundOn }));
+      localStorage.setItem(KEY, JSON.stringify({ items: state.items, rate: state.rate, rateDate: state.rateDate, hideSav: state.hideSav, rateManual: state.rateManual, rateAutoAt: state.rateAutoAt, accounts: state.accounts, templates: state.templates, goals: state.goals, payments: state.payments, paySeries: state.paySeries, earn: state.earn, limits: state.limits, rateHist: state.rateHist, rateHistAt: state.rateHistAt, theme: state.theme, mono: !!state.mono, accent: state.accent || "orbe", pin: state.pin, backupAt: state.backupAt, onb: state.onb, msumSeen: state.msumSeen, country: state.country, ratesOn: !!state.ratesOn, aiHide: !!state.aiHide, fx: state.fx || { bn: false, sg: false }, cqOff: !!state.cqOff, pullOff: !!state.pullOff, trendMode: state.trendMode === "30d" ? "30d" : "mes", widgets: state.widgets || [], wCalc: state.wCalc || null, sgName: state.sgName || "", instSeen: state.instSeen, notif: state.notif, subs: state.subs, limCur: state.limCur, savTipOff: !!state.savTipOff, limPer: state.limPer, lastAcc: state.lastAcc, bn: state.bn, btcUsd: state.btcUsd, btcAt: state.btcAt, rateEur: state.rateEur, rateEurDate: state.rateEurDate, rateEurManual: state.rateEurManual, rateUsdt: state.rateUsdt, rateUsdtDate: state.rateUsdtDate, rateUsdtManual: state.rateUsdtManual, rateUsdtSrc: state.rateUsdtSrc, collapsed: state.collapsed, disp: state.disp, sav: state.sav, forz: state.forz, dayOn: !!state.dayOn, roundOn: !!state.roundOn }));
       window.__saveFail = 0;
     } catch (e) {
       if (!window.__saveFail && window.__toast) window.__toast("No se pudo guardar en este teléfono (puede estar sin espacio). Guarda una copia en Archivos desde Ajustes.");
@@ -5528,8 +5537,102 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
   }
   // Gráfico del Inicio: solo la línea de tu saldo real (termina en el saldo total de arriba).
   // Manteniendo presionado aparece cómo terminarías el mes, y el número grande cambia mientras mantienes.
+  // Saldo de tus cuentas (sin las de ahorro) y cada movimiento o cuenta nueva que lo cambió, con su fecha
+  function balanceEvents(D) {
+    var now = 0, ev = [];
+    state.accounts.forEach(function (a) { if (a.ahorro) return; var v = conv(accBalance(a), a.moneda, D); if (v !== null) now += v; });
+    state.items.forEach(function (it) {
+      if (!it.fecha) return; var v = 0, x;
+      if (it.tipo === "traspaso") {
+        if (it.desde && it.desde.k === "cuenta" && !isSavAcc(it.desde.id)) { x = conv(it.desde.monto, it.desde.moneda, D); if (x !== null) v -= x; }
+        if (it.hacia && it.hacia.k === "cuenta" && !isSavAcc(it.hacia.id)) { x = conv(it.hacia.monto, it.hacia.moneda, D); if (x !== null) v += x; }
+      } else {
+        var a = accById(it.cuenta); if (!a || a.ahorro) return; x = conv(it.monto, it.moneda, D); if (x === null) return;
+        v = it.tipo === "ingreso" || it.tipo === "retiro" ? x : it.tipo === "gasto" || it.tipo === "ahorro" ? -x : 0;
+      }
+      if (v) ev.push([it.fecha, v]);
+    });
+    state.accounts.forEach(function (a) { if (a.ahorro) return; var s0 = Number(a.saldo) || 0; if (!s0) return; var v = conv(s0, a.moneda, D); if (v !== null) ev.push([accCreated(a), v]); });
+    return { now: now, ev: ev, has: state.accounts.some(function (a) { return !a.ahorro; }) };
+  }
+  // Gráfico de los últimos 30 días: tu saldo de cada día hasta hoy. Manteniendo presionado y deslizando,
+  // el número grande muestra el saldo del día que tocas.
+  function drawTrend30() {
+    var wrap = $("trend-chart"); if (!wrap) return;
+    var D = state.disp, t = today(), m = state.month, endIso = t;
+    if (m < t.slice(0, 7)) { var qq = m.split("-"); endIso = m + "-" + pad2(new Date(Number(qq[0]), Number(qq[1]), 0).getDate()); }
+    var days = []; for (var i = 29; i >= 0; i--) days.push(addDaysIso(endIso, -i));
+    var B = balanceEvents(D), bal = [];
+    if (B.has) days.forEach(function (d) { var after = 0; B.ev.forEach(function (e) { if (e[0] > d) after += e[1]; }); bal.push(B.now - after); });
+    else {
+      var run = 0; days.forEach(function (d) { state.items.forEach(function (it) { if (it.fecha !== d || it.tipo === "traspaso") return; var x = conv(it.monto, it.moneda, D); if (x === null) return; run += it.tipo === "ingreso" || it.tipo === "retiro" ? x : it.tipo === "gasto" || (it.tipo === "ahorro" && !it.pre) ? -x : 0; }); bal.push(run); });
+    }
+    var sel = wrap._h30 && wrap._i30 != null ? wrap._i30 : null;
+    var W = Math.max(wrap.clientWidth || 300, 160), H = 112, top = 16, bot = H - 6;
+    var mx = Math.max.apply(null, bal), mn = Math.min.apply(null, bal);
+    if (mn < 0) { mn = Math.min(0, mn); mx = Math.max(0, mx); } else { mn -= Math.max(1, mx - mn) * 0.15; }
+    mx += (mx - mn) * 0.1;
+    function X(k) { return k / 29 * W; }
+    function Y(v) { return top + (1 - (v - mn) / (mx - mn)) * (bot - top); }
+    var line = bal.map(function (v, k) { return (k ? "L" : "M") + X(k).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ");
+    var y0 = mn <= 0 ? Y(0) : bot, tdir = bal[29] >= bal[0] ? "up" : "down";
+    wrap.parentNode.classList.toggle("t-down", tdir === "down");
+    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Tu saldo en los últimos 30 días">' +
+      '<defs><linearGradient id="trg-bal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--tc);stop-opacity:0.22"></stop><stop offset="1" style="stop-color:var(--tc);stop-opacity:0"></stop></linearGradient></defs>' +
+      [0.33, 0.66].map(function (f) { var gy = (top + f * (bot - top)).toFixed(1); return '<line class="grid" x1="0" x2="' + W + '" y1="' + gy + '" y2="' + gy + '"></line>'; }).join("") +
+      (mn < 0 ? '<line class="zero" x1="0" x2="' + W + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"></line>' : '<line class="base" x1="0" x2="' + W + '" y1="' + bot + '" y2="' + bot + '"></line>') +
+      '<path class="area" d="' + line + " L" + W + " " + y0.toFixed(1) + " L0 " + y0.toFixed(1) + ' Z" fill="url(#trg-bal)"></path><path class="ln bal ' + tdir + '" d="' + line + '" pathLength="1"></path>';
+    var ex = X(29), ey = Y(bal[29]);
+    if (sel !== null) svg += '<line class="cross30" x1="' + X(sel).toFixed(1) + '" x2="' + X(sel).toFixed(1) + '" y1="' + top + '" y2="' + bot + '"></line><circle class="now" cx="' + X(sel).toFixed(1) + '" cy="' + Y(bal[sel]).toFixed(1) + '" r="4.5"></circle>';
+    else svg += '<circle class="now" cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="4.5"></circle>' + (endIso === t ? '<text class="now-l" x="' + (ex - 8).toFixed(1) + '" y="' + Math.max(11, ey - 9).toFixed(1) + '" text-anchor="end">Hoy</text>' : "");
+    svg += "</svg>";
+    wrap.classList.toggle("quiet", !!wrap._q); wrap._q = false;
+    var sig = "30|" + W + "|" + svg;
+    if (wrap._sig !== sig) { wrap.innerHTML = svg; wrap._sig = sig; }
+    wrap._p30 = { bal: bal, days: days, W: W };
+    function lbl(d) { return Number(d.slice(8, 10)) + " " + MESES_C[Number(d.slice(5, 7)) - 1]; }
+    var seen = false; try { seen = !!localStorage.getItem("orbe-hold-seen"); } catch (e) {}
+    $("trend-days").innerHTML = sel !== null
+      ? "<span></span><span>" + (days[sel] === t ? "Hoy" : lbl(days[sel])) + "</span><span></span>"
+      : "<span>" + lbl(days[0]) + "</span>" + (!seen ? '<span class="hold-h">Mantén presionado</span>' : "<span></span>") + "<span>" + (endIso === t ? "Hoy" : lbl(endIso)) + "</span>";
+    if (!wrap._b30) {
+      wrap._b30 = true;
+      var tm = 0, b = $("balance"), sx = 0, sy = 0;
+      var idx = function (cx) { var r = wrap.getBoundingClientRect(); return Math.max(0, Math.min(29, Math.round((cx - r.left) / r.width * 29))); };
+      var show = function (cx) {
+        var P = wrap._p30; if (!P) return; var k = idx(cx); if (k === wrap._i30 && wrap._h30) return;
+        wrap._i30 = k; wrap._q = true; drawTrend30();
+        b.innerHTML = moneyH(P.bal[k], state.disp); b.classList.toggle("is-proj", P.days[k] !== today()); scheduleFit();
+      };
+      wrap.addEventListener("pointerdown", function (e) {
+        if (state.trendMode !== "30d") return;
+        clearTimeout(tm); sx = e.clientX; sy = e.clientY; var cx = e.clientX;
+        tm = setTimeout(function () {
+          wrap._h30 = true; show(cx);
+          try { localStorage.setItem("orbe-hold-seen", "1"); } catch (x) {}
+          try { navigator.vibrate && navigator.vibrate(8); } catch (x) {}
+        }, 260);
+      });
+      wrap.addEventListener("pointermove", function (e) {
+        if (state.trendMode !== "30d") return;
+        if (wrap._h30) { if (e.cancelable) e.preventDefault(); show(e.clientX); return; }
+        if (Math.hypot(e.clientX - sx, e.clientY - sy) > 8) clearTimeout(tm);
+      });
+      // Mientras se mantiene presionado, el dedo recorre los días sin mover la página
+      wrap.addEventListener("touchmove", function (e) { if (wrap._h30 && e.cancelable) e.preventDefault(); }, { passive: false });
+      var off = function () {
+        clearTimeout(tm); if (!wrap._h30) return;
+        wrap._h30 = false; wrap._i30 = null; wrap._q = true; b.classList.remove("is-proj");
+        var cur = window.__bal; if (cur) b.innerHTML = moneyH(cur.v, cur.D);
+        scheduleFit(); drawTrend30();
+      };
+      wrap.addEventListener("pointerup", off); wrap.addEventListener("pointercancel", off); wrap.addEventListener("pointerleave", off);
+      window.addEventListener("scroll", function () { if (!wrap._h30) clearTimeout(tm); }, { passive: true });
+    }
+  }
   function drawTrend() {
     var wrap = $("trend-chart"); if (!wrap) return;
+    if (state.trendMode === "30d") { drawTrend30(); return; }
     var D = state.disp, m = state.month, q = m.split("-"), nd = new Date(Number(q[0]), Number(q[1]), 0).getDate(), t = today(), curM = t.slice(0, 7);
     var isCur = m === curM, last = isCur ? Number(t.slice(8, 10)) : m < curM ? nd : 0, mN = MESES_C[Number(q[1]) - 1];
     // Saldo de hoy en tus cuentas (sin las de ahorro), igual que el número de arriba
@@ -5613,6 +5716,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       wrap._bC = true;
       var tm = 0, b = $("balance"), sx = 0, sy = 0;
       var on = function (e) {
+        if (state.trendMode === "30d") return;
         clearTimeout(tm); sx = e.clientX; sy = e.clientY;
         tm = setTimeout(function () {
           if (wrap._end === null) return;
@@ -7766,6 +7870,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
         "set-country": '<circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"></path>',
         "set-rates": '<path d="M4 17l5-5 4 4 7-8"></path><path d="M15 8h5v5"></path>',
         "disp-row": '<circle cx="12" cy="12" r="9"></circle><path d="M14.8 9c-.5-1-1.5-1.5-2.8-1.5-1.6 0-2.8.9-2.8 2.1 0 2.8 5.6 1.5 5.6 4.3 0 1.2-1.2 2.1-2.8 2.1-1.3 0-2.4-.6-2.9-1.6M12 6v1.5M12 16.5V18"></path>',
+        "trend-row": '<path d="M3 20h18"></path><path d="M4 15l4.5-5 4 3.5L20 6"></path>',
         "tema-row": '<circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"></path>',
         "color-row": '<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.9 1.8-1.8 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-7.8-9-7.8z"></path><circle cx="7.5" cy="11" r="1"></circle><circle cx="10.5" cy="7.5" r="1"></circle><circle cx="15" cy="8" r="1"></circle>',
         "pin-when-row": '<circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2M9 2h6"></path>',
@@ -11428,6 +11533,13 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
         try { drawTrend(); } catch (e) {}
       });
     });
+    document.querySelectorAll("[data-trend-set]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        state.trendMode = b.getAttribute("data-trend-set") === "30d" ? "30d" : "mes";
+        save(); renderSettings();
+        try { var tw = $("trend-chart"); if (tw) tw._sig = ""; drawTrend(); } catch (e) {}
+      });
+    });
     document.querySelectorAll("[data-theme-set]").forEach(function (b) {
       b.addEventListener("click", function () {
         state.theme = b.getAttribute("data-theme-set");
@@ -11440,6 +11552,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     function backupDue() { return state.items.length > 0 && Date.now() - (state.backupAt || 0) > BACKUP_DAYS * 86400000; }
     function renderSetDot() { $("set-dot").hidden = !backupDue(); }
     function renderSettings() {
+      setPressed("[data-trend-set]", "data-trend-set", state.trendMode === "30d" ? "30d" : "mes");
       setPressed("[data-theme-set]", "data-theme-set", state.theme === "light" || state.theme === "dark" ? state.theme : "auto");
       var ak = state.mono ? "bn" : (state.accent || "orbe");
       document.querySelectorAll("[data-accent-set]").forEach(function (b) { b.setAttribute("aria-checked", b.getAttribute("data-accent-set") === ak ? "true" : "false"); });
