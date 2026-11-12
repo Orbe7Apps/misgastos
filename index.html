@@ -3196,6 +3196,43 @@ html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data
 .acc-list.dim .acc-chip:not([aria-pressed="true"]) { opacity: .45; }
 @media (max-width: 340px) { .acc3 .acc-sum { display: block !important; } }
 @media (prefers-reduced-motion: reduce) { .ao-col, .ao-fade { animation: none; } .ao-ring, .ao-arc, .acc-chip, .ao-mid { transition: none; } .ao-txt.in, .ao-txt.out { animation: none; } }
+/* ===== Medio orbe de Metas ===== */
+.gorb { margin: 2px 0 6px; }
+.go-body { display: grid; grid-template-columns: 37% minmax(0, 1fr); align-items: center; gap: 12px; margin-left: -16px; }
+.go-viz { position: relative; min-width: 0; }
+.go-viz svg { display: block; width: 100%; height: auto; overflow: visible; }
+.go-ring { transition: opacity .35s ease; }
+.go-arc { transition: stroke-dasharray 1.1s cubic-bezier(.32,.72,0,1), stroke-width .35s ease; }
+.go-sway { transform-origin: -28px 145px; animation: goSway var(--d) ease-in-out infinite alternate; }
+@keyframes goSway { from { transform: rotate(-2.5deg); } to { transform: rotate(2.5deg); } }
+.go-core { display: grid; justify-items: start; gap: 1px; margin: 2px 0 4px; }
+.go-k { font-size: 0.8rem; font-weight: 600; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color .3s; }
+.go-v { font-family: var(--display); font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.15; display: inline-flex; overflow: hidden; max-width: 100%; }
+.go-v.long { font-size: 1.5rem; }
+.go-dg { display: inline-block; }
+.go-dg.roll { animation: goRoll .55s cubic-bezier(.32,.72,0,1) both; animation-delay: var(--dl); }
+@keyframes goRoll { from { transform: translateY(105%); opacity: 0; } }
+.go-s { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.go-list { display: grid; gap: 6px; min-width: 0; max-height: 320px; overflow-y: auto; padding: 3px; scrollbar-width: none; }
+.go-list::-webkit-scrollbar { display: none; }
+.go-item { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 9px; border: 0; background: var(--surface); color: var(--ink); font: inherit; text-align: left; padding: 9px 12px 9px 11px; border-radius: 18px; cursor: pointer; transition: box-shadow .25s ease, opacity .25s ease; min-width: 0; -webkit-tap-highlight-color: transparent; }
+.go-item i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent); }
+.go-item > span { min-width: 0; font-size: 0.86rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.go-item small { display: block; font-size: 0.72rem; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+.go-item small b { color: var(--c); font-weight: 700; }
+.go-item[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--c); }
+.go-list.dim .go-item:not([aria-pressed="true"]) { opacity: .45; }
+.go-detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s cubic-bezier(.32,.72,0,1); }
+.go-detail.on { grid-template-rows: 1fr; }
+.go-detail > div { overflow: hidden; }
+.go-card { margin-top: 14px; background: var(--surface); border-radius: 20px; padding: 14px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.go-card > span { font-size: 0.86rem; color: var(--muted); line-height: 1.35; min-width: 0; }
+.go-card > span b { color: var(--ink); display: block; font-size: 0.95rem; }
+.go-act { border: 0; background: var(--accent); color: var(--accent-ink, #fff); font: inherit; font-size: 0.84rem; font-weight: 700; padding: 10px 15px; min-height: 38px; border-radius: 999px; cursor: pointer; white-space: nowrap; transition: transform .15s ease; }
+.go-act:active { transform: scale(.95); }
+/* El orbe reemplaza a las tarjetas: la lista vieja solo deja el botón de crear otra meta */
+#goal-list > .goal { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .go-sway, .go-dg.roll { animation: none; } .go-arc, .go-ring, .go-detail { transition: none; } }
 /* ===== Widgets de Inicio ===== */
 .wz { position: relative; }
 /* Debajo de «Tus gastos» el panel no deja margen: los widgets del final no quedan pegados */
@@ -3724,6 +3761,14 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     </div>
     <section class="panel fz-box" id="fz-box" aria-label="Bóveda"></section>
     <div class="gv-mrow"><h2 class="gv-h2 gv-mh" id="gv-metas-h">Metas</h2><button type="button" class="gs-btn" id="goal-sort" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"></path></svg>Ordenar</button></div>
+    <div class="gorb" id="gorb" hidden>
+      <div class="go-core" aria-live="polite"><span class="go-k" id="go-k"></span><span class="go-v" id="go-v"></span><span class="go-s" id="go-s"></span></div>
+      <div class="go-body">
+        <div class="go-viz"><svg id="go-svg" viewBox="0 0 120 290" aria-hidden="true"></svg></div>
+        <div class="go-list" id="go-list"></div>
+      </div>
+      <div class="go-detail" id="go-det"><div><div class="go-card"><span id="go-dt"></span><button type="button" class="go-act" id="go-db"></button></div></div></div>
+    </div>
     <div class="gv-hero" id="gv-hero">
       <div id="hero-ring"></div>
       <div class="hero-main">
@@ -5995,7 +6040,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     var list = $("goal-list"), has = state.goals.length > 0, D = state.disp;
     if ($("goal-sort")) $("goal-sort").hidden = state.goals.length < 2;
     $("goal-empty").style.display = has ? "none" : "";
-    $("gv-hero").style.display = has ? "" : "none";
+    $("gv-hero").style.display = "none";
     var bals = goalMap();
     var info = state.goals.map(function (g) {
       var bal = Math.max(0, bals[g.id] || 0), pct = g.meta > 0 ? Math.min(100, bal / g.meta * 100) : 0;
@@ -6006,6 +6051,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     info.forEach(function (o) { saved += o.sv; target += o.tg; if (o.done) doneN++; });
     $("goals-sub").textContent = has ? state.goals.length + (state.goals.length === 1 ? " meta" : " metas") + (doneN ? " · " + doneN + (doneN === 1 ? " lograda" : " logradas") : " en progreso") : "";
 
+    if (window.__goalOrb) window.__goalOrb(order0(info), saved, target, D);
     var hp = target > 0 ? Math.min(100, saved / target * 100) : 0;
     var ringHtml = '<div class="ring hero-ring"><svg viewBox="0 0 42 42" aria-hidden="true"><defs><linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:#2447d6"></stop><stop offset="1" style="stop-color:#8a3ffc"></stop></linearGradient></defs>' +
       '<circle class="trk" cx="21" cy="21" r="15.9155"></circle><circle class="bar" cx="21" cy="21" r="15.9155" style="--p:' + hp.toFixed(2) + '"></circle></svg><span class="pct">' + fmtPct(hp) + "</span></div>";
@@ -8482,6 +8528,103 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       document.addEventListener("visibilitychange", start);
       new MutationObserver(function () { if (!activeView()) start(); }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
       try { renderAccounts(); } catch (e) {}
+    })();
+    // Medio orbe de Metas (Ahorro): asoma desde el borde izquierdo, con la misma estética que el de Cuentas.
+    // Cada línea es una meta: entra ya empezada desde el borde y se llena de abajo hacia arriba; a la derecha van los nombres.
+    // Arriba va el total. Tocar una meta la elige (total, brillo y tarjeta con «Depositar»); tocarla otra vez abre la meta.
+    (function () {
+      var box = $("gorb"); if (!box) return;
+      var svg = $("go-svg"), list = $("go-list"), NS = "http://www.w3.org/2000/svg", CX = -28, CY = 145, OUT = 140, INN = 54, X0 = -14;
+      var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var rings = [], info = [], sel = null, sig = "", lastTxt = "", saved = 0, target = 0, cur = "USD";
+      // El centro queda fuera de la pantalla: las líneas entran ya empezadas desde el borde izquierdo
+      function radii(n) {
+        if (n <= 1) return { R: [OUT - 20], SW: 16 };
+        var step = Math.min(24, (OUT - INN) / (n - 1)), SW = Math.max(8, Math.min(15, step - 6));
+        var R = []; for (var i = 0; i < n; i++) R.push(OUT - i * step); return { R: R, SW: SW };
+      }
+      function path(r) { var dx = X0 - CX, dy = Math.sqrt(r * r - dx * dx); return "M" + X0 + " " + (CY + dy).toFixed(1) + " A" + r + " " + r + " 0 1 0 " + X0 + " " + (CY - dy).toFixed(1); }
+      function len(r) { return 2 * r * Math.acos((X0 - CX) / r); }
+      function dash(o) { return Math.max(0.1, o.L * Math.min(1, o.o.pct / 100)).toFixed(1) + " " + (o.L + 60).toFixed(1); }
+      function build() {
+        var top = info.slice(0, 5), rr = radii(top.length);
+        svg.innerHTML = '<defs><filter id="go-gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"></feGaussianBlur><feComponentTransfer in="b" result="s"><feFuncA type="linear" slope="0.55"></feFuncA></feComponentTransfer><feMerge><feMergeNode in="s"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter></defs>';
+        rings = [];
+        top.forEach(function (o, i) {
+          var r = rr.R[i], L = len(r), el = document.createElementNS(NS, "g");
+          el.setAttribute("class", "go-ring");
+          el.innerHTML = '<path d="' + path(r) + '" fill="none" stroke="' + o.color + '" stroke-opacity=".14" stroke-width="' + rr.SW + '" stroke-linecap="round"></path>' +
+            '<g class="go-sway" style="--d:' + (5 + i * 1.3) + 's"><path class="go-arc" d="' + path(r) + '" fill="none" stroke="' + o.color + '" stroke-width="' + rr.SW + '" stroke-linecap="round" stroke-dasharray="0 ' + (L + 60).toFixed(1) + '"></path></g>';
+          svg.appendChild(el);
+          rings.push({ id: String(o.g.id), o: o, el: el, arc: el.querySelector(".go-arc"), L: L, SW: rr.SW });
+        });
+        // Entrada: los arcos se llenan desde cero
+        if (RM) rings.forEach(function (x) { x.arc.setAttribute("stroke-dasharray", dash(x)); });
+        else requestAnimationFrame(function () { requestAnimationFrame(function () { rings.forEach(function (x) { x.arc.setAttribute("stroke-dasharray", dash(x)); }); }); });
+      }
+      // Número que rueda: cada cifra entra desde abajo, de derecha a izquierda
+      function roll(el, txt) {
+        if (state.hideSav) { el.innerHTML = mask(txt); lastTxt = ""; return; }
+        if (txt === lastTxt) return; lastTxt = txt;
+        var n = txt.length;
+        el.innerHTML = txt.split("").map(function (ch, i) { return '<span class="go-dg' + (RM ? "" : " roll") + '" style="--dl:' + ((n - 1 - i) * 30) + 'ms">' + (ch === " " ? "&nbsp;" : esc(ch)) + "</span>"; }).join("");
+      }
+      function short(v, c) { return money(v, c, Math.abs(v - Math.round(v)) < 0.005 ? 0 : 2); }
+      function etaTxt(o) {
+        var g = o.g, pace = goalPace(g, goalEvents(g), o.bal);
+        if (pace.kind === "none") return "Haz tu primer depósito para empezar";
+        if (pace.kind === "wait") return "Con otro aporte calculo tu ritmo";
+        if (pace.kind === "flat") return "Sin avance reciente";
+        if (pace.months < 1) return "A tu ritmo, este mes";
+        var ep = pace.eta.split("-"); return "A tu ritmo, en " + MESES[Number(ep[1]) - 1] + (ep[0] !== today().slice(0, 4) ? " " + ep[0] : "");
+      }
+      function paint() {
+        var o = sel == null ? null : info.filter(function (x) { return String(x.g.id) === sel; })[0];
+        if (sel != null && !o) sel = null;
+        rings.forEach(function (x) {
+          var on = sel === x.id; x.el.style.opacity = sel == null || on ? 1 : 0.22;
+          x.arc.setAttribute("stroke-width", on ? x.SW + 5 : x.SW);
+          x.arc.style.visibility = x.o.pct > 0.05 ? "" : "hidden";
+          if (on) x.arc.setAttribute("filter", "url(#go-gl)"); else x.arc.removeAttribute("filter");
+        });
+        var K = $("go-k"); K.textContent = o ? o.g.nombre : "Ahorrado"; K.style.color = o ? o.color : "";
+        var V = $("go-v"), vt = o ? money(o.bal, o.g.moneda) : money(saved, cur);
+        V.classList.toggle("long", vt.length > 10); roll(V, vt);
+        $("go-s").innerHTML = o ? fmtPct(o.pct) + " de " + mask(short(o.g.meta, o.g.moneda)) : "de " + mask(short(target, cur));
+        var h = info.map(function (x) {
+          return '<button type="button" class="go-item" data-go="' + x.g.id + '" aria-pressed="' + (sel === String(x.g.id)) + '" style="--c:' + x.color + '"><i></i><span>' + esc(x.g.nombre) +
+            "<small><b>" + (x.done ? "Lograda ✓" : fmtPct(x.pct)) + "</b>" + (x.done ? "" : '<span class="go-amt"> · ' + mask(short(x.bal, x.g.moneda)) + "</span>") + "</small></span></button>";
+        }).join("");
+        if (list._h !== h) { list.innerHTML = h; list._h = h; }
+        list.classList.toggle("dim", sel != null);
+        if (o) {
+          $("go-dt").innerHTML = "<b>" + (o.done ? "¡Meta lograda!" : "Te faltan " + mask(money(Math.max(0, o.g.meta - o.bal), o.g.moneda))) + "</b>" + (o.done ? "Toca otra vez para verla" : etaTxt(o));
+          $("go-db").textContent = o.done ? "Ver meta" : "+ Depositar";
+        }
+        $("go-det").classList.toggle("on", !!o);
+      }
+      list.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-go]"); if (!b) return;
+        var id = b.getAttribute("data-go");
+        if (sel === id) { openGd(id); return; }     // segundo toque: abre la meta
+        sel = id; paint();
+        try { navigator.vibrate && navigator.vibrate(6); } catch (x) {}
+      });
+      $("go-db").addEventListener("click", function () {
+        var o = info.filter(function (x) { return String(x.g.id) === sel; })[0]; if (!o) return;
+        if (o.done) openGd(sel); else openGm(o.g, "dep");
+      });
+      // Tocar fuera de la lista y de la tarjeta vuelve al total
+      box.addEventListener("click", function (e) { if (sel != null && !e.target.closest("[data-go], .go-card")) { sel = null; paint(); } });
+      window.__goalOrb = function (rows, sv, tg, D) {
+        info = rows; saved = sv; target = tg; cur = D;
+        box.hidden = !rows.length;
+        if (!rows.length) { sel = null; sig = ""; return; }
+        var ns = rows.slice(0, 5).map(function (x) { return x.g.id + ":" + x.color; }).join("|");
+        if (ns !== sig) { sig = ns; build(); }
+        else rings.forEach(function (x) { var n = rows.filter(function (r) { return String(r.g.id) === x.id; })[0]; if (n) { x.o = n; x.arc.setAttribute("stroke-dasharray", dash(x)); } });
+        paint();
+      };
     })();
     // Widgets de Inicio: hasta 4, en tres lugares (arriba de Cuentas, entre Cuentas y Tus gastos, al final).
     // Se eligen desde «Agregar widget» al final del Inicio y se arrastran con el dedo hasta su lugar.
