@@ -13042,6 +13042,9 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     var TOUR = [
       { tab: 0, sel: ".rate-card", alt: ".top", all: true, t: "Tasas del día", p: "Dólar BCV, euro y USDT. Se actualizan solas y te muestran si subieron ▲ o bajaron ▼." },
       { tab: 0, sel: ".bal-hero", t: "Tu saldo", p: "" },
+      { tab: 0, sel: "#trend", t: "El gráfico", p: function () { return state.trendMode === "30d"
+        ? "Tu saldo de los últimos 30 días. Mantén presionado y desliza para ver cada día. En Ajustes → Apariencia puedes cambiarlo a «Este mes», que muestra cómo terminarías el mes."
+        : "Tu saldo de este mes y, en punteado, hacia dónde vas. Mantén presionado para ver cómo terminarías el mes. En Ajustes → Apariencia puedes cambiarlo a «Últimos 30 días»."; } },
       { tab: 0, sel: '[data-panel="acc"]', t: "Tus cuentas", p: "Cuánto hay en cada cuenta. Toca una para ver sus movimientos o cuadrarla con tu banco. Con ⇄ transfieres y con + agregas otra." },
       { tab: 0, sel: '[data-panel="cat"]', t: "Tus gastos e ingresos", p: "Tus gastos por categoría. Toca una para ver cómo vas contra el mes pasado o ponerle un límite." },
       { tab: 0, sel: "#fab", t: "El botón +", p: "Tócalo para anotar un gasto o ingreso, ahorrar, usar una plantilla o abrir la calculadora.", round: true },
@@ -13159,7 +13162,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     }
     function startTour() {
       TOUR[0].p = (LOC.none ? "Euro" : "Dólar" + (LOC.src ? " " + LOC.src : "") + ", euro") + " y USDT. Se actualizan solas y te muestran si subieron ▲ o bajaron ▼." + (document.querySelector(".top.rates-off") ? " Toca la flecha de arriba para verlas." : "");
-      TOUR[1].p = function () { return "Todo el dinero que tienes hoy en tus cuentas. Toca la moneda junto al título para verlo en otra. " + (state.trendMode === "30d" ? "En el gráfico, mantén presionado y desliza el dedo para ver el saldo de cada día." : "Mantén presionado el gráfico para ver cómo terminarías el mes."); };
+      TOUR[1].p = "Todo el dinero que tienes hoy en tus cuentas. Toca la moneda junto al título para verlo en otra.";
       closeDial();
       document.querySelectorAll(".sheet-backdrop").forEach(function (x) { x.hidden = true; });
       var t = $("tour"), hole = $("tour-hole"); tour.back = false; tour.i = -1;
