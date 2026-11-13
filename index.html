@@ -3213,9 +3213,9 @@ html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data
 .go-act:not([hidden]) { animation: goPop .45s cubic-bezier(.34,1.56,.64,1) backwards; }
 .go-act:active { transform: scale(.95); }
 @keyframes goPop { from { transform: scale(.5); opacity: 0; } }
-.go-body { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; margin-left: -16px; }
-.go-viz { display: flex; min-width: 0; }
-.go-viz svg { display: block; height: 240px; width: 109px; transition: height .45s cubic-bezier(.32,.72,0,1), width .45s cubic-bezier(.32,.72,0,1); }
+.go-body { display: grid; grid-template-columns: 118px minmax(0, 1fr); align-items: center; gap: 12px; margin: 0 0 18px -16px; }
+.go-viz { display: flex; }
+.go-viz svg { display: block; flex: none; }
 .go-ring { transition: opacity .35s ease; }
 .go-arc { transition: stroke-width .35s ease; }
 .go-sway { transform-origin: -28px 145px; animation: goSway var(--d) ease-in-out infinite alternate; }
@@ -3238,8 +3238,6 @@ html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data
 @keyframes goIn { from { opacity: 0; transform: translateX(22px); } }
 .go-item i { width: 32px; height: 32px; border-radius: 11px; display: grid; place-items: center; font-style: normal; font-size: 0.68rem; font-weight: 800; color: var(--c); background: color-mix(in srgb, var(--c) 16%, var(--surface)); }
 .go-item i svg { width: 18px; height: 18px; }
-.go-item.pop i { animation: goTap .55s cubic-bezier(.34,1.56,.64,1); }
-@keyframes goTap { 35% { transform: scale(1.22) rotate(-8deg); } 70% { transform: scale(.96) rotate(3deg); } }
 .go-item > span { min-width: 0; font-size: 0.86rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .go-item small { display: block; font-size: 0.72rem; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
 .go-item small b { color: var(--c); font-weight: 700; }
@@ -3247,7 +3245,7 @@ html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data
 .go-list.dim .go-item:not([aria-pressed="true"]) { opacity: .45; }
 /* El orbe reemplaza a las tarjetas: la lista vieja solo deja el botón de crear otra meta */
 #goal-list > .goal { display: none !important; }
-@media (prefers-reduced-motion: reduce) { .go-sway, .go-dg.roll, .go-glint, .go-ring.on .go-halo, .go-list.in .go-item, .go-act:not([hidden]), .go-item.pop i { animation: none; } .go-ring, .go-viz svg { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .go-sway, .go-dg.roll, .go-glint, .go-ring.on .go-halo, .go-list.in .go-item, .go-act:not([hidden]) { animation: none; } .go-ring { transition: none; } }
 /* ===== Widgets de Inicio ===== */
 .wz { position: relative; }
 /* Debajo de «Tus gastos» el panel no deja margen: los widgets del final no quedan pegados */
@@ -3782,7 +3780,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
         <button type="button" class="go-act" id="go-db" hidden></button>
       </div>
       <div class="go-body">
-        <div class="go-viz"><svg id="go-svg" viewBox="0 0 132 290" preserveAspectRatio="xMinYMid meet" aria-hidden="true"></svg></div>
+        <div class="go-viz"><svg id="go-svg" viewBox="0 -14 132 318" preserveAspectRatio="xMinYMid meet" aria-hidden="true"></svg></div>
         <div class="go-list" id="go-list"></div>
       </div>
     </div>
@@ -8553,7 +8551,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
     (function () {
       var box = $("gorb"); if (!box) return;
       var svg = $("go-svg"), list = $("go-list"), db = $("go-db"), NS = "http://www.w3.org/2000/svg";
-      var CX = -28, CY = 145, OUT = 140, INN = 54, X0 = -14, VW = 132, VH = 290;
+      var CX = -28, CY = 145, OUT = 140, INN = 54, X0 = -14, VW = 132, VH = 318;
       var RM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
       var rings = [], info = [], sel = null, sig = "", lastTxt = "", saved = 0, target = 0, cur = "USD";
       var DEFS = '<defs><filter id="go-gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"></feGaussianBlur><feComponentTransfer in="b" result="s"><feFuncA type="linear" slope="0.55"></feFuncA></feComponentTransfer><feMerge><feMergeNode in="s"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter></defs>';
@@ -8603,16 +8601,18 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
           svg.appendChild(el);
           var x = { id: String(o.g.id), o: o, el: el, arc: el.querySelector(".go-arc"), gl: el.querySelector(".go-glint"), tip: el.querySelector(".go-tip"), L: len(r), SW: rr.SW, f: 0 };
           // Lo que queda fuera de la pantalla no cuenta: el avance se reparte en la parte que se ve
-          var l0 = 0; while (l0 < x.L / 3 && x.arc.getPointAtLength(l0).x < rr.SW * 0.75) l0 += 1.5;
+          var l0 = 0; while (l0 < x.L / 3 && x.arc.getPointAtLength(l0).x < rr.SW * 1.1 + 2) l0 += 1.5;
           x.l0 = l0; x.gl.style.setProperty("--s", l0.toFixed(1));
           rings.push(x); setF(x, frac(o));
         });
       }
       // Alto de las líneas según cuántas metas hay: sin espacio vacío arriba ni abajo
       function size() {
-        var n = info.length, H = Math.min(320, n * 47 + (n - 1) * 7 + 6), h = Math.max(260, Math.min(330, H + 100));
+        var n = info.length, H = Math.min(320, n * 47 + (n - 1) * 7 + 6), h = Math.max(230, Math.min(350, H + 100));
         h = Math.min(h, Math.round((box.clientWidth || innerWidth) * 0.36 * VH / VW));
-        svg.style.height = h + "px"; svg.style.width = (h * VW / VH).toFixed(1) + "px";
+        var w = Math.round(h * VW / VH); h = Math.round(w * VH / VW);
+        svg.setAttribute("width", w); svg.setAttribute("height", h);
+        svg.parentNode.parentNode.style.gridTemplateColumns = w + "px minmax(0, 1fr)";
       }
       // Número que rueda: cada cifra entra desde abajo, de derecha a izquierda
       function roll(el, txt) {
@@ -8671,7 +8671,6 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
         sel = id; paint();
         var x = rings.filter(function (r) { return r.id === id; })[0];
         if (x) fillTo(x, frac(x.o), 0);            // su línea se vuelve a llenar
-        b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
         try { navigator.vibrate && navigator.vibrate(6); } catch (z) {}
       });
       db.addEventListener("click", function () {
