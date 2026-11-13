@@ -3213,9 +3213,9 @@ html.mono[data-theme="dark"] :is(#hist-list .hrow[data-hid], .pay-list .pay[data
 .go-act:not([hidden]) { animation: goPop .45s cubic-bezier(.34,1.56,.64,1) backwards; }
 .go-act:active { transform: scale(.95); }
 @keyframes goPop { from { transform: scale(.5); opacity: 0; } }
-.go-body { display: grid; grid-template-columns: 118px minmax(0, 1fr); align-items: center; gap: 12px; margin: 0 0 18px -16px; }
+.go-body { display: grid; grid-template-columns: 118px minmax(0, 1fr); align-items: center; gap: 12px; margin: -6px 0 -4px -16px; }
 .go-viz { display: flex; }
-.go-viz svg { display: block; flex: none; }
+.go-viz svg { display: block; flex: none; overflow: visible; }
 .go-ring { transition: opacity .35s ease; }
 .go-arc { transition: stroke-width .35s ease; }
 .go-sway { transform-origin: -28px 145px; animation: goSway var(--d) ease-in-out infinite alternate; }
@@ -8608,7 +8608,7 @@ html.mono .w-ring, html.mono .w-av, html.mono .w-av svg { color: var(--ink) !imp
       }
       // Alto de las líneas según cuántas metas hay: sin espacio vacío arriba ni abajo
       function size() {
-        var n = info.length, H = Math.min(320, n * 47 + (n - 1) * 7 + 6), h = Math.max(230, Math.min(350, H + 100));
+        var n = info.length, H = Math.min(320, n * 47 + (n - 1) * 7 + 6), h = Math.max(200, Math.min(340, H + 80));
         h = Math.min(h, Math.round((box.clientWidth || innerWidth) * 0.36 * VH / VW));
         var w = Math.round(h * VW / VH); h = Math.round(w * VH / VW);
         svg.setAttribute("width", w); svg.setAttribute("height", h);
